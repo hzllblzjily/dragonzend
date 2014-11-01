@@ -1,0 +1,131 @@
+<?php
+
+require_once APPLICATION_PATH . '/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH . '/models/tablemodel/AdminUser.php';
+
+class AdminUsers extends We_Base_ServiceModel {
+	//column
+	public $id; 			// ID主键
+	public $userName;		// 对象用户名字
+	
+	//singleside
+	public $password;
+	
+	//readonly
+	public $role;
+	
+	//table
+// 	public $identity;
+	
+	
+	public function __construct() {
+		$this->propertyTypes ["id"] = $this->columnProperty;
+		$this->propertyTypes ["userName"] = $this->columnProperty;
+		$this->propertyTypes ["password"] = $this->singleSideProperty;
+		$this->propertyTypes ["role"] = $this->readOnlyProperty;
+		
+// 		$this->propertyTypes ["identity"] = $this->tableProperty;
+		
+		parent::__construct ();
+	}
+
+	public function login(){
+		$this->password =  md5($this->password);
+		$rows = $this->tableModel->fetchList(null,null,null,'userName = ? and userName != ? and password = ? and password != ?'
+				,array($this->userName,'',$this->password,''),null,null,null);
+		if(count($rows) > 0){
+			//登录成功
+			$admins = new AdminUsers();
+			$admins->id = $rows[0]['id'];
+			$admins = $admins->get();
+
+			return $admins;
+		}else{
+			$this->logger->log('login information error',Zend_Log::ERR);
+			throw new WeException(30101);
+		}
+		
+	}
+	
+	public function onCreate(){
+		$this->logger->log("AdminUsers->onCreate", Zend_Log::DEBUG);
+		parent::onCreate();
+		
+		$now = new Zend_Date();
+		$this->creationTime = $now->getTimestamp();
+		$this->password = md5($this->password);
+	}
+
+	public function onDelete(){
+		$this->logger->log("AdminUsers->onDelete", Zend_Log::DEBUG);
+		parent::onDelete();
+
+	}
+
+	public function onUpdate(){
+		$this->logger->log("AdminUsers->onUpdate", Zend_Log::DEBUG);
+		parent::onUpdate();
+
+	}
+
+
+	public function operationOfOtherProperty($operation){
+		$this->logger->log("AdminUsers->operationOfOtherProperty", Zend_Log::DEBUG);
+		if($operation == 'create')
+		{
+
+		}
+		else if($operation == 'update')
+		{
+
+			
+		}
+		else if($operation == 'delete')
+		{
+
+		}
+	}
+
+
+	public function setOtherPropertyForResponse($operation){
+		$this->logger->log("AdminUsers->setOtherPropertyForResponse", Zend_Log::DEBUG);
+		if($operation == 'create')
+		{
+
+		}
+		else if($operation == 'update')
+		{
+
+		}
+		else if($operation == 'delete')
+		{
+
+		}
+		else if($operation == 'get')
+		{
+
+
+		}
+		else if($operation == 'list')
+		{
+		
+		}
+
+		return $this;
+	}
+
+
+	public function hasAuthorized($bWrite){
+		$this->logger->log("AdminUsers->hasAuthorized", Zend_Log::DEBUG);
+
+		if (!$bWrite) {
+
+
+		}else{
+
+
+		}
+	}
+
+}
+?>

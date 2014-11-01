@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * Trade
+ *  
+ * @author I076198
+ * @version 
+ */
+
+require_once APPLICATION_PATH.'/models/tablemodel/We_Base_Table.php';
+class Trade extends We_Base_Table {
+	/**
+	 * The default table name
+	 */
+	public $_name = 'trade';
+	public $_primary = 'id';           
+
+}

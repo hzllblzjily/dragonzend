@@ -1,0 +1,46 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Api_Rest_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Notifications.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+
+class V1_PushController extends We_Base_Api_Rest_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+    public function pushAction(){
+        $deviceToken = $this->getRequest()->getParam("deviceToken");
+        $str = $this->getRequest()->getParam("str");
+        $count = $this->getRequest()->getParam("count");
+        $serverToken = $this->getRequest()->getParam("servertoken");
+        $type = $this->getRequest()->getParam("type");
+        $url = constant ( "APPLICATION_PATH" ) . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'application.ini';
+        $serverconfig = new Zend_Config_Ini ( $url, "servercommunication" );
+        $serverconfig = $serverconfig->toArray ();
+        $servertokenInCfg = $serverconfig['servertoken'];
+        if($servertokenInCfg != $serverToken){
+        	$this->logger->log("unexpected error in servertoken = ".$serverToken,Zend_Log::ERR);
+        	exit();
+        }
+        if($type == '用户'){
+            CommonHelper::send($str, $deviceToken, $count, true);
+        }else{
+            CommonHelper::sendlawyer($str, $deviceToken, $count, true);
+        }
+
+        
+    }
+
+}
+	
+?>

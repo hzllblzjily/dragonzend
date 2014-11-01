@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<!-- 
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.1.1
+Version: 2.0.2
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+<meta charset="utf-8"/>
+<title>法律问问管理平台</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<!-- BEGIN GLOBAL MANDATORY STYLES -->
+<link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+<!-- END GLOBAL MANDATORY STYLES -->
+<!-- BEGIN PAGE LEVEL PLUGIN STYLES -->
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-select/bootstrap-select.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/select2/select2.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/jquery-multi-select/css/multi-select.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css"/>
+
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/clockface/css/clockface.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-colorpicker/css/colorpicker.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/>
+<!-- END PAGE LEVEL PLUGIN STYLES -->
+<!-- BEGIN THEME STYLES -->
+<link href="/assets/global/css/components.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/layout/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color"/>
+<link href="/assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
+<!-- END THEME STYLES -->
+<link rel="shortcut icon" href="favicon.ico"/>
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+<!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+<!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+<!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+<!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+<!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+<!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+<body class="page-header-fixed ">
+<!-- BEGIN HEADER -->
+<div class="page-header navbar navbar-fixed-top">
+	<!-- BEGIN HEADER INNER -->
+	<div class="page-header-inner">
+		<!-- BEGIN LOGO -->
+		<div class="page-logo">
+			<a href="/console/index">
+			<img src="/assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/>
+			</a>
+			<div class="menu-toggler sidebar-toggler hide">
+				<!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
+			</div>
+		</div>
+		<!-- END LOGO -->
+		<!-- BEGIN RESPONSIVE MENU TOGGLER -->
+		<div class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+		</div>
+		<!-- END RESPONSIVE MENU TOGGLER -->
+		<!-- BEGIN TOP NAVIGATION MENU -->
+		<div class="top-menu">
+			<ul class="nav navbar-nav pull-right">
+				<!-- END TODO DROPDOWN -->
+				<!-- BEGIN USER LOGIN DROPDOWN -->
+				<li class="dropdown dropdown-user">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+					<?php if($this->logo != null){
+					   echo'<img alt="" style="width:28px;height:28px;" class="img-circle" src="'.$this->logo.'"/>';
+					}?>
+
+					<span class="username">
+					<?php echo $this->currentAdmin->userName?> </span>
+					<i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu" id="dropdown-container">
+					</ul>
+				</li>
+				<!-- END USER LOGIN DROPDOWN -->
+			</ul>
+		</div>
+		<!-- END TOP NAVIGATION MENU -->
+	</div>
+	<!-- END HEADER INNER -->
+</div>
+<!-- END HEADER -->
+<div class="clearfix">
+</div>
+<!-- BEGIN CONTAINER -->
+<div class="page-container">
+	<!-- BEGIN SIDEBAR -->
+	<div class="page-sidebar-wrapper">
+		<!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+		<!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+		<div class="page-sidebar navbar-collapse collapse">
+			<!-- BEGIN SIDEBAR MENU -->
+			<ul class="page-sidebar-menu" data-auto-scroll="false" data-auto-speed="200" id="sidebar-container">
+				<!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
+				<li class="sidebar-toggler-wrapper" style="margin-bottom:12px;">
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+					<div class="sidebar-toggler">
+					</div>
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+				</li>
+			</ul>
+			<!-- END SIDEBAR MENU -->
+		</div>
+	</div>
+	<!-- END SIDEBAR -->
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<div class="page-content" id="content">
+			<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+
+			<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+			<!-- BEGIN STYLE CUSTOMIZER -->
+
+			<!-- BEGIN PAGE CONTENT-->
+			<h3 class="page-title">
+			新建题库
+			</h3>
+			<hr>
+						<div class="portlet-body form">
+							<!-- BEGIN FORM-->
+							<form action="/robot/addquestion" class="activity-basic-form form-horizontal" name ="myform" id = "myform" method="post" enctype="multipart/form-data">
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">提问类型<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<select class="form-control" name = "type" id = "type" onChange="changeCity()">
+												<option>刑事辩护、自诉</option>
+												<option>海商事纠纷</option>
+												<option>合同纠纷、物权所有权纠纷</option>
+												<option>侵权责任纠纷、交通事故、人身损害赔偿、消费者权益保护</option>
+												<option>婚姻继承、收养抚养、监护</option>
+												<option>劳动法、劳动合同、劳动人事争议、社会保险</option>
+												<option>企业公司治理、股权、解散、清算、破产</option>
+												<option>知识产权（著作权、商标权、专利权）</option>
+												<option>企业并购、重组、上市</option>
+												<option>金融、票据、保险</option>
+												<option>证券、期货、信托</option>
+												<option>不正当竞争纠纷、反垄断、反倾销、反补贴、贸易争端解决</option>
+												<option>IT与电子商务</option>
+												<option>尽职调查、见证、法律意见书、法律文书</option>
+												<option>行政诉讼、复议、动拆迁</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">提问内容<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<input type="text" name = 'content' class="form-control" placeholder="" value = "" >
+										</div>
+									</div>
+								</div>
+								
+
+								
+								<div class="form-actions fluid nobg">
+									<div class="col-md-offset-3 col-md-9">
+										<button type="submit" class="btn blue"><i class="fa fa-check"></i> 新建 </button>
+										<button type="button" class="btn default" style="margin-left:12px;" onclick = "javascript:history.go(-1)"> 取消 </button>
+									</div>
+								</div>
+							</form>
+							<!-- END FORM-->
+						</div>
+			<!-- END PAGE CONTENT-->
+		</div>
+	</div>
+	<!-- END CONTENT -->
+</div>
+<!-- END CONTAINER -->
+<!-- BEGIN FOOTER -->
+<div class="page-footer">
+	<div class="page-footer-inner">
+		 2014 &copy; rxt_project.
+	</div>
+	<div class="page-footer-tools">
+		<span class="go-top">
+		<i class="fa fa-angle-up"></i>
+		</span>
+	</div>
+</div>
+<!-- END FOOTER -->
+<!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+<!-- BEGIN CORE PLUGINS -->
+<!--[if lt IE 9]>
+   <script src="/assets/global/plugins/respond.min.js"></script>
+   <script src="/assets/global/plugins/excanvas.min.js"></script> 
+   <![endif]-->
+<script src="/assets/global/plugins/jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+<!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+<script src="/assets/global/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<!-- END CORE PLUGINS -->
+<!-- BEGIN PAGE LEVEL PLUGINS -->
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/select2/select2.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/jquery-multi-select/js/jquery.multi-select.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/jquery-validation/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/clockface/js/clockface.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-daterangepicker/moment.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<!-- END PAGE LEVEL PLUGINS -->
+<!-- BEGIN PAGE LEVEL SCRIPTS -->
+<script src="/assets/global/scripts/metronic.js" type="text/javascript"></script>
+<script src="/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
+<script src="/assets/admin/pages/scripts/components-pickers.js"></script>
+<script src="/assets/admin/pages/scripts/activity.js" type="text/javascript"></script>
+<script src="/assets/admin/pages/scripts/sidebarGeneration.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL SCRIPTS -->
+<script>
+jQuery(document).ready(function() {    
+	Metronic.init();
+ 	//document.getElementById("content").style.minHeight = window.screen.availHeight-46 + "px";
+ 	Layout.init();
+ 	//ComponentsPickers.init();
+ 	ActivityUpdate.init();
+ 	//resetTime();
+ 	//resetGrabTicketTime();
+ 	//resetVoteTime();
+   // sidebar init 
+   setHome(0,0);
+
+			<?php 
+			$currentAdminInfo = AuthenticationMgr::getAuthInfo();
+				if($currentAdminInfo->role == 1){
+			    echo 'setAudit(0,0);setSyetemConfig(0,0);setReportFeedback(0,0);setRobot(1,0);setTotal(0,0);';
+			} ?>
+
+			<?php if($currentAdminInfo->role == 2){
+			    echo 'setAudit(0,0);setSyetemConfig1(0,0);setReportFeedback1(0,0);setRobot1(1,0);setTotal1(0,0);';
+			} ?>
+
+			<?php 
+				echo 'setSuperDropmenu();';    
+			?>
+
+});
+
+
+
+</script>
+<!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

@@ -1,0 +1,75 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Backend_Action_Controller.php';
+// require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+// require_once APPLICATION_PATH.'/helpers/ListContentWrapper.php';
+// require_once APPLICATION_PATH.'/helpers/CountWrapper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+// require_once APPLICATION_PATH.'/models/servicemodel/AdminUsers.php';
+
+class ConnectionController extends We_Base_Backend_Action_Controller
+{
+	public function init()
+	{
+		$this->isUseSessionContext = false;
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+	
+	public function enterloginAction(){
+		$this->renderScript("/connection/login.phtml");
+	}
+	
+	public function loginAction(){
+		
+		Zend_Session::start();
+		
+		$userName = $this->getRequest()->getParam('userName');
+		$password = $this->getRequest()->getParam('password');
+		
+		try {
+			$this->dbAdapter->beginTransaction();
+			$adminUsers = new AdminUsers();
+			$adminUsers->userName = $userName;
+			$adminUsers->password = $password;
+			$adminUsers = $adminUsers->login();
+			
+
+			//放入session
+			$adminSession = new Zend_Session_Namespace(ADMIN_SESSION_NAMESPACE);
+			$sessionContext = new AdminSessionContext();
+			$currentUserInfo = new CurrentAdminInfo();
+			$currentUserInfo->uid = $adminUsers->uid;
+			$currentUserInfo->userName = $adminUsers->userName;
+			$currentUserInfo->role = $adminUsers->role;
+			$sessionContext->currentAdminInfo = $currentUserInfo;
+			$adminSession->ADMIN_SESSION_CONTEXT = $sessionContext;
+			
+			$this->dbAdapter->commit();
+			
+			$this->redirect("/dashboard/console/");
+		}catch (RxtException $e) { 
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    
+			$this->dbAdapter->rollback();
+			$e = new RxtException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+
+	}
+	
+	//重新发送验证码
+	public function logoutAction(){
+		Zend_Session::start();
+		Zend_Session::destroy();
+		
+		$this->redirect("/connection/enterlogin");
+	}
+}
+	
+?>

@@ -1,0 +1,514 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Attachments.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerCollections.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/tablemodel/Lawyer.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Lawyers extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $userName;
+    public $officeName;
+    public $city1;
+    public $city2;
+    public $avatar_id;
+    public $contactTelPhone;
+    public $address;
+    public $zipCode;
+    public $email;
+    public $minPrice;
+    public $word;
+    public $special1;
+    public $special2;
+    public $isApproved;
+    public $certificateImage_id;
+
+
+    
+    //table
+    public $password;
+    public $idCardNumber;  //身份证号码
+    public $token;
+    public $deviceToken;
+    public $device;   //Iphone或Android
+    public $telPhone;
+    public $forgetpasswdIdentifier;
+    public $resetPasswdInvalidTime;
+    public $disabled_flag;
+    public $approvedAt;
+    public $special1Changed;
+    public $special2Changed;
+    public $beCalledNumber;         //被打电话的次数,不暴露
+
+    
+    //aggregation
+    public $avatarOriginUrl;
+    public $avatarMediumUrl;
+    public $avatarThumbUrl;
+    public $certificateImageOriginUrl;
+    public $certificateImageMediumUrl;
+    public $certificateImageThumbUrl;
+    
+ 
+    
+    public $userSatisfyTradeNumber;   //多少次委托服务达到预期
+    public $totalTradeNumber;     //总共多少次委托服务
+    public $collectionNumber;     //被收藏次数
+    public $questionAnswerNumber;   //被解答次数
+    public $tradeTotalMoney;      //累计经费
+    public $careerYear;           //职业年限
+    public $remarkCountNumber;     //被评论次数
+    public $isYourCollection;     //是否被收藏
+    
+
+    //readonly
+    public $gender;
+    public $birthday;
+    public $lawyerRegCode;    //职业证号码
+
+    
+
+	public function __construct()
+	{
+	    parent::__construct();
+	        
+		$this->propertyTypes["id"] = $this->columnProperty;
+		$this->propertyTypes["userName"] = $this->columnProperty;
+		$this->propertyTypes["officeName"] = $this->columnProperty;
+        $this->propertyTypes["contactTelPhone"] = $this->columnProperty;
+        $this->propertyTypes["avatar_id"] = $this->columnProperty;
+        $this->propertyTypes["minPrice"] = $this->columnProperty;
+        $this->propertyTypes["word"] = $this->columnProperty;
+        $this->propertyTypes["special1"] = $this->columnProperty;
+        $this->propertyTypes["special2"] = $this->columnProperty;
+        $this->propertyTypes["city1"] = $this->columnProperty;
+        $this->propertyTypes["city2"] = $this->columnProperty;
+        $this->propertyTypes["address"] = $this->columnProperty;
+        $this->propertyTypes["zipCode"] = $this->columnProperty;
+        $this->propertyTypes["email"] = $this->columnProperty;
+        $this->propertyTypes["isApproved"] = $this->columnProperty;
+        $this->propertyTypes["certificateImage_id"] = $this->columnProperty;
+        $this->propertyTypes["collectionNumber"] = $this->columnProperty;
+        $this->propertyTypes["questionAnswerNumber"] = $this->columnProperty;
+
+        
+        $this->propertyTypes["beCalledNumber"] = $this->tableProperty;
+        $this->propertyTypes["special1Changed"] = $this->tableProperty;
+        $this->propertyTypes["special2Changed"] = $this->tableProperty;
+        $this->propertyTypes["idCardNumber"] = $this->tableProperty;
+		$this->propertyTypes["password"] = $this->tableProperty;
+		$this->propertyTypes["token"] = $this->tableProperty;
+		$this->propertyTypes["deviceToken"] = $this->tableProperty;
+		$this->propertyTypes["device"] = $this->tableProperty;
+		$this->propertyTypes["telPhone"] = $this->tableProperty;
+		$this->propertyTypes["forgetpasswdIdentifier"] = $this->tableProperty;
+		$this->propertyTypes["resetPasswdInvalidTime"] = $this->tableProperty;
+		$this->propertyTypes["disabled_flag"] = $this->tableProperty;
+		$this->propertyTypes["approvedAt"] = $this->tableProperty;
+		
+		
+		
+		$this->propertyTypes["avatarOriginUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["avatarMediumUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["avatarThumbUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["certificateImageOriginUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["certificateImageMediumUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["certificateImageThumbUrl"] = $this->aggregationProperty;
+		
+		$this->propertyTypes["userSatisfyTradeNumber"] = $this->aggregationProperty;
+		$this->propertyTypes["totalTradeNumber"] = $this->aggregationProperty;
+
+		$this->propertyTypes["tradeTotalMoney"] = $this->aggregationProperty;
+		$this->propertyTypes["careerYear"] = $this->aggregationProperty;
+		$this->propertyTypes["isYourCollection"] = $this->aggregationProperty;
+		$this->propertyTypes["remarkCountNumber"] = $this->aggregationProperty;
+		
+		
+		
+		$this->propertyTypes["gender"] = $this->readOnlyProperty;
+		$this->propertyTypes["birthday"] = $this->readOnlyProperty;
+		$this->propertyTypes["lawyerRegCode"] = $this->readOnlyProperty;
+
+
+	}
+	
+	public function setOtherPropertyForResponse($operation){
+	    parent::setOtherPropertyForResponse($operation);
+		if($operation != 'delete'){
+
+		    
+		    if($this->avatar_id != null){
+		        $this->avatarOriginUrl = Attachments::getAttachmentUrl($this->avatar_id, 1);
+		        $this->avatarMediumUrl = Attachments::getAttachmentUrl($this->avatar_id, 2);
+		        $this->avatarThumbUrl = Attachments::getAttachmentUrl($this->avatar_id, 3);
+		    }
+
+		    if($this->certificateImage_id != null){
+		    	$this->certificateImageOriginUrl = Attachments::getAttachmentUrl($this->certificateImage_id, 1);
+		    	$this->certificateImageMediumUrl = Attachments::getAttachmentUrl($this->certificateImage_id, 2);
+		    	$this->certificateImageThumbUrl = Attachments::getAttachmentUrl($this->certificateImage_id, 3);
+		    }
+		    
+		    $lawyerCollections = new LawyerCollections();
+		    if(AuthenticationMgr::isApiModule()){
+		        $token = AuthenticationMgr::getAuthInfo();
+		        $user_id = Users::getUserIdByToken($token);
+		        if($user_id == 0){
+		            $this->isYourCollection = 0;
+		        }else{
+		            $count =  $lawyerCollections->tableModel->count(null,null,"lawyer_id=? and user_id=?",array($this->id,$user_id));
+		            if($count  == 0){
+		                $this->isYourCollection = 0;
+		            }else{
+		                $this->isYourCollection = 1;
+		            }
+		        }
+
+		    }else{
+		        $this->isYourCollection = 0;
+		    }
+
+		    
+
+		     
+		    $year = substr($this->lawyerRegCode, 5,4);
+		    $nowYear = date('Y',time());
+		    $nowYear=intval($nowYear);
+		    $this->careerYear = $nowYear - $year + 1;
+		    
+		    
+		}
+		return $this;
+	}
+	
+	
+	public function onGet()
+	{
+		parent::onGet();
+	}
+
+	public function afterGet()
+	{
+		parent::afterGet();
+		if($this->disabled_flag == 0 && $this->isApproved == 1){
+			return $this;
+		}
+			
+		//看权限
+		$users = $this->checkDirtyPermission();
+	
+		return $users;
+	}
+	
+
+	
+	
+	public function onCreate()
+	{
+		parent::onCreate();
+
+		if($this->telPhone == null || (!Verification::varifyTelPhone($this->telPhone))){
+			$this->logger->log('telPhone is invalid = '.$this->telPhone,Zend_Log::ERR);
+			throw new WeException(20207);
+		}
+		if($this->password == null){
+			$this->logger->log('password is invalid = '.$this->password,Zend_Log::ERR);
+			throw new WeException(20208);
+		}
+		
+		//手机号唯一
+		$rows = $this->tableModel->fetchList(null,null,null,'telPhone=? and telPhone != ?',array($this->telPhone,''), null, null, null,true);
+		if(count($rows) > 0){
+			$this->logger->log('telPhone is repeated = '.$this->telPhone,Zend_Log::ERR);
+			throw new WeException(20210);
+		}
+		
+
+		$this->isApproved = 0;
+        
+        $special1Valid = false;
+        $special2Valid = false;
+        $specialArrays = Lawyers::getSpecialArray();
+        foreach ($specialArrays as $key=>$value){
+            if($value == $this->special1){
+                $special1Valid = true;
+                break;
+            }
+        }
+        foreach ($specialArrays as $key=>$value){
+        	if($value == $this->special2){
+        		$special2Valid = true;
+        		break;
+        	}
+        }
+        
+        if(!$special1Valid || !$special2Valid){
+            $this->logger->log("special is invalid,special1 = ".$this->special1." special2 = ".$this->special2,Zend_Log::ERR);
+            throw new WeException(20244);
+        }
+		
+		//昵称唯不能为空
+		if($this->userName == null){
+		    $this->logger->log('userName is null',Zend_Log::ERR);
+		    throw new WeException(20209);
+		}
+		
+
+		
+		if($this->device != null && $this->device != 'Iphone' && $this->device != 'Android'){
+		    $this->logger->log('device is invalid  = '.$this->device,Zend_Log::ERR);
+		    throw new WeException(20221);
+		}
+		
+		//密码外部加密好
+
+		
+		
+		if($this->gender == null){
+		    $this->logger->log('gender should not be empty',Zend_Log::ERR);
+		    throw new WeException(20217);
+		}
+
+		
+		//职业号check
+		Lawyers::checkLawyerRegCodeValid($this->lawyerRegCode);
+		
+		//查看职业号唯一性
+		AuthenticationMgr::$isActAsRoot = true;
+		$count = $this->tableModel->count(null,null,"lawyerRegCode = ?",array($this->lawyerRegCode));
+        if($count > 0 ){
+            $this->logger->log('lawyerRegCode already exist',Zend_Log::ERR);
+            throw new WeException(20242);
+        }
+        AuthenticationMgr::$isActAsRoot = false;
+        
+        
+		$token = CommonHelper::create_uuid();
+		$this->token = $token;
+		
+		$rows = $this->tableModel->fetchList(null,null,null,'token=? ',array($this->token), null, null, null,true);
+		if(count($rows) > 0){
+			$this->logger->log('token is repeated unexpectedly',Zend_Log::ERR);
+			throw new WeException(20202);
+		}
+		
+
+		$this->contactTelPhone = $this->telPhone;
+
+	}
+	
+	
+	
+	public function operationOfOtherProperty($operation)
+	{
+	   parent::operationOfOtherProperty($operation);
+	   if($operation == 'create'){
+
+	   }
+	   if($operation == 'update'){
+	       if($this->fromType == 'setcurrentuserinfo'){
+	          
+	       }
+	   }
+	  
+	}
+	
+	
+	
+	public function onUpdate()
+	{
+		parent::onUpdate();
+		
+		//昵称唯不能为空
+		if($this->userName == null){
+		    $this->logger->log('userName is null',Zend_Log::ERR);
+		    throw new WeException(20209);
+		}
+		
+		//手机号不能修改
+		$oldTelPhone = $this->snapshotColumnPropertyValues['telPhone'];
+		if($oldTelPhone != $this->telPhone){
+			$this->logger->log("telPhone should not be changed to ".$this->telPhone.' when update',Zend_Log::ERR);
+			throw new WeException(20211);
+		}
+
+
+		
+		
+		
+		if($this->gender == null){
+			$this->logger->log('gender should not be empty',Zend_Log::ERR);
+			throw new WeException(20217);
+		}
+		
+		
+		if($this->device != null && $this->device != 'Iphone' && $this->device != 'Android'){
+			$this->logger->log('device is invalid  = '.$this->device,Zend_Log::ERR);
+			throw new WeException(20221);
+		}
+		
+		//专业修改只能一次
+		$oldSpecial1 = $this->snapshotColumnPropertyValues['special1'];
+		$oldSpecial2 = $this->snapshotColumnPropertyValues['special2'];
+		
+		if($oldSpecial1 != $this->special1){
+		    $this->logger->log('change special1 old = '.$oldSpecial1." new = ".$this->special1,Zend_Log::INFO);
+		    if( $this->special1Changed == 1){
+		    	$this->logger->log('special1 has been changed',Zend_Log::ERR);
+		    	throw new WeException(20243);
+		    }else{
+		        $this->special1Changed = 1;
+		    }
+		    
+		    $special1Valid = false;
+		    $specialArrays = Lawyers::getSpecialArray();
+		    foreach ($specialArrays as $key=>$value){
+		    	if($value == $this->special1){
+		    		$special1Valid = true;
+		    		break;
+		    	}
+		    }
+		    
+		    if(!$special1Valid){
+		    	$this->logger->log("special is invalid,special1 = ".$this->special1." special2 = ".$this->special2,Zend_Log::ERR);
+		    	throw new WeException(20244);
+		    }
+		}
+		
+		if($oldSpecial2 != $this->special2){
+		    $this->logger->log('change special2 old = '.$oldSpecial2." new = ".$this->special2,Zend_Log::INFO);
+			if( $this->special2Changed == 1){
+				$this->logger->log('special2 has been changed',Zend_Log::ERR);
+				throw new WeException(20243);
+			}else{
+				$this->special2Changed = 1;
+			}
+			
+			$special2Valid = false;
+			$specialArrays = Lawyers::getSpecialArray();
+			foreach ($specialArrays as $key=>$value){
+				if($value == $this->special2){
+					$special2Valid = true;
+					break;
+				}
+			}
+			
+			if(!$special2Valid){
+				$this->logger->log("special is invalid,special1 = ".$this->special1." special2 = ".$this->special2,Zend_Log::ERR);
+				throw new WeException(20244);
+			}
+			
+		}
+		
+		
+		
+		
+	}
+	
+	public function onDelete()
+	{
+		parent::onDelete();
+	}
+	
+	
+
+	
+	public function beforeSetOtherOperationForResponse($oldObject){
+
+	}
+	
+	
+	public static function getLawyerIdByToken($token){
+	    if($token == null){
+	        return 0;
+	    }
+	    $lawyer = new Lawyer();
+	    $rows = $lawyer->fetchList(array('id','token'), null, null, "token = ? and token != ?", array($token,''), null, null, null);
+	    if(count($rows)<=0){
+	        return 0;
+	    }else{
+	        $id = $rows[0]["id"];
+	        return $id;
+	    }
+	}
+	
+
+	
+	public static function encryptPassword($str){
+		$entryPasswd = password_hash($str, PASSWORD_DEFAULT);
+		return $entryPasswd;
+	}
+	
+	public static function verifyPassword($str,$encrptPassword){
+		if(password_verify($str,$encrptPassword)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	
+	public static function getSpecialArray(){
+	    return array("刑事辩护、自诉","海商事纠纷","合同纠纷、物权所有权纠纷","侵权责任纠纷、交通事故、人身损害赔偿、消费者权益保护","婚姻继承、收养抚养、监护",
+	               "劳动法、劳动合同、劳动人事争议、社会保险","企业公司治理、股权、解散、清算、破产","知识产权（著作权、商标权、专利权）",
+	               "企业并购、重组、上市","金融、票据、保险","证券、期货、信托","不正当竞争纠纷、反垄断、反倾销、反补贴、贸易争端解决",
+	               "IT与电子商务","尽职调查、见证、法律意见书、法律文书","行政诉讼、复议、动拆迁");
+	}
+	
+	
+	public static function checkLawyerRegCodeValid($regCode){
+	    if(preg_match("/[^\d-., ]/",$regCode))
+	    {
+	    	//不是数字
+	    	throw new WeException(20238);
+	    	
+	    }
+	    //是数字
+	    //判断是否17位
+	    if(strlen($regCode) != 17){
+	        throw new WeException(20245);
+	    }
+	    
+	    $year = substr($regCode, 5,4);
+	    $nowYear = date('Y',time());
+	    $nowYear=intval($nowYear);
+	    if($nowYear - $year + 1 <= 2)
+	    {
+	        //年份不到
+	        throw new WeException(20239);
+	    }
+
+	    
+	}
+	
+
+	
+	
+	public function checkDirtyPermission(){
+		if(AuthenticationMgr::$isActAsRoot){
+			return $this;
+		}
+		if(AuthenticationMgr::isApiModule()){
+			return null;
+		}else if(AuthenticationMgr::isBackendModule()){
+	
+			//backend module登录上来即有权限
+			return $this;
+		}
+	
+		return null;
+	}
+	
+	
+}
+
+
+?>

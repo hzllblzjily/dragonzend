@@ -1,0 +1,901 @@
+<?php
+require_once APPLICATION_PATH.'/controllers/We_Base_Api_Rest_Controller.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Problems.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Remarks.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserRegs.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/Constant.php';
+require_once APPLICATION_PATH.'/helpers/CurlHelper/CurlHelper.php';
+require_once APPLICATION_PATH.'/helpers/CurlHelper/CurlRequest.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyerinboxs.php';
+
+
+function sortByLastTime($a,$b){
+   $valueA = $a["sortValue"];
+   $valueB = $b["sortValue"];
+   if($valueA == $valueB){
+       return 0;
+   }else if($valueA < $valueB){
+       return 1;
+   }else{
+       return -1;
+   }
+}
+
+class V1_ProblemsController extends We_Base_Api_Rest_Controller{
+
+	public function init(){
+		parent::init();
+	}
+	
+	
+	
+	//律师查询最近评论过的问题,按最后一条的评论时间排序
+	public function listlatestreplyproblemAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$lawyer_id = $this->validLayerLogin();
+	    	$page = $this->getRequest()->getParam("page");
+	    
+	    	if($page == null){
+	    		$page = 1;
+	    	}
+	    	$top = 20;
+	    	$skip = ($page-1)*$top;
+	    	 
+	    	 
+	    	$problems = new Problems();
+
+	    
+	    	$rows = $problems->tableModel->fetchList(null,null,null,"answer1_lawyer_id = ? or answer2_lawyer_id = ? or answer3_lawyer_id = ?",
+	    			array($lawyer_id,$lawyer_id,$lawyer_id), null, null, null);
+	    	
+	    	foreach($rows as $key=> &$value)
+	    	{
+	    	    if($value['answer1_lawyer_id'] == $lawyer_id){
+	    	        $value["sortValue"] = $value["answer1_last_time"];
+	    	    }else if($value['answer2_lawyer_id'] == $lawyer_id){
+	    	        $value["sortValue"] = $value["answer2_last_time"];
+	    	    }else if($value['answer3_lawyer_id'] == $lawyer_id){
+	    	        $value["sortValue"] = $value["answer3_last_time"];
+	    	    } 
+	    	}
+	    	
+	    	//排序
+	        usort($rows, "sortByLastTime");
+	        $rows = array_slice($rows, $skip,$top);
+	    	$returnResultSet = array();
+	    	$i = 0;
+	    	foreach($rows as $key=>&$value)
+	    	{
+	    		$returnServiceModel = new Problems();
+	    		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+	    		$returnServiceModel->setOtherPropertyForResponse('list');
+	    		$returnServiceModel->unsetNotExposeProperty();
+	    		$returnResultSet[$i] = $returnServiceModel;
+	    		$i++;
+	    	}
+	    	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+	    	echo $stringValue;
+	    	exit();
+	    
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	
+	//用户查询自己对某个问题的评论
+	public function userlistremarkAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$user_id = $this->validLogin();
+	    	$problem_id = $this->getRequest()->getParam("problem_id");
+	    	$page = $this->getRequest()->getParam("page");
+            
+	    	if($page == null){
+	    	    $page = 1;
+	    	}
+	    	$top = 1;
+	    	$skip = ($page-1)*$top;
+	    	 
+	    
+	    	$problems = new Problems();
+	    	$problems->id = $problem_id;
+	    	$problems = $problems->get();
+	    	if($problems == null){
+	    	    throw new WeException(20103);
+	    	}
+	    	if($problems->creator != $user_id){
+	    	    echo "[]";
+	    	    exit();
+	    	    //$this->logger->log("problem creator and select is not valid",Zend_Log::ERR);
+	    	    //throw new WeException(20271);
+	    	}
+	    	 
+	    	 
+
+	    	$remarks = new Remarks();
+	    	$rows = $remarks->tableModel->fetchList(null,null,null,"(creator=? and creatorType=? and problem_id = ?) or (creatorType = ? and problem_id = ? and ref_remark_id in (select id from remark where creator=? and creatorType=? )) or
+	    	                    (creatorType=? and ref_remark_id = ? and problem_id = ?)",
+	    	                  array($user_id,"用户",$problem_id,"律师",$problem_id,$user_id,"用户","律师",0,$problems->id), "id DESC", $top, $skip);
+	    	
+	    	$returnResultSet = array();
+	    	$i = 0;
+	    	foreach($rows as $key=>$value)
+	    	{
+	    		$returnServiceModel = new Remarks();
+	    		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+	    		$returnServiceModel->setOtherPropertyForResponse('list');
+	    		$returnServiceModel->unsetNotExposeProperty();
+	    		$returnResultSet[$i] = $returnServiceModel;
+	    		$i++;
+	    	}
+	    	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+	    	echo $stringValue;
+	    	exit();
+	    	
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	
+	//律师查询自己对某个问题的评论(含抢答）
+	public function lawyerlistremarkAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$lawyer_id = $this->validLayerLogin();
+	    	$problem_id = $this->getRequest()->getParam("problem_id");
+	    	$page = $this->getRequest()->getParam("page");
+	    
+	    	if($page == null){
+	    		$page = 1;
+	    	}
+	    	$top = 1;
+	    	$skip = ($page-1)*$top;
+	    	 
+	    	 
+	    	$problems = new Problems();
+	    	$problems->id = $problem_id;
+	    	$problems = $problems->get();
+	    	if($problems == null){
+	    		throw new WeException(20103);
+	    	}
+	    	
+	    	//是否抢答了该问题
+	    	if($problems->answer1_lawyer_id != $lawyer_id &&
+               $problems->answer2_lawyer_id != $lawyer_id &&
+               $problems->answer3_lawyer_id != $lawyer_id ){
+	    		//$this->logger->log("not answer the question yet",Zend_Log::ERR);
+	    		echo "[]";
+	    		exit();
+	    	}
+	    
+	    	 
+
+	    	$remarks = new Remarks();
+	    	$rows = $remarks->tableModel->fetchList(null,null,null,"(creator=? and creatorType=? and problem_id=?) or (creatorType = ? and problem_id = ? and ref_remark_id in (select id from remark where creator=? and creatorType=? ))",
+	    			array($lawyer_id,"律师",$problem_id,"用户",$problem_id, $lawyer_id,"律师"), "id DESC", $top, $skip);
+	    
+	    	$returnResultSet = array();
+	    	$i = 0;
+	    	foreach($rows as $key=>$value)
+	    	{
+	    		$returnServiceModel = new Remarks();
+	    		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+	    		$returnServiceModel->setOtherPropertyForResponse('list');
+	    		$returnServiceModel->unsetNotExposeProperty();
+	    		$returnResultSet[$i] = $returnServiceModel;
+	    		$i++;
+	    	}
+	    	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+	    	echo $stringValue;
+	    	exit();
+	    
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	//律师回复用户
+	public function lawyerremarkAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$lawyer_id = $this->validLayerLogin();
+	    	$ref_remark_id = $this->getRequest()->getParam("ref_remark_id");
+	    	$content = $this->getRequest()->getParam("content");
+	    
+	    	if($content == null){
+	    		throw new WeException(20268);
+	    	}
+	    
+	    	
+	    	//回复条目是否存在
+	    	$remarks = new Remarks();
+	    	$remarks->id = $ref_remark_id;
+	    	$remarks = $remarks->get();
+	    	if($remarks == null){
+	    		throw new WeException(20103);
+	    	}
+	    	if($remarks->creatorType != '用户'){
+	    		throw new WeException(20270);
+	    	}
+	    
+	    	//回复问题是否由该律师抢答
+	    	$problems = new Problems();
+	    	$problems->id = $remarks->problem_id;
+	    	$problems = $problems->get();
+	    	if($problems->answer1_lawyer_id != $lawyer_id &&
+               $problems->answer2_lawyer_id != $lawyer_id &&
+               $problems->answer3_lawyer_id != $lawyer_id ){
+	    		$this->logger->log("not answer the question yet",Zend_Log::ERR);
+	    		throw new WeException(20269);
+	    	}
+	    
+	    
+	    	//更新最后一条更新时间
+	    	if($problems->answer1_lawyer_id == $lawyer_id ){
+	    	    $problems->answer1_last_time = time();
+	    	    $problems->update();
+	    	}else if($problems->answer2_lawyer_id == $lawyer_id ){
+	    	    $problems->answer2_last_time = time();
+	    	    $problems->update();
+	    	}else if($problems->answer3_lawyer_id == $lawyer_id ){
+	    	    $problems->answer3_last_time = time();
+	    	    $problems->update();
+	    	}
+	    	 
+	    	//插入remark数据库
+	    	$remarks = new Remarks();
+	    	$remarks->creator = $lawyer_id;
+	    	$remarks->creatorType = "律师";
+	    	$remarks->content = $content;
+	    	$remarks->ref_remark_id = $ref_remark_id;
+	    	$remarks->problem_id = $problems->id;
+	    	$remarks = $remarks->create();
+	    	 
+	    	$this->dbAdapter->commit();
+	    	$stringValue = $remarks->jsonEncode();
+	    	echo $stringValue;
+	    	exit();
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	//用户回复律师
+	public function userremarkAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$user_id = $this->validLogin();
+	    	$ref_remark_id = $this->getRequest()->getParam("ref_remark_id");
+	    	$content = $this->getRequest()->getParam("content");
+	    	
+	    	if($content == null){
+	    	    throw new WeException(20268);
+	    	}
+	    	
+	    	//回复条目是否存在
+	    	$remarks = new Remarks();
+	    	$remarks->id = $ref_remark_id;
+	    	$remarks = $remarks->get();
+	    	if($remarks == null){
+	    	    throw new WeException(20103);
+	    	}
+	    	if($remarks->creatorType != '律师'){
+	    	    throw new WeException(20270);
+	    	}
+	    	
+	    	//回复问题是否属于用户
+	    	$problems = new Problems();
+	    	$problems->id = $remarks->problem_id;
+	    	$problems = $problems->get();
+	    	if($problems->creator != $user_id){
+	    	    $this->logger->log("problem creator not equal to current user",Zend_Log::ERR);
+	    	    throw new WeException(20267);
+	    	}
+	    	
+        
+	    	 
+	    	//插入remark数据库
+	    	$remarks = new Remarks();
+	    	$remarks->creator = $user_id;
+	    	$remarks->creatorType = "用户";
+	    	$remarks->content = $content;
+	    	$remarks->ref_remark_id = $ref_remark_id;
+	    	$remarks->problem_id = $problems->id;
+	    	$remarks = $remarks->create();
+	    
+	    	$this->dbAdapter->commit();
+	    	$stringValue = $remarks->jsonEncode();
+	    	echo $stringValue;
+	    	exit();
+	    
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	
+	//抢答提交
+    public function answerAction(){
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	$lawyer_id = $this->validLayerLogin();
+        	$problem_id = $this->getRequest()->getParam("problem_id");
+        	$content = $this->getRequest()->getParam("content");
+        	$problems = new Problems();
+        	$problems->id = $problem_id;
+        	$problems = $problems->get(true);
+        	if($problems->status == 3){
+        		//已经完成抢答
+        		$this->logger->log("status = 3,problem_id = ".$problem_id,Zend_Log::ERR);
+        		throw new WeException(20261);
+        	}else if($problems->status == 4){
+        		//不能抢答
+        		$this->logger->log("status = 4,problem_id = ".$problem_id,Zend_Log::ERR);
+        		throw new WeException(20262);
+        	}else if($problems->status == 2){
+        		//已经进入了抢答，更新数据库
+        	    
+        	    if($problems->seat1_lawyer_id == $lawyer_id){
+        	        $problems->seat1_lawyer_id = -1;
+        	        $problems->answer1_lawyer_id = $lawyer_id;
+        	        $problems->answer1_time = time();
+        	        $problems->answer1_last_time = time();
+        	    	 
+        	    }else if($problems->seat2_lawyer_id == $lawyer_id){
+
+        	        $problems->seat2_lawyer_id = -1;
+        	        $problems->answer2_lawyer_id = $lawyer_id;
+        	        $problems->answer2_time = time();
+        	        $problems->answer2_last_time = time();
+        	    }else if($problems->seat3_lawyer_id == $lawyer_id){
+        	        $problems->seat2_lawyer_id = -1;
+        	        $problems->answer2_lawyer_id = $lawyer_id;
+        	        $problems->answer2_time = time();
+        	        $problems->answer2_last_time = time();
+        	    }else{
+        	        throw new WeException(20263);
+        	    }
+        	    $problems = $problems->update();
+        	    
+        	}else if($problems->status == 1){
+        		//还未进入抢答
+                 throw new WeException(20265);
+        	}else{
+        		$this->logger->log("status = ".$problems->status.",problem_id = ".$problem_id,Zend_Log::ERR);
+        		throw new WeException(20263);
+        	}
+        	
+        	//插入remark数据库
+        	$remarks = new Remarks();
+        	$remarks->creator = $lawyer_id;
+        	$remarks->creatorType = "律师";
+        	$remarks->content = $content;
+        	$remarks->ref_remark_id = 0;
+        	$remarks->problem_id = $problems->id;
+        	$remarks = $remarks->create();
+        	 
+        	$this->dbAdapter->commit();
+        	$stringValue = $remarks->jsonEncode();
+        	echo $stringValue;
+        	exit();
+        	 
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+    
+    //进入抢答
+	public function checkanswervalidAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$lawyer_id = $this->validLayerLogin();
+	    	$problem_id = $this->getRequest()->getParam("problem_id");
+	    	$problems = new Problems();
+	    	$problems->id = $problem_id;
+	    	$problems = $problems->get(true);
+	    	if($problems->status == 3){
+	    	    //已经完成抢答
+	    	    $this->logger->log("status = 3,problem_id = ".$problem_id,Zend_Log::ERR);
+	    	    throw new WeException(20261);
+	    	}else if($problems->status == 4){
+	    	    //不能抢答
+	    	    $this->logger->log("status = 4,problem_id = ".$problem_id,Zend_Log::ERR);
+	    	    throw new WeException(20262);
+	    	}else if($problems->status == 2){
+	    	    //已经进入了抢答，不用更新数据库
+	    	}else if($problems->status == 1){
+	    	    //可以进入抢答
+	    	    //判断该律师是否有其他正在抢答问题
+	    	    $inProblems = Problems::getSeatProblem(false, $lawyer_id);
+	    	    if($inProblems != null){
+	    	        if($inProblems->id == $problem_id){
+	    	            $this->logger->log("inproblem is equal to the problem id,problem_id = ".$problem_id,Zend_Log::ERR);
+	    	            throw new WeException(20263);
+	    	        }else{
+	    	            $this->logger->log("already answer the in problem id = ".$inProblems->id,Zend_Log::ERR);
+	    	            throw new WeException(20264);
+	    	        }
+	    	    }
+	    	    
+	    	    if($problems->answerSeatNumber == 1){
+	    	        $problems->seat1_lawyer_id = $lawyer_id;
+	    	        $problems->seat1_time = time();
+	    	        $problems = $problems->update();
+	    	    }else if($problems->answerSeatNumber == 2){
+	    	        $problems->seat2_lawyer_id = $lawyer_id;
+	    	        $problems->seat2_time = time();
+	    	        $problems = $problems->update();
+	    	    }else if($problems->answerSeatNumber == 3){
+	    	        $problems->seat3_lawyer_id = $lawyer_id;
+	    	        $problems->seat3_time = time();
+	    	        $problems = $problems->update();
+	    	    }else{
+	    	        $this->logger->log("answer seat number = ".$problems->answerSeatNumber.",problem_id = ".$problem_id,Zend_Log::ERR);
+	    	        throw new WeException(20263);
+	    	    }
+	    	}else{
+	    	    $this->logger->log("status = ".$problems->status.",problem_id = ".$problem_id,Zend_Log::ERR);
+	    	    throw new WeException(20263);
+	    	}
+	    	
+	    
+	    	$this->dbAdapter->commit();
+	    	$stringValue = $problems->jsonEncode();
+	    	echo $stringValue;
+	    	exit();
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	
+	//创建问题
+	public function postAction()
+	{
+
+	    parent::postAction();
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$content = $this->getRequest()->getParam("content");
+	    	$creator = $this->validLogin();
+	    	$special = $this->getRequest()->getParam("special");
+	    	$city1 = $this->getRequest()->getParam("city1");
+	    	$city2 = $this->getRequest()->getParam("city2");
+	    	$imageSize = $this->getRequest()->getParam("imageSize");
+	    	if($content == null || $creator == null || $special == null ||
+            $city1 == null || $city2 == null){
+	    	    $this->logger->log("information is not complete when create problems",Zend_Log::ERR);
+	    	    throw new WeException(20254);
+	    	}
+	    	if($imageSize == null){
+	    	    $imageSize = 0;
+	    	}
+	    
+	    	$problems = new Problems();
+	    	$problems->content = $content;
+	    	$problems->creator = $creator;
+	    	$problems->special = $special;
+	    	$problems->city1 = $city1;
+	    	$problems->city2 = $city2;
+	    
+	    	$problems = $problems->create();
+
+	    
+	    	//查看图片信息
+	    	if($imageSize > 0){
+	    	    for($index = 0; $index < $imageSize; $index++){
+	    	        $imageKey = "image".$index;
+	    	        //头像信息
+	    	        //判断http request中是否有file
+	    	        if (!isset ( $_FILES [$imageKey] ['name'] ) || !isset ( $_FILES [$imageKey] ['tmp_name'] ) ||
+	    	        !isset ( $_FILES [$imageKey] ['type'] ) || !isset ( $_FILES [$imageKey] ['size'] ) ||
+	    	        !isset ( $_FILES [$imageKey] ['error'] ) ) {
+	    	             throw new WeException(20255);
+	    	        }else{
+	    	        	//判断是否有传输错误
+	    	        	if ( $_FILES [$imageKey] ['error'] != 0) {
+	    	        		//$iconImage =  $_FILES ['image'];
+	    	        		$this->logger->log('file transfer failed error = '.$_FILES['image']['error'], Zend_Log::ERR);
+	    	        		$e = new WeException(20502);
+	    	        		throw $e;
+	    	        	}
+	    	        		
+	    	        	$image =  $_FILES [$imageKey];
+	    	        	//判断大小是否超过规定 10M
+	    	        	if ( $image['size'] > MAX_FILE_UPLOAD_SIZE || $image['size'] < 0) {
+	    	        		$this->logger->log('file size is too big', Zend_Log::ERR);
+	    	        		$e = new WeException(20503);
+	    	        		throw $e;
+	    	        
+	    	        	}
+	    	        	//不能上传空文件
+	    	        	if ( $image['size'] == 0) {
+	    	        		$this->logger->log('file size is equal to zero', Zend_Log::ERR);
+	    	        		$e = new WeException(20504);
+	    	        		throw $e;
+	    	        	}
+	    	        
+	    	        	//判断图片类型是否符合规则
+	    	        	if ($image['type'] != 'image/jpeg' && $image['type'] != 'image/jpg' && $image['type'] != 'image/png') {
+	    	        		$this->logger->log('file type is illegal = '.$image['type'], Zend_Log::ERR);
+	    	        		$e = new WeException(20505);
+	    	        		throw $e;
+	    	        	}
+	    	        
+	    	        	//获取文件信息
+	    	        	$fileDir = $image['tmp_name'];
+	    	        	$fileType = $image['type'];
+	    	        	$fileSize = $image['size'];
+	    	        	$fileName = $image['name'];
+	    	        
+	    	        
+	    	        	//调用servicemodel将图片插入数据库
+	    	        	$attach = new Attachments();
+	    	        	$attach = $attach->uploadFile($fileDir, $fileType, $fileName, $fileSize, "problems", $problems->id);
+	    	        
+	    	        
+	    	        }
+	    	    }
+	    	}
+	    	$problemsReturn = new Problems();
+	    	$problemsReturn->id = $problems->id;
+	    	$problemsReturn = $problemsReturn->get();
+	    	$this->dbAdapter->commit();
+	    	
+	    	//发送异步request给分发CONTROLLER
+	    	$url = constant ( "APPLICATION_PATH" ) . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'application.ini';
+	    	$serverconfig = new Zend_Config_Ini ( $url, "servercommunication" );
+	    	$serverconfig = $serverconfig->toArray ();
+	    	$servertoken = $serverconfig['servertoken'];
+	    	
+	    	$urlConfig = new Zend_Config_Ini ( $url, "server" );
+	    	$urlConfig = $urlConfig->toArray ();
+	    	$apiUrl = $urlConfig['apidomainName'];
+	    	CommonHelper::curl_post_async_form($apiUrl."v1/problems/broadcast", "problem_id=".$problems->id."&servertoken=".$servertoken);
+	    	
+	    	$stringValue = $problemsReturn->jsonEncode();
+	    	echo $stringValue;
+	    	
+	    	exit();
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	public function broadcastAction(){
+	    $serverToken = $this->getRequest()->getParam("servertoken");
+	    $problem_id = $this->getRequest()->getParam("problem_id");
+	    
+	    $url = constant ( "APPLICATION_PATH" ) . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'application.ini';
+	    $serverconfig = new Zend_Config_Ini ( $url, "servercommunication" );
+	    $serverconfig = $serverconfig->toArray ();
+	    $servertokenInCfg = $serverconfig['servertoken'];
+	    if($servertokenInCfg != $serverToken){
+	        $this->logger->log("unexpected error in servertoken = ".$serverToken,Zend_Log::ERR);
+	        exit();
+	    }
+	    
+	    try
+	    {
+	        //不启事务
+	    	//$this->dbAdapter->beginTransaction();
+	    
+	    	$problems = new Problems();
+	    	$problems->id = $problem_id;
+	    
+	    	$problems = $problems->get();
+	    	if($problems == null){
+	    		$this->logger->log("problem is not exist id = ".$problem_id,Zend_Log::ERR);
+	    		throw new WeException(20103);
+	    	}
+	    
+	    	//首先判断有无城市和专业都满足的律师
+	    	$lawyers = new Lawyers();
+	    	$problemSpecial = $problems->special;
+	    	$city1 = $problems->city1;
+	    	$city2 = $problems->city2;
+	    	$rows = array();
+	    	if($problemSpecial == "未知"){
+	    	    $rows = $lawyers->tableModel->fetchList(null,null,null,"city1=? and city2=?",array($city1,$city2), null, null, null);
+	    	    
+	    	}else{
+	    	    $rows = $lawyers->tableModel->fetchList(null,null,null,"city1=? and city2=? and (special1=? or special2=?)",array($city1,$city2,$problemSpecial,$problemSpecial), null, null, null);
+	    	}
+	    	if(count($rows) > 0){
+	    	    //命中，推送
+	    	    foreach($rows as $key=>$value){
+	    	        $lawyerId = $value['id'];
+	    	        $deviceToken = $value['deviceToken'];
+	    	        $layerInbox = new Lawyerinboxs();
+	    	        $layerInbox->lawyer_id = $lawyerId;
+	    	        $layerInbox->problem_id = $problem_id;
+	    	        $layerInbox->create();
+	    	        if($deviceToken != null){
+	    	            CommonHelper::sendlawyer("有人提了一个新的问题，快去看看吧！", $deviceToken, 1, false);
+	    	        }
+
+	    	        //插通知中心，待实现
+	    	    }
+	    	    exit();
+	    	}
+	    	
+	    	//没命中，寻找对应专业但城市不对的律师
+	    	if($problemSpecial == "未知"){
+	    		$rows = $lawyers->tableModel->fetchList(null,null,null,"city1 != ? and city2 != ?",array($city1,$city2), null, null, null);
+	    	
+	    	}else{
+	    		$rows = $lawyers->tableModel->fetchList(null,null,null,"city1 != ? and city2 != ? and (special1=? or special2=?)",array($city1,$city2,$problemSpecial,$problemSpecial), null, null, null);
+	    	}
+	    	
+	    	if(count($rows) > 0){
+	    		//命中，推送
+	    	    foreach($rows as $key=>$value){
+	    	    	$lawyerId = $value['id'];
+	    	    	$deviceToken = $value['deviceToken'];
+	    	    	$layerInbox = new Lawyerinboxs();
+	    	    	$layerInbox->lawyer_id = $lawyerId;
+	    	    	$layerInbox->problem_id = $problem_id;
+	    	    	$layerInbox->create();
+	    	    	if($deviceToken != null){
+	    	            CommonHelper::sendlawyer("有人提了一个新的问题，快去看看吧！", $deviceToken, 1, false);
+	    	        }
+	    	    	//插通知中心，待实现
+	    	    }
+	    		exit();
+	    	}
+	    	//没命中，全网推送
+	    	$rows = $lawyers->tableModel->fetchList(null,null,null,null,null,null,null,null);
+	    	
+	    	foreach($rows as $key=>$value){
+	    		$lawyerId = $value['id'];
+	    		$deviceToken = $value['deviceToken'];
+	    		$layerInbox = new Lawyerinboxs();
+	    		$layerInbox->lawyer_id = $lawyerId;
+	    		$layerInbox->problem_id = $problem_id;
+	    		$layerInbox->create();
+	    		if($deviceToken != null){
+	    			CommonHelper::sendlawyer("有人提了一个新的问题，快去看看吧！", $deviceToken, 1, false);
+	    		}
+	    		//插通知中心，待实现
+	    	}
+	    	exit();
+	    	
+
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	    
+	    
+	}
+	
+	public function countunreadproblemAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$lastUpdateTime = $this->getRequest()->getParam("lastupdatetime");
+	    	if($lastUpdateTime == null){
+	    	    $lastUpdateTime = 0;
+	    	}
+	    	$lawyer_id = $this->validLayerLogin();
+	    	 
+	    	$lawyerinboxs = new Lawyerinboxs();
+	    	$count = $lawyerinboxs->tableModel->count(null,null,"lawyer_id = ? and createdAt >= ?",array($lawyer_id,$lastUpdateTime));
+	    	//$count = 100;
+            $returnArr = array("count"=>$count);
+
+	        
+        	$stringValue = json_encode($returnArr, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        	echo $stringValue;
+        	exit();
+        	
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	public function lawyerlistbyhomeAction(){
+
+
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$page = $this->getRequest()->getParam("page");
+	        $lawyer_id = $this->validLayerLogin();
+	        
+	        if($page == null){
+	            $page = 1;
+	        }
+	        if($page == 1){
+	            //先列出正在抢答的问题
+	            $problemsInAnswer = Problems::getSeatProblem(false, $lawyer_id);
+	        }
+	        $top = 20;
+	        $skip = ($page - 1) * $top;
+	        
+	        $problems = new Problems();
+            $selectArr = $problems->getSelectedArrayByAlias("p");
+            if($problemsInAnswer != null){
+                $rows = $problems->tableModel->fetchList($selectArr,"p","inner join lawyer_inbox i on p.id = i.problem_id ","i.lawyer_id = ? and p.id != ?",array($lawyer_id,$problemsInAnswer->id), "p.id DESC", $top, $skip);
+            }else{
+                $rows = $problems->tableModel->fetchList($selectArr,"p","inner join lawyer_inbox i on p.id = i.problem_id ","i.lawyer_id = ?",array($lawyer_id), "p.id DESC", $top, $skip);
+            }
+
+	        	
+        	$returnResultSet = array();
+        	if($problemsInAnswer == null){
+        	    $i = 0;
+        	}else{
+        	    $returnResultSet[] = $problemsInAnswer;
+        	    $i = 1;
+        	}
+
+        	foreach($rows as $key=>$value)
+        	{
+        		$returnServiceModel = new Problems();
+        		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+        		$returnServiceModel->setOtherPropertyForResponse('list');
+        		$returnServiceModel->unsetNotExposeProperty();
+        		$returnResultSet[$i] = $returnServiceModel;
+        		$i++;
+        	}
+        	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        	echo $stringValue;
+        	exit();
+        	
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	    
+	}
+	
+
+	
+	
+	public function getAction(){
+		parent::getAction();
+	
+		
+		try
+		{
+			//$this->dbAdapter->beginTransaction();
+			$problemId = $this->getRequest()->getParam("id");
+	
+			$problems = new Problems();
+			$problems->id = $problemId;
+	
+			$problems = $problems->get();
+			if($problems == null){
+				$this->logger->log("problem is not exist id = ".$problemId,Zend_Log::ERR);
+				throw new WeException(20103);
+			}
+			 
+			$stringValue = $problems->jsonEncode();
+			echo $stringValue;
+			exit();
+		}catch (WeException $e) { //首先捕获weRxtException
+			//$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			//$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	
+	}
+	
+	//用户查询自己提过的所有问题
+	public function indexAction(){
+		try
+		{
+			//$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam("page");
+			$user_id = $this->validLogin();
+	        if($page == null){
+	            $page = 1;
+	        }
+	        $top = 20;
+	        $skip = ($page - 1) * $top;
+
+			$problems = new Problems();
+			$rows = $problems->tableModel->fetchList(null, null, null, "creator=?", array($user_id), "id DESC", $top, $skip);
+
+	
+			$returnResultSet = array();
+			$i = 0;
+			foreach($rows as $key=>$value)
+			{
+				$returnServiceModel = new Problems();
+				$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+				$returnServiceModel->setOtherPropertyForResponse('list');
+				$returnServiceModel->unsetNotExposeProperty();
+				$returnResultSet[$i] = $returnServiceModel;
+				$i++;
+			}
+			$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+			echo $stringValue;
+			exit();
+			 
+		}catch (WeException $e) { //首先捕获weRxtException
+			//$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			//$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+}

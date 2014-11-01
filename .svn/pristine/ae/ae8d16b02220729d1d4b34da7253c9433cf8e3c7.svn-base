@@ -1,0 +1,94 @@
+<?php
+require_once APPLICATION_PATH.'/controllers/We_Base_Api_Rest_Controller.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Problems.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserRegs.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/Constant.php';
+require_once APPLICATION_PATH.'/helpers/CurlHelper/CurlHelper.php';
+require_once APPLICATION_PATH.'/helpers/CurlHelper/CurlRequest.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+class V1_ProblemsController extends We_Base_Api_Rest_Controller{
+
+	public function init(){
+		parent::init();
+	}
+	
+	
+	
+	public function getAction(){
+		parent::getAction();
+	
+		try
+		{
+			//$this->dbAdapter->beginTransaction();
+			$problemId = $this->getRequest()->getParam("id");
+	
+			$problems = new Problems();
+			$problems->id = $problemId;
+	
+			$problems = $problems->get();
+			if($problems == null){
+				$this->logger->log("problem is not exist id = ".$problemId,Zend_Log::ERR);
+				throw new WeException(20103);
+			}
+			 
+			$stringValue = $problems->jsonEncode();
+			echo $stringValue;
+			exit();
+		}catch (WeException $e) { //首先捕获weRxtException
+			//$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			//$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	
+	}
+	public function indexAction(){
+		try
+		{
+			//$this->dbAdapter->beginTransaction();
+			$keyword = $this->getRequest()->getParam("keyword");
+	
+			if($keyword == null){
+				echo "[]";
+				exit();
+			}
+			$user = new User();
+			if(Verification::varifyTelPhone($keyword)){
+				//搜电话号码
+				$rows = $user->fetchList(null, null, null, "telPhone=?", array($keyword), null, null, null);
+			}else{
+				//搜昵称
+				$rows = $user->fetchList(null, null, null, "userName like ?", array('%'.$keyword.'%'), null, null, null);
+			}
+			 
+	
+			$returnResultSet = array();
+			$i = 0;
+			foreach($rows as $key=>$value)
+			{
+				$returnServiceModel = new Users();
+				$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+				$returnServiceModel->setOtherPropertyForResponse('list');
+				$returnServiceModel->unsetNotExposeProperty();
+				$returnResultSet[$i] = $returnServiceModel;
+				$i++;
+			}
+			$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+			echo $stringValue;
+			exit();
+			 
+		}catch (WeException $e) { //首先捕获weRxtException
+			//$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			//$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+}

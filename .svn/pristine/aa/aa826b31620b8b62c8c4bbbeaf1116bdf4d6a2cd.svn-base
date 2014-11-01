@@ -1,0 +1,124 @@
+<?php
+
+
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/Social/WeiboHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Problems extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $content;
+    public $creator;
+    public $creationTime;
+    public $special;
+    public $city1;
+    public $city2;
+    
+    //table
+    public $answer1_lawyer_id;
+    public $answer1_time;
+    public $answer2_lawyer_id;
+    public $answer2_time;
+    public $answer3_lawyer_id;
+    public $answer3_time;
+    
+    public $seat1_lawyer_id;
+    public $seat1_time;
+    public $seat2_lawyer_id;
+    public $seat2_time;
+    public $seat3_lawyer_id;
+    public $seat3_time;
+    
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    	$this->propertyTypes["content"] = $this->columnProperty;
+    	$this->propertyTypes["creator"] = $this->columnProperty;
+    	$this->propertyTypes["creationTime"] = $this->columnProperty;
+    	$this->propertyTypes["special"] = $this->columnProperty;
+    	$this->propertyTypes["city1"] = $this->columnProperty;
+    	$this->propertyTypes["city2"] = $this->columnProperty;
+    	
+    	$this->propertyTypes["answer1_lawyer_id"] = $this->tableProperty;
+    	$this->propertyTypes["answer1_time"] = $this->tableProperty;
+    	$this->propertyTypes["answer2_lawyer_id"] = $this->tableProperty;
+    	$this->propertyTypes["answer2_time"] = $this->tableProperty;
+    	$this->propertyTypes["answer3_lawyer_id"] = $this->tableProperty;
+    	$this->propertyTypes["answer3_time"] = $this->tableProperty;
+    	
+    	$this->propertyTypes["seat1_lawyer_id"] = $this->tableProperty;
+    	$this->propertyTypes["seat1_time"] = $this->tableProperty;
+    	$this->propertyTypes["seat2_lawyer_id"] = $this->tableProperty;
+    	$this->propertyTypes["seat2_time"] = $this->tableProperty;
+    	$this->propertyTypes["seat3_lawyer_id"] = $this->tableProperty;
+    	$this->propertyTypes["seat3_time"] = $this->tableProperty;
+    	 
+    	
+
+
+    
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+    	$users = new Users();
+    	$users->id = $this->creator;
+    	$users = $users->get();
+    	if($users == null){
+    	    $this->logger->log("creator not exist id = ".$this->creator,Zend_Log::ERR);
+    	    throw new WeException(20253);
+    	}
+
+
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

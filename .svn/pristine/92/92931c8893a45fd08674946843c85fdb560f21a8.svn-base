@@ -1,0 +1,273 @@
+<?php
+
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+
+function customError($err_level,$errstr,$error_file,$error_line){
+	$logger = Zend_Registry::get('log');
+	$logger->log("err_level=".$err_level."errstr=".$errstr."error_file=".$error_file."error_line=".$error_line,Zend_Log::CRIT);
+}
+
+class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
+{
+    public function __construct($application)
+    {
+    	parent::__construct($application);
+    	$this->initDateTime();
+    	$this->initApplicationConstance();
+    	$this->initLog();
+    	$this->initDB();
+    	$this->initModule();
+        $this->initRouter();
+
+    }
+    
+    public function initModule(){
+        $url = constant("APPLICATION_PATH").DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'application.ini';
+        $moduleconfig = new Zend_Config_Ini($url, "module");
+        $moduleconfig = $moduleconfig->toArray();
+        $moduleName = $moduleconfig['name'];
+        Zend_Registry::set('moduleName',$moduleName);
+        
+        if($moduleName == 'api'){
+            //api model设置auth_token
+            //$header = HttpHelper::getHttpHeader();
+            if(array_key_exists("token", $_GET)){
+                $token = $_GET['token'];
+            }else{
+                $token = null;
+            }
+            
+            if($token != null){
+                Zend_Registry::set('Auth-Token', $token);
+            }
+            
+//             if(array_key_exists('Auth-Token',$header)){
+//             	$token = $header['Auth-Token'];
+//             	Zend_Registry::set('Auth-Token', $token);
+//             }
+        }
+        
+    }
+   
+    
+    public function initApplicationConstance()
+    {
+    	//define("ADMIN_SESSION_NAMESPACE", "ADMIN_SESSION_NAMESPACE");
+    	//define('ADMIN_SESSION_CONTEXT', 'ADMIN_SESSION_CONTEXT');
+    }
+    public function initDateTime()
+    {
+    	date_default_timezone_set("UTC");
+    	//date_default_timezone_set("Asia/Shanghai");
+    	
+
+    }
+    public function initLog()
+    {
+    	$url = constant("APPLICATION_PATH").DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'application.ini';
+    	$loggerconfig = new Zend_Config_Ini($url, "logger");
+    		
+    	$loggerconfig = $loggerconfig->toArray();
+    	$logFile = $loggerconfig['dir'];
+    	$curLogDir = $loggerconfig['dir'].date('Ym');
+    		
+    		
+    	if( !is_dir( $curLogDir ) ){
+    		try {
+    			mkdir( $curLogDir , 0777);
+    		} catch (Exception $e) {
+    			echo nl2br($e->__toString());
+    			exit();
+    		}
+    	}
+    	$logFile = $logFile.date('Ym').'/'.date('d').'.txt';
+    	$writer = new Zend_Log_Writer_Stream( $logFile );
+    		
+    	$format = '%timestamp% %priorityName% (%priority%): %message% [%controller%]-[%action%]-[%servicemodel%]'. PHP_EOL;
+    		
+    	$formatter = new Zend_Log_Formatter_Simple($format);
+    		
+    	$writer->setFormatter($formatter);
+    		
+    	$logger = new Zend_Log($writer);
+    		
+    	$logger->addFilter((int)$loggerconfig['priority']);
+    		
+    	Zend_Registry::set('log',$logger);
+    }
+    
+    //初始化DB链接
+    public function initDB()
+    {
+
+    	$url = constant("APPLICATION_PATH").DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'application.ini';
+    	$dbconfig = new Zend_Config_Ini($url, "mysql");
+    	$db = Zend_Db::factory( $dbconfig->db );
+    	
+    	$db->query('SET NAMES UTF8MB4');
+    	Zend_Db_Table::setDefaultAdapter($db);
+    	Zend_Registry::set('dbAdapter',$db);
+    	
+    }
+
+    
+    public function initRouter()
+    {
+        $this->initRestRouter();
+
+        if(AuthenticationMgr::isApiModule()){
+            $this->initAPIRouter();
+        }else if(AuthenticationMgr::isBackendModule()){
+            $this->initBackendRouter();
+        }else if(AuthenticationMgr::isEasemobModule()){
+            $this->initEasemobRouter();
+        }
+
+        $this->initCommonRouter();
+
+    }
+    
+    public function initCommonRouter(){
+        $frontController = Zend_Controller_Front::getInstance();
+        
+        $frontController->getRouter()->addRoute('file/download',
+        		new Zend_Controller_Router_Route('file/download',array("controller"=>"file","action"=>"download")));
+        $frontController->getRouter()->addRoute('file/upload',
+        		new Zend_Controller_Router_Route('file/upload',array("controller"=>"file","action"=>"upload")));
+    }
+    
+    
+    private function initRestRouter(){
+        $this->bootstrap('frontController');
+        $frontController = Zend_Controller_Front::getInstance();
+        $restRoute = new Zend_Rest_Route($frontController);
+        $frontController->getRouter()->addRoute('rest', $restRoute);
+        
+        
+    }
+    
+    
+    private function initAPIRouter(){
+        $frontController = Zend_Controller_Front::getInstance();
+        $apps=array(
+                'default'=>APPLICATION_PATH.'/modules/default/controllers',
+        		'v1'=>APPLICATION_PATH.'/modules/v1/controllers'
+                
+        );
+        $frontController->setControllerDirectory($apps);
+        
+        //下面一个接口是测试用
+
+        
+        $frontController->getRouter()->addRoute('v1/users/register',
+        		new Zend_Controller_Router_Route('v1/users/register',array("module"=>"v1","controller"=>"users","action"=>"register")));
+        $frontController->getRouter()->addRoute('v1/users/nearby',
+        		new Zend_Controller_Router_Route('v1/users/nearby',array("module"=>"v1","controller"=>"users","action"=>"nearby")));
+        $frontController->getRouter()->addRoute('v1/users/chatserver',
+        		new Zend_Controller_Router_Route('v1/users/chatserver',array("module"=>"v1","controller"=>"users","action"=>"chatserver")));
+        $frontController->getRouter()->addRoute('v1/users/login',
+        		new Zend_Controller_Router_Route('v1/users/login',array("module"=>"v1","controller"=>"users","action"=>"login")));
+        $frontController->getRouter()->addRoute('v1/users/logout',
+        		new Zend_Controller_Router_Route('v1/users/logout',array("module"=>"v1","controller"=>"users","action"=>"logout")));
+
+        $frontController->getRouter()->addRoute('v1/users/getidentifier',
+        		new Zend_Controller_Router_Route('v1/users/getidentifier',array("module"=>"v1","controller"=>"users","action"=>"getidentifier")));
+        
+        $frontController->getRouter()->addRoute('v1/users/valididentifier',
+        		new Zend_Controller_Router_Route('v1/users/valididentifier',array("module"=>"v1","controller"=>"users","action"=>"valididentifier")));
+        $frontController->getRouter()->addRoute('v1/users/getcurrentuserinfo',
+        		new Zend_Controller_Router_Route('v1/users/getcurrentuserinfo',array("module"=>"v1","controller"=>"users","action"=>"getcurrentuserinfo")));
+        $frontController->getRouter()->addRoute('v1/users/setcurrentuser',
+        		new Zend_Controller_Router_Route('v1/users/setcurrentuser',array("module"=>"v1","controller"=>"users","action"=>"setcurrentuser")));
+        $frontController->getRouter()->addRoute('v1/users/resetpasswd',
+        		new Zend_Controller_Router_Route('v1/users/resetpasswd',array("module"=>"v1","controller"=>"users","action"=>"resetpasswd")));
+        $frontController->getRouter()->addRoute('v1/users/forgetpasswd',
+        		new Zend_Controller_Router_Route('v1/users/forgetpasswd',array("module"=>"v1","controller"=>"users","action"=>"forgetpasswd")));
+        $frontController->getRouter()->addRoute('v1/users/changepasswd',
+        		new Zend_Controller_Router_Route('v1/users/changepasswd',array("module"=>"v1","controller"=>"users","action"=>"changepasswd")));
+        $frontController->getRouter()->addRoute('v1/users/bindweibo',
+        		new Zend_Controller_Router_Route('v1/users/bindweibo',array("module"=>"v1","controller"=>"users","action"=>"bindweibo")));
+        $frontController->getRouter()->addRoute('v1/users/registerbyweibo',
+        		new Zend_Controller_Router_Route('v1/users/registerbyweibo',array("module"=>"v1","controller"=>"users","action"=>"registerbyweibo")));
+        $frontController->getRouter()->addRoute('v1/users/checkweibo',
+        		new Zend_Controller_Router_Route('v1/users/checkweibo',array("module"=>"v1","controller"=>"users","action"=>"checkweibo")));
+        $frontController->getRouter()->addRoute('v1/users/updateavatar',
+        		new Zend_Controller_Router_Route('v1/users/updateavatar',array("module"=>"v1","controller"=>"users","action"=>"updateavatar")));
+
+        $frontController->getRouter()->addRoute('v1/users/unfollow',
+        		new Zend_Controller_Router_Route('v1/users/unfollow',array("module"=>"v1","controller"=>"users","action"=>"unfollow")));
+        $frontController->getRouter()->addRoute('v1/users/listfollows',
+        		new Zend_Controller_Router_Route('v1/users/listfollows',array("module"=>"v1","controller"=>"users","action"=>"listfollows")));
+        $frontController->getRouter()->addRoute('v1/users/follow',
+        		new Zend_Controller_Router_Route('v1/users/follow',array("module"=>"v1","controller"=>"users","action"=>"follow")));
+        $frontController->getRouter()->addRoute('v1/users/listfans',
+        		new Zend_Controller_Router_Route('v1/users/listfans',array("module"=>"v1","controller"=>"users","action"=>"listfans")));
+        
+        $frontController->getRouter()->addRoute('v1/users/phonelink',
+        		new Zend_Controller_Router_Route('v1/users/phonelink',array("module"=>"v1","controller"=>"users","action"=>"phonelink")));
+        
+        $frontController->getRouter()->addRoute('v1/users/weibolink',
+        		new Zend_Controller_Router_Route('v1/users/weibolink',array("module"=>"v1","controller"=>"users","action"=>"weibolink")));
+        $frontController->getRouter()->addRoute('v1/users/listbyids',
+        		new Zend_Controller_Router_Route('v1/users/listbyids',array("module"=>"v1","controller"=>"users","action"=>"listbyids")));
+        $frontController->getRouter()->addRoute('v1/users/updatepushmsg',
+        		new Zend_Controller_Router_Route('v1/users/updatepushmsg',array("module"=>"v1","controller"=>"users","action"=>"updatepushmsg")));
+        $frontController->getRouter()->addRoute('v1/users/pushmsg',
+        		new Zend_Controller_Router_Route('v1/users/pushmsg',array("module"=>"v1","controller"=>"users","action"=>"pushmsg")));
+        
+        $frontController->getRouter()->addRoute('v1/userpics/uploadpic',
+        		new Zend_Controller_Router_Route('v1/userpics/uploadpic',array("module"=>"v1","controller"=>"userpics","action"=>"uploadpic")));
+        
+
+        
+    }
+    
+    
+    private function initBackendRouter(){
+        
+        $frontController = Zend_Controller_Front::getInstance();
+        $apps=array(
+        		'default'=>APPLICATION_PATH.'/modules/default/controllers',
+        );
+        $frontController->setControllerDirectory($apps);
+        
+        $frontController->getRouter()->addRoute('dashboard/login',
+        		new Zend_Controller_Router_Route('dashboard/login',array("controller"=>"dashboard","action"=>"login")));
+        $frontController->getRouter()->addRoute('Connection/enterlogin',
+        		new Zend_Controller_Router_Route('Connection/enterlogin',array("controller"=>"Connection","action"=>"enterlogin")));
+        $frontController->getRouter()->addRoute('Connection/login',
+        		new Zend_Controller_Router_Route('Connection/login',array("controller"=>"Connection","action"=>"login")));
+        $frontController->getRouter()->addRoute('Connection/logout',
+        		new Zend_Controller_Router_Route('Connection/logout',array("controller"=>"Connection","action"=>"logout")));
+        
+    }
+    
+    private function initEasemobRouter(){
+        $frontController = Zend_Controller_Front::getInstance();
+        $apps=array(
+                'default'=>APPLICATION_PATH.'/modules/default/controllers',
+        		'easemob'=>APPLICATION_PATH.'/modules/easemob/controllers'
+        );
+        $frontController->setControllerDirectory($apps);
+        
+        $frontController->getRouter()->addRoute('easemob/users/register',
+        		new Zend_Controller_Router_Route('easemob/users/register',array("module"=>"easemob","controller"=>"users","action"=>"register")));
+        $frontController->getRouter()->addRoute('easemob/users/batchregister',
+        		new Zend_Controller_Router_Route('easemob/users/batchregister',array("module"=>"easemob","controller"=>"users","action"=>"batchregister")));
+        $frontController->getRouter()->addRoute('easemob/users/getuser',
+        		new Zend_Controller_Router_Route('easemob/users/getuser',array("module"=>"easemob","controller"=>"users","action"=>"getuser")));
+        $frontController->getRouter()->addRoute('easemob/users/changepassword',
+        		new Zend_Controller_Router_Route('easemob/users/changepassword',array("module"=>"easemob","controller"=>"users","action"=>"changepassword")));
+        $frontController->getRouter()->addRoute('easemob/users/deleteuser',
+        		new Zend_Controller_Router_Route('easemob/users/deleteuser',array("module"=>"easemob","controller"=>"users","action"=>"deleteuser")));
+        $frontController->getRouter()->addRoute('easemob/users/batchdelete',
+        		new Zend_Controller_Router_Route('easemob/users/batchdelete',array("module"=>"easemob","controller"=>"users","action"=>"batchdelete")));
+
+    
+    }    
+    
+}
+

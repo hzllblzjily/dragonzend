@@ -1,0 +1,382 @@
+<?php
+
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+
+function customError($err_level,$errstr,$error_file,$error_line){
+	$logger = Zend_Registry::get('log');
+	$logger->log("err_level=".$err_level."errstr=".$errstr."error_file=".$error_file."error_line=".$error_line,Zend_Log::CRIT);
+}
+
+class Bootstrap extends Zend_Application_Bootstrap_Bootstrap
+{
+    public function __construct($application)
+    {
+    	parent::__construct($application);
+    	$this->initDateTime();
+    	$this->initApplicationConstance();
+    	$this->initLog();
+    	$this->initDB();
+    	$this->initModule();
+        $this->initRouter();
+
+    }
+    
+    public function initModule(){
+        $url = constant("APPLICATION_PATH").DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'application.ini';
+        $moduleconfig = new Zend_Config_Ini($url, "module");
+        $moduleconfig = $moduleconfig->toArray();
+        $moduleName = $moduleconfig['name'];
+        Zend_Registry::set('moduleName',$moduleName);
+        
+        if($moduleName == 'api'){
+            //api model设置auth_token
+            //$header = HttpHelper::getHttpHeader();
+            if(array_key_exists("token", $_GET)){
+                $token = $_GET['token'];
+            }else{
+                $token = null;
+            }
+            
+            if($token != null){
+                Zend_Registry::set('Auth-Token', $token);
+            }
+            
+//             if(array_key_exists('Auth-Token',$header)){
+//             	$token = $header['Auth-Token'];
+//             	Zend_Registry::set('Auth-Token', $token);
+//             }
+        }
+        
+    }
+   
+    
+    public function initApplicationConstance()
+    {
+    	define("ADMIN_SESSION_NAMESPACE", "ADMIN_SESSION_NAMESPACE");
+    	define('ADMIN_SESSION_CONTEXT', 'ADMIN_SESSION_CONTEXT');
+    }
+    public function initDateTime()
+    {
+    	date_default_timezone_set("UTC");
+    	//date_default_timezone_set("Asia/Shanghai");
+    	
+
+    }
+    public function initLog()
+    {
+    	$url = constant("APPLICATION_PATH").DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'application.ini';
+    	$loggerconfig = new Zend_Config_Ini($url, "logger");
+    		
+    	$loggerconfig = $loggerconfig->toArray();
+    	$logFile = $loggerconfig['dir'];
+    	$curLogDir = $loggerconfig['dir'].date('Ym');
+    		
+    		
+    	if( !is_dir( $curLogDir ) ){
+    		try {
+    			mkdir( $curLogDir , 0777);
+    		} catch (Exception $e) {
+    			echo nl2br($e->__toString());
+    			exit();
+    		}
+    	}
+    	$logFile = $logFile.date('Ym').'/'.date('d').'.txt';
+    	$writer = new Zend_Log_Writer_Stream( $logFile );
+    		
+    	$format = '%timestamp% %priorityName% (%priority%): %message% [%controller%]-[%action%]-[%servicemodel%]'. PHP_EOL;
+    		
+    	$formatter = new Zend_Log_Formatter_Simple($format);
+    		
+    	$writer->setFormatter($formatter);
+    		
+    	$logger = new Zend_Log($writer);
+    		
+    	$logger->addFilter((int)$loggerconfig['priority']);
+    		
+    	Zend_Registry::set('log',$logger);
+    }
+    
+    //初始化DB链接
+    public function initDB()
+    {
+
+    	$url = constant("APPLICATION_PATH").DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'application.ini';
+    	$dbconfig = new Zend_Config_Ini($url, "mysql");
+    	$db = Zend_Db::factory( $dbconfig->db );
+    	
+    	$db->query('SET NAMES UTF8MB4');
+    	Zend_Db_Table::setDefaultAdapter($db);
+    	Zend_Registry::set('dbAdapter',$db);
+    	
+    }
+
+    
+    public function initRouter()
+    {
+        $this->initRestRouter();
+
+        if(AuthenticationMgr::isApiModule()){
+            $this->initAPIRouter();
+        }else if(AuthenticationMgr::isBackendModule()){
+            $this->initBackendRouter();
+        }else if(AuthenticationMgr::isEasemobModule()){
+            $this->initEasemobRouter();
+        }
+
+        $this->initCommonRouter();
+
+    }
+    
+    public function initCommonRouter(){
+        $frontController = Zend_Controller_Front::getInstance();
+        
+        $frontController->getRouter()->addRoute('file/download',
+        		new Zend_Controller_Router_Route('file/download',array("controller"=>"file","action"=>"download")));
+        $frontController->getRouter()->addRoute('file/upload',
+        		new Zend_Controller_Router_Route('file/upload',array("controller"=>"file","action"=>"upload")));
+    }
+    
+    
+    private function initRestRouter(){
+        $this->bootstrap('frontController');
+        $frontController = Zend_Controller_Front::getInstance();
+        $restRoute = new Zend_Rest_Route($frontController);
+        $frontController->getRouter()->addRoute('rest', $restRoute);
+        
+        
+    }
+    
+    
+    private function initAPIRouter(){
+        $frontController = Zend_Controller_Front::getInstance();
+        $apps=array(
+                'default'=>APPLICATION_PATH.'/modules/default/controllers',
+        		'v1'=>APPLICATION_PATH.'/modules/v1/controllers'
+                
+        );
+        $frontController->setControllerDirectory($apps);
+        
+        //下面一个接口是测试用
+
+        
+        $frontController->getRouter()->addRoute('v1/users/register',
+        		new Zend_Controller_Router_Route('v1/users/register',array("module"=>"v1","controller"=>"users","action"=>"register")));
+
+        $frontController->getRouter()->addRoute('v1/users/login',
+        		new Zend_Controller_Router_Route('v1/users/login',array("module"=>"v1","controller"=>"users","action"=>"login")));
+        $frontController->getRouter()->addRoute('v1/users/logout',
+        		new Zend_Controller_Router_Route('v1/users/logout',array("module"=>"v1","controller"=>"users","action"=>"logout")));
+
+        $frontController->getRouter()->addRoute('v1/users/getidentifier',
+        		new Zend_Controller_Router_Route('v1/users/getidentifier',array("module"=>"v1","controller"=>"users","action"=>"getidentifier")));
+        
+        $frontController->getRouter()->addRoute('v1/users/valididentifier',
+        		new Zend_Controller_Router_Route('v1/users/valididentifier',array("module"=>"v1","controller"=>"users","action"=>"valididentifier")));
+        $frontController->getRouter()->addRoute('v1/users/getcurrentuserinfo',
+        		new Zend_Controller_Router_Route('v1/users/getcurrentuserinfo',array("module"=>"v1","controller"=>"users","action"=>"getcurrentuserinfo")));
+        $frontController->getRouter()->addRoute('v1/users/setcurrentuser',
+        		new Zend_Controller_Router_Route('v1/users/setcurrentuser',array("module"=>"v1","controller"=>"users","action"=>"setcurrentuser")));
+        $frontController->getRouter()->addRoute('v1/users/resetpasswd',
+        		new Zend_Controller_Router_Route('v1/users/resetpasswd',array("module"=>"v1","controller"=>"users","action"=>"resetpasswd")));
+        $frontController->getRouter()->addRoute('v1/users/forgetpasswd',
+        		new Zend_Controller_Router_Route('v1/users/forgetpasswd',array("module"=>"v1","controller"=>"users","action"=>"forgetpasswd")));
+        $frontController->getRouter()->addRoute('v1/users/changepasswd',
+        		new Zend_Controller_Router_Route('v1/users/changepasswd',array("module"=>"v1","controller"=>"users","action"=>"changepasswd")));
+        $frontController->getRouter()->addRoute('v1/users/updateavatar',
+        		new Zend_Controller_Router_Route('v1/users/updateavatar',array("module"=>"v1","controller"=>"users","action"=>"updateavatar")));
+
+  
+
+        
+        $frontController->getRouter()->addRoute('v1/lawyers/register',
+        		new Zend_Controller_Router_Route('v1/lawyers/register',array("module"=>"v1","controller"=>"lawyers","action"=>"register")));
+        
+        $frontController->getRouter()->addRoute('v1/lawyers/login',
+        		new Zend_Controller_Router_Route('v1/lawyers/login',array("module"=>"v1","controller"=>"lawyers","action"=>"login")));
+        $frontController->getRouter()->addRoute('v1/lawyers/logout',
+        		new Zend_Controller_Router_Route('v1/lawyers/logout',array("module"=>"v1","controller"=>"lawyers","action"=>"logout")));
+        
+        $frontController->getRouter()->addRoute('v1/lawyers/getidentifier',
+        		new Zend_Controller_Router_Route('v1/lawyers/getidentifier',array("module"=>"v1","controller"=>"lawyers","action"=>"getidentifier")));
+        
+        $frontController->getRouter()->addRoute('v1/lawyers/valididentifier',
+        		new Zend_Controller_Router_Route('v1/lawyers/valididentifier',array("module"=>"v1","controller"=>"lawyers","action"=>"valididentifier")));
+        $frontController->getRouter()->addRoute('v1/lawyers/getcurrentuserinfo',
+        		new Zend_Controller_Router_Route('v1/lawyers/getcurrentuserinfo',array("module"=>"v1","controller"=>"lawyers","action"=>"getcurrentuserinfo")));
+        $frontController->getRouter()->addRoute('v1/lawyers/setcurrentuser',
+        		new Zend_Controller_Router_Route('v1/lawyers/setcurrentuser',array("module"=>"v1","controller"=>"lawyers","action"=>"setcurrentuser")));
+        $frontController->getRouter()->addRoute('v1/lawyers/resetpasswd',
+        		new Zend_Controller_Router_Route('v1/lawyers/resetpasswd',array("module"=>"v1","controller"=>"lawyers","action"=>"resetpasswd")));
+        $frontController->getRouter()->addRoute('v1/lawyers/forgetpasswd',
+        		new Zend_Controller_Router_Route('v1/lawyers/forgetpasswd',array("module"=>"v1","controller"=>"lawyers","action"=>"forgetpasswd")));
+        $frontController->getRouter()->addRoute('v1/lawyers/changepasswd',
+        		new Zend_Controller_Router_Route('v1/lawyers/changepasswd',array("module"=>"v1","controller"=>"lawyers","action"=>"changepasswd")));
+        $frontController->getRouter()->addRoute('v1/lawyers/updateavatar',
+        		new Zend_Controller_Router_Route('v1/lawyers/updateavatar',array("module"=>"v1","controller"=>"lawyers","action"=>"updateavatar")));
+        $frontController->getRouter()->addRoute('v1/users/calllawyer',
+        		new Zend_Controller_Router_Route('v1/users/calllawyer',array("module"=>"v1","controller"=>"users","action"=>"calllawyer")));
+        $frontController->getRouter()->addRoute('v1/users/collectionlawyer',
+        		new Zend_Controller_Router_Route('v1/users/collectionlawyer',array("module"=>"v1","controller"=>"users","action"=>"collectionlawyer")));        
+        $frontController->getRouter()->addRoute('v1/users/deletecollectionlawyer',
+        		new Zend_Controller_Router_Route('v1/users/deletecollectionlawyer',array("module"=>"v1","controller"=>"users","action"=>"deletecollectionlawyer")));
+        
+        $frontController->getRouter()->addRoute('v1/users/listcollectionlawyers',
+        		new Zend_Controller_Router_Route('v1/users/listcollectionlawyers',array("module"=>"v1","controller"=>"users","action"=>"listcollectionlawyers")));     
+        $frontController->getRouter()->addRoute('v1/problems/broadcast',
+        		new Zend_Controller_Router_Route('v1/problems/broadcast',array("module"=>"v1","controller"=>"problems","action"=>"broadcast")));
+
+        $frontController->getRouter()->addRoute('v1/problems/lawyerlistbyhome',
+        		new Zend_Controller_Router_Route('v1/problems/lawyerlistbyhome',array("module"=>"v1","controller"=>"problems","action"=>"lawyerlistbyhome")));
+        
+        $frontController->getRouter()->addRoute('v1/problems/countunreadproblem',
+        		new Zend_Controller_Router_Route('v1/problems/countunreadproblem',array("module"=>"v1","controller"=>"problems","action"=>"countunreadproblem")));
+        $frontController->getRouter()->addRoute('v1/problems/checkanswervalid',
+        		new Zend_Controller_Router_Route('v1/problems/checkanswervalid',array("module"=>"v1","controller"=>"problems","action"=>"checkanswervalid")));
+        
+        $frontController->getRouter()->addRoute('v1/problems/answer',
+        		new Zend_Controller_Router_Route('v1/problems/answer',array("module"=>"v1","controller"=>"problems","action"=>"answer")));
+        $frontController->getRouter()->addRoute('v1/problems/userremark',
+        		new Zend_Controller_Router_Route('v1/problems/userremark',array("module"=>"v1","controller"=>"problems","action"=>"userremark")));
+        $frontController->getRouter()->addRoute('v1/problems/lawyerremark',
+        		new Zend_Controller_Router_Route('v1/problems/lawyerremark',array("module"=>"v1","controller"=>"problems","action"=>"lawyerremark")));
+        
+        $frontController->getRouter()->addRoute('v1/problems/userlistremark',
+        		new Zend_Controller_Router_Route('v1/problems/userlistremark',array("module"=>"v1","controller"=>"problems","action"=>"userlistremark")));
+        $frontController->getRouter()->addRoute('v1/problems/lawyerlistremark',
+        		new Zend_Controller_Router_Route('v1/problems/lawyerlistremark',array("module"=>"v1","controller"=>"problems","action"=>"lawyerlistremark")));
+        $frontController->getRouter()->addRoute('v1/problems/listlatestreplyproblem',
+        		new Zend_Controller_Router_Route('v1/problems/listlatestreplyproblem',array("module"=>"v1","controller"=>"problems","action"=>"listlatestreplyproblem")));
+        
+        
+        $frontController->getRouter()->addRoute('v1/reportfeedback/addlawyerreport',
+        		new Zend_Controller_Router_Route('v1/reportfeedback/addlawyerreport',array("module"=>"v1","controller"=>"reportfeedback","action"=>"addlawyerreport")));
+        $frontController->getRouter()->addRoute('v1/reportfeedback/addlawyerfeedback',
+        		new Zend_Controller_Router_Route('v1/reportfeedback/addlawyerfeedback',array("module"=>"v1","controller"=>"reportfeedback","action"=>"addlawyerfeedback")));
+        $frontController->getRouter()->addRoute('v1/reportfeedback/adduserfeedback',
+        		new Zend_Controller_Router_Route('v1/reportfeedback/adduserfeedback',array("module"=>"v1","controller"=>"reportfeedback","action"=>"adduserfeedback")));
+        $frontController->getRouter()->addRoute('v1/reportfeedback/adduserreport',
+        		new Zend_Controller_Router_Route('v1/reportfeedback/adduserreport',array("module"=>"v1","controller"=>"reportfeedback","action"=>"adduserreport")));
+    }
+    
+    
+    private function initBackendRouter(){
+        
+        $frontController = Zend_Controller_Front::getInstance();
+        $apps=array(
+        		'default'=>APPLICATION_PATH.'/modules/default/controllers',
+        );
+        $frontController->setControllerDirectory($apps);
+        
+//         $frontController->getRouter()->addRoute('dashboard/login',
+//         		new Zend_Controller_Router_Route('dashboard/login',array("controller"=>"dashboard","action"=>"login")));
+        $frontController->getRouter()->addRoute('connection/enterlogin',
+        		new Zend_Controller_Router_Route('connection/enterlogin',array("controller"=>"connection","action"=>"enterlogin")));
+        $frontController->getRouter()->addRoute('connection/login',
+        		new Zend_Controller_Router_Route('connection/login',array("controller"=>"connection","action"=>"login")));
+        $frontController->getRouter()->addRoute('connection/logout',
+        		new Zend_Controller_Router_Route('connection/logout',array("controller"=>"connection","action"=>"logout")));
+        $frontController->getRouter()->addRoute('console/index',
+        		new Zend_Controller_Router_Route('console/index',array("controller"=>"console","action"=>"index")));
+        $frontController->getRouter()->addRoute('admin/resetpasswordrender',
+        		new Zend_Controller_Router_Route('admin/resetpasswordrender',array("controller"=>"admin","action"=>"resetpasswordrender")));
+        $frontController->getRouter()->addRoute('admin/resetpassword',
+        		new Zend_Controller_Router_Route('admin/resetpassword',array("controller"=>"admin","action"=>"resetpassword")));
+        $frontController->getRouter()->addRoute('admin/getidentity',
+        		new Zend_Controller_Router_Route('admin/getidentity',array("controller"=>"admin","action"=>"getidentity")));
+        $frontController->getRouter()->addRoute('admin/addadmin',
+        		new Zend_Controller_Router_Route('admin/addadmin',array("controller"=>"admin","action"=>"addadmin")));
+        $frontController->getRouter()->addRoute('admin/enteraddadmin',
+        		new Zend_Controller_Router_Route('admin/enteraddadmin',array("controller"=>"admin","action"=>"enteraddadmin")));
+        
+        
+        $frontController->getRouter()->addRoute('robot/enteraddrobot',
+        		new Zend_Controller_Router_Route('robot/enteraddrobot',array("controller"=>"robot","action"=>"enteraddrobot")));
+        $frontController->getRouter()->addRoute('robot/addrobot',
+        		new Zend_Controller_Router_Route('robot/addrobot',array("controller"=>"robot","action"=>"addrobot")));
+        
+        
+        $frontController->getRouter()->addRoute('audit/enterauditlawyer',
+        		new Zend_Controller_Router_Route('audit/enterauditlawyer',array("controller"=>"audit","action"=>"enterauditlawyer")));
+        $frontController->getRouter()->addRoute('audit/auditlawyerok',
+        		new Zend_Controller_Router_Route('audit/auditlawyerok',array("controller"=>"audit","action"=>"auditlawyerok")));
+        $frontController->getRouter()->addRoute('audit/auditlawyerngreason',
+        		new Zend_Controller_Router_Route('audit/auditlawyerngreason',array("controller"=>"audit","action"=>"auditlawyerngreason")));
+        $frontController->getRouter()->addRoute('audit/auditlawyerng',
+        		new Zend_Controller_Router_Route('audit/auditlawyerng',array("controller"=>"audit","action"=>"auditlawyerng")));
+        
+        
+        $frontController->getRouter()->addRoute('reportfeedback/listuserreport',
+        		new Zend_Controller_Router_Route('reportfeedback/listuserreport',array("controller"=>"reportfeedback","action"=>"listuserreport")));
+        $frontController->getRouter()->addRoute('reportfeedback/listlawyerreport',
+        		new Zend_Controller_Router_Route('reportfeedback/listlawyerreport',array("controller"=>"reportfeedback","action"=>"listlawyerreport")));
+        $frontController->getRouter()->addRoute('reportfeedback/listuserfeedback',
+        		new Zend_Controller_Router_Route('reportfeedback/listuserfeedback',array("controller"=>"reportfeedback","action"=>"listuserfeedback")));
+        $frontController->getRouter()->addRoute('reportfeedback/listlawyerfeedback',
+        		new Zend_Controller_Router_Route('reportfeedback/listlawyerfeedback',array("controller"=>"reportfeedback","action"=>"listlawyerfeedback")));
+        $frontController->getRouter()->addRoute('reportfeedback/userreportignore',
+        		new Zend_Controller_Router_Route('reportfeedback/userreportignore',array("controller"=>"reportfeedback","action"=>"userreportignore")));
+        $frontController->getRouter()->addRoute('reportfeedback/userreportenterreason',
+        		new Zend_Controller_Router_Route('reportfeedback/userreportenterreason',array("controller"=>"reportfeedback","action"=>"userreportenterreason")));
+        $frontController->getRouter()->addRoute('reportfeedback/userreportdone',
+        		new Zend_Controller_Router_Route('reportfeedback/userreportdone',array("controller"=>"reportfeedback","action"=>"userreportdone")));
+        $frontController->getRouter()->addRoute('reportfeedback/lawyerreportignore',
+        		new Zend_Controller_Router_Route('reportfeedback/lawyerreportignore',array("controller"=>"reportfeedback","action"=>"lawyerreportignore")));
+        $frontController->getRouter()->addRoute('reportfeedback/lawyerreportenterreason',
+        		new Zend_Controller_Router_Route('reportfeedback/lawyerreportenterreason',array("controller"=>"reportfeedback","action"=>"lawyerreportenterreason")));
+        $frontController->getRouter()->addRoute('reportfeedback/lawyerreportdone',
+        		new Zend_Controller_Router_Route('reportfeedback/lawyerreportdone',array("controller"=>"reportfeedback","action"=>"lawyerreportdone")));
+        $frontController->getRouter()->addRoute('reportfeedback/userfeedbackignore',
+        		new Zend_Controller_Router_Route('reportfeedback/userfeedbackignore',array("controller"=>"reportfeedback","action"=>"userfeedbackignore")));
+        $frontController->getRouter()->addRoute('reportfeedback/userfeedbackenterreason',
+        		new Zend_Controller_Router_Route('reportfeedback/userfeedbackenterreason',array("controller"=>"reportfeedback","action"=>"userfeedbackenterreason")));
+        $frontController->getRouter()->addRoute('reportfeedback/userfeedbackdone',
+        		new Zend_Controller_Router_Route('reportfeedback/userfeedbackdone',array("controller"=>"reportfeedback","action"=>"userfeedbackdone")));
+        $frontController->getRouter()->addRoute('reportfeedback/lawyerfeedbackignore',
+        		new Zend_Controller_Router_Route('reportfeedback/lawyerfeedbackignore',array("controller"=>"reportfeedback","action"=>"lawyerfeedbackignore")));
+        $frontController->getRouter()->addRoute('reportfeedback/lawyerfeedbackenterreason',
+        		new Zend_Controller_Router_Route('reportfeedback/lawyerfeedbackenterreason',array("controller"=>"reportfeedback","action"=>"lawyerfeedbackenterreason")));
+        $frontController->getRouter()->addRoute('reportfeedback/lawyerfeedbackdone',
+        		new Zend_Controller_Router_Route('reportfeedback/lawyerfeedbackdone',array("controller"=>"reportfeedback","action"=>"lawyerfeedbackdone")));
+
+        
+        $frontController->getRouter()->addRoute('reportfeedback/listreporteduser',
+        		new Zend_Controller_Router_Route('reportfeedback/listreporteduser',array("controller"=>"reportfeedback","action"=>"listreporteduser")));
+        $frontController->getRouter()->addRoute('reportfeedback/listreportedlawyer',
+        		new Zend_Controller_Router_Route('reportfeedback/listreportedlawyer',array("controller"=>"reportfeedback","action"=>"listreportedlawyer")));
+        $frontController->getRouter()->addRoute('reportfeedback/unlockreporteduser',
+        		new Zend_Controller_Router_Route('reportfeedback/unlockreporteduser',array("controller"=>"reportfeedback","action"=>"unlockreporteduser")));
+        $frontController->getRouter()->addRoute('reportfeedback/unlockreportedlawyer',
+        		new Zend_Controller_Router_Route('reportfeedback/unlockreportedlawyer',array("controller"=>"reportfeedback","action"=>"unlockreportedlawyer")));
+        
+        
+    }
+    
+    private function initEasemobRouter(){
+        $frontController = Zend_Controller_Front::getInstance();
+        $apps=array(
+                'default'=>APPLICATION_PATH.'/modules/default/controllers',
+        		'easemob'=>APPLICATION_PATH.'/modules/easemob/controllers'
+        );
+        $frontController->setControllerDirectory($apps);
+        
+        $frontController->getRouter()->addRoute('easemob/users/register',
+        		new Zend_Controller_Router_Route('easemob/users/register',array("module"=>"easemob","controller"=>"users","action"=>"register")));
+        $frontController->getRouter()->addRoute('easemob/users/batchregister',
+        		new Zend_Controller_Router_Route('easemob/users/batchregister',array("module"=>"easemob","controller"=>"users","action"=>"batchregister")));
+        $frontController->getRouter()->addRoute('easemob/users/getuser',
+        		new Zend_Controller_Router_Route('easemob/users/getuser',array("module"=>"easemob","controller"=>"users","action"=>"getuser")));
+        $frontController->getRouter()->addRoute('easemob/users/changepassword',
+        		new Zend_Controller_Router_Route('easemob/users/changepassword',array("module"=>"easemob","controller"=>"users","action"=>"changepassword")));
+        $frontController->getRouter()->addRoute('easemob/users/deleteuser',
+        		new Zend_Controller_Router_Route('easemob/users/deleteuser',array("module"=>"easemob","controller"=>"users","action"=>"deleteuser")));
+        $frontController->getRouter()->addRoute('easemob/users/batchdelete',
+        		new Zend_Controller_Router_Route('easemob/users/batchdelete',array("module"=>"easemob","controller"=>"users","action"=>"batchdelete")));
+
+    
+    }    
+    
+}
+

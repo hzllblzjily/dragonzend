@@ -1,0 +1,142 @@
+<?php
+
+
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Problems.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/Social/WeiboHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Remarks extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $content;
+    public $creator;
+    public $creatorType;    //用户 或 律师
+    public $creationTime;
+    public $ref_remark_id;
+    public $problem_id;
+    
+    //innode
+    public $creationUser;
+    public $creationLawyer;
+    public $ref_remarks;
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    
+    	$this->propertyTypes["content"] = $this->columnProperty;
+    	$this->propertyTypes["creator"] = $this->columnProperty;
+    	$this->propertyTypes["creationTime"] = $this->columnProperty;
+    	$this->propertyTypes["ref_remark_id"] = $this->columnProperty;
+    	$this->propertyTypes["problem_id"] = $this->columnProperty;
+
+    	$this->propertyTypes["creationUser"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creationUser"] = "Users";
+    	 
+    	$this->propertyTypes["creationLawyer"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creationLawyer"] = "Lawyers";
+    	
+    	$this->propertyTypes["ref_remarks"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["ref_remarks"] = "Remarks";
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+            if($this->creatorType == '用户'){
+                $users = new Users();
+                $users->id = $this->creator;
+                $users = $users->get();
+                $this->creationUser = $users;
+            }else if($this->creatorType == '律师'){
+                $lawyers = new Lawyers();
+                $lawyers->id = $this->creator;
+                $lawyers = $lawyers->get();
+                $this->creationLawyer = $lawyers;
+            }
+            
+            if($this->fromType != "remarks"){
+                if($this->ref_remark_id != 0){
+                	$remarks = new Remarks();
+                	$remarks->id = $this->ref_remark_id;
+                	$remarks->fromType = "remarks";
+                	$remarks = $remarks->get();
+                	$this->ref_remarks = $remarks;
+                }
+            }
+
+            
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+        if($this->creatorType == "用户"){
+            $users = new Users();
+            $users->id = $this->creator;
+            $users = $users->get();
+            if($users == null){
+                throw new WeException(20103);
+            }
+        }else if($this->creatorType == "律师"){
+            $lawyers = new Lawyers();
+            $lawyers->id = $this->creator;
+            $lawyers = $lawyers->get();
+            if($lawyers == null){
+            	throw new WeException(20103);
+            }
+        }else{
+            $this->logger->log("invalid creator type = ".$this->creatorType,Zend_Log::ERR);
+            throw new WeException(20266);
+        }
+        $this->creationTime = time();
+        $problems = new Problems();
+        $problems->id = $this->problem_id;
+        $problems = $problems->get();
+        if($problems == null){
+            throw new WeException(20103);
+        }
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

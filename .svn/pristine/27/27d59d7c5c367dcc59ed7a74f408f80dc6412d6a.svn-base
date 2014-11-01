@@ -1,0 +1,233 @@
+<?php
+
+require_once APPLICATION_PATH . '/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH . '/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH . '/helpers/HttpHelper.php';
+require_once APPLICATION_PATH . '/helpers/CommonHelper.php';
+require_once APPLICATION_PATH . '/helpers/QueryCondition.php';
+require_once APPLICATION_PATH . '/helpers/WeException.php';
+require_once APPLICATION_PATH . '/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Users.php';
+require_once APPLICATION_PATH . '/models/tablemodel/RobotCount.php';
+require_once APPLICATION_PATH . '/models/servicemodel/RobotQuestions.php';
+require_once APPLICATION_PATH . '/helpers/Constant.php';
+require_once APPLICATION_PATH . '/helpers/AuthenticationMgr.php';
+
+
+class RobotController extends We_Base_Backend_Action_Controller {
+	public function init() {
+		/* Initialize action controller here */
+		parent::init ();
+	}
+	public function enteraddrobotAction() {
+		try{
+			
+			$robotCount = new RobotCount ();
+			$rows = $robotCount->fetchList ( null, null, null, null, null, null, null, null );
+			
+			if (count ( $rows ) > 0) {
+				$id = $rows [0] ['id'];
+				$id_new = $id + 1;
+				$robotCount->update ( array (
+						'id' => $id_new 
+				), $id );
+			} else {
+				$this->logger->log ( 'Robot count error correct', Zend_Log::ERR );
+				throw new WeException ( 30193 );
+			}
+			
+			$this->view->telphone = $id_new;
+			$this->renderScript ( "/robot/add_robot.phtml" );
+		
+		} catch ( WeException $e ) { // 首先捕获weRxtException
+// 			$this->dbAdapter->rollback ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		} catch ( Exception $e ) { // 如果捕获不到，作为weException中的默认错误$code = '0000'
+// 			$this->dbAdapter->rollback ();
+			$this->logger->log ( "exception = " . $e, Zend_Log::ERR );
+			$e = new WeException ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		}
+	}
+	
+	public function addrobotAction() {
+		try {
+			$this->dbAdapter->beginTransaction ();
+			
+			$telPhone = $this->getRequest ()->getParam ( 'telphone' );
+			$password = $this->getRequest ()->getParam ( 'password' );
+			$userName = $this->getRequest ()->getParam ( 'userName' );
+			$companyName = $this->getRequest ()->getParam ( 'companyName' );
+			$gender = $this->getRequest ()->getParam ( 'gender' );
+			$birthday = $this->getRequest ()->getParam ( "beginTime" );
+			$city1 = $this->getRequest ()->getParam ( "city1" );
+			$city2 = $this->getRequest ()->getParam ( "city2" );
+			
+			$userType = $this->getRequest ()->getParam ( "userType" );
+			$deviceToken = $this->getRequest ()->getParam ( 'deviceToken' );
+			$device = $this->getRequest ()->getParam ( "device" );
+			
+			if ($telPhone == null || $password == null || $userName == null || $gender == null || $birthday == null || $city1 == null || $city2 == null || $userType == null) {
+				$this->logger->log ( "register info is not complete", Zend_Log::ERR );
+				throw new WeException ( 20219 );
+			}
+			if ($userType == "企业") {
+				if ($companyName == null) {
+					$this->logger->log ( "register info is not complete", Zend_Log::ERR );
+					throw new WeException ( 20219 );
+				}
+			}
+			
+			// 创建出用户
+			$users = new Users ();
+			$users->telPhone = $telPhone;
+// 			$users->password = md5($password);
+			$users->password = Users::encryptPassword($password);
+			$users->userName = $userName;
+			$users->companyName = $companyName;
+			$users->birthday = $birthday;
+			$users->gender = $gender;
+			$users->deviceToken = $deviceToken;
+			$users->device = $device;
+			$users->city1 = $city1;
+			$users->city2 = $city2;
+			$users->userType = $userType;
+			$users->notRealUser = 1;
+			$users = $users->create ();
+			
+			// 头像信息
+			// 判断http request中是否有file
+			if (! isset ( $_FILES ['image'] ['name'] ) || ! isset ( $_FILES ['image'] ['tmp_name'] ) || ! isset ( $_FILES ['image'] ['type'] ) || ! isset ( $_FILES ['image'] ['size'] ) || ! isset ( $_FILES ['image'] ['error'] )) {
+				$this->logger->log ( 'uploadpic is illegal', Zend_Log::ERR );
+				$e = new WeException ( 20501 );
+				throw $e;
+			}
+			
+			// 判断是否有传输错误
+			if ($_FILES ['image'] ['error'] != 0) {
+				// $iconImage = $_FILES ['image'];
+				$this->logger->log ( 'file transfer failed error = ' . $_FILES ['image'] ['error'], Zend_Log::ERR );
+				$e = new WeException ( 20502 );
+				throw $e;
+			}
+			
+			$image = $_FILES ['image'];
+			// 判断大小是否超过规定 10M
+			if ($image ['size'] > MAX_FILE_UPLOAD_SIZE || $image ['size'] < 0) {
+				$this->logger->log ( 'file size is too big', Zend_Log::ERR );
+				$e = new WeException ( 20503 );
+				throw $e;
+			}
+			// 不能上传空文件
+			if ($image ['size'] == 0) {
+				$this->logger->log ( 'file size is equal to zero', Zend_Log::ERR );
+				$e = new WeException ( 20504 );
+				throw $e;
+			}
+			
+			// 判断图片类型是否符合规则
+			if ($image ['type'] != 'image/jpeg' && $image ['type'] != 'image/jpg' && $image ['type'] != 'image/png') {
+				$this->logger->log ( 'file type is illegal = ' . $image ['type'], Zend_Log::ERR );
+				$e = new WeException ( 20505 );
+				throw $e;
+			}
+			
+			// 获取文件信息
+			$fileDir = $image ['tmp_name'];
+			$fileType = $image ['type'];
+			$fileSize = $image ['size'];
+			$fileName = $image ['name'];
+			
+			// 调用servicemodel将图片插入数据库
+			$attach = new Attachments ();
+			$attach = $attach->uploadFile ( $fileDir, $fileType, $fileName, $fileSize, "avatars", $users->id );
+			
+			$users->avatar_id = $attach->id;
+			$users = $users->update ();
+			
+			$this->dbAdapter->commit ();
+// 			$users->setPropertyTypeByKey ( "token", "readOnly" );
+// 			$users->setPropertyTypeByKey ( "deviceToken", "readOnly" );
+// 			$users->setPropertyTypeByKey ( "device", "readOnly" );
+			
+// 			$returnStr = $users->jsonEncode ();
+
+			$this->renderScript("/console/OK.phtml");
+		} catch ( WeException $e ) { // 首先捕获weRxtException
+			$this->dbAdapter->rollback ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e 
+			) );
+		} catch ( Exception $e ) { // 如果捕获不到，作为weException中的默认错误$code = '0000'
+			$this->dbAdapter->rollback ();
+			$this->logger->log ( "exception = " . $e, Zend_Log::ERR );
+			$e = new WeException ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e 
+			) );
+		}
+	}
+	
+	
+	
+	public function enteraddquestionAction() {
+		
+		try{
+			
+			$this->renderScript ( "/robot/add_question.phtml" );
+		
+		} catch ( WeException $e ) { // 首先捕获weRxtException
+// 			$this->dbAdapter->rollback ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		} catch ( Exception $e ) { // 如果捕获不到，作为weException中的默认错误$code = '0000'
+// 			$this->dbAdapter->rollback ();
+			$this->logger->log ( "exception = " . $e, Zend_Log::ERR );
+			$e = new WeException ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		}
+	}
+	
+	public function addquestionAction (){
+		try {
+			$this->dbAdapter->beginTransaction ();
+				
+			$type = $this->getRequest ()->getParam ( 'type' );
+			$content = $this->getRequest ()->getParam ( 'content' );
+				
+
+			$robotQuestions = new RobotQuestions();
+			$robotQuestions->type = $type;
+			$robotQuestions->content = $content;
+			$robotQuestions->create();				
+
+			$this->dbAdapter->commit ();
+		
+			$this->renderScript("/console/OK.phtml");
+		} catch ( WeException $e ) { // 首先捕获weRxtException
+			$this->dbAdapter->rollback ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		} catch ( Exception $e ) { // 如果捕获不到，作为weException中的默认错误$code = '0000'
+			$this->dbAdapter->rollback ();
+			$this->logger->log ( "exception = " . $e, Zend_Log::ERR );
+			$e = new WeException ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		}
+		
+	}
+	
+	
+}
+
+?>

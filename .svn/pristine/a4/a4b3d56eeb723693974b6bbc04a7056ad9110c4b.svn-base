@@ -1,0 +1,130 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerFeedbacks.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerReports.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserReports.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserFeedbacks.php';
+
+class V1_ReportFeedbackController extends We_Base_Api_Rest_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+	//律师反馈
+	public function addlawyerfeedbackAction (){
+		try {
+			$this->dbAdapter->beginTransaction();
+			
+			$lawyer_id = $this->getRequest()->getParam('lawyer_id');
+			$feedback_content = $this->getRequest()->getParam('feedback_content');
+			
+			$lawyerFeedback = new LawyerFeedbacks();
+			$lawyerFeedback->lawyer_id = $lawyer_id;
+			$lawyerFeedback->feedback_content = $feedback_content;
+			$lawyerFeedback->create();
+			
+			$this->dbAdapter->commit();    
+    		echo "{}";
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	//举报律师
+	public function addlawyerreportAction (){
+		try {
+			$this->dbAdapter->beginTransaction();
+				
+			$user_id = $this->getRequest()->getParam('user_id');
+			$lawyer_id = $this->getRequest()->getParam('lawyer_id');
+			$report_content = $this->getRequest()->getParam('report_content');
+				
+			$lawyerReport = new LawyerReports();
+			$lawyerReport->lawyer_id = $lawyer_id;
+			$lawyerReport->user_id = $user_id;
+			$lawyerReport->report_content = $report_content;
+			$lawyerReport->create();
+				
+			$this->dbAdapter->commit();
+			echo "{}";
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	
+	//用户反馈
+	public function adduserfeedbackAction (){
+		try {
+			$this->dbAdapter->beginTransaction();
+				
+			$user_id = $this->getRequest()->getParam('user_id');
+			$feedback_content = $this->getRequest()->getParam('feedback_content');
+				
+			$userFeedback = new UserFeedbacks();
+			$userFeedback->user_id = $user_id;
+			$userFeedback->feedback_content = $feedback_content;
+			$userFeedback->create();
+				
+			$this->dbAdapter->commit();
+			echo "{}";
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	//举报用户
+	public function adduserreportAction (){
+		try {
+			$this->dbAdapter->beginTransaction();
+	
+			$user_id = $this->getRequest()->getParam('user_id');
+			$lawyer_id = $this->getRequest()->getParam('lawyer_id');
+			$report_content = $this->getRequest()->getParam('report_content');
+	
+			$userReport = new UserReports();
+			$userReport->lawyer_id = $lawyer_id;
+			$userReport->user_id = $user_id;
+			$userReport->report_content = $report_content;
+			$$userReport->create();
+	
+			$this->dbAdapter->commit();
+			echo "{}";
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+
+}
+	
+?>

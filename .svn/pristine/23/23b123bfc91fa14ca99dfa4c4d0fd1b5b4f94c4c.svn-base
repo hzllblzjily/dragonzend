@@ -1,0 +1,18 @@
+<?php
+
+/**
+ * AdminUser
+ *  
+ * @author I076198
+ * @version 
+ */
+
+require_once APPLICATION_PATH.'/models/tablemodel/We_Base_Table.php';
+class AdminUser extends We_Base_Table {
+	/**
+	 * The default table name
+	 */
+	public $_name = 'admin_user';
+	public $_primary = 'id';           
+
+}

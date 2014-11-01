@@ -1,0 +1,1118 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Api_Rest_Controller.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserRegs.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerRegs.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/Constant.php';
+require_once APPLICATION_PATH.'/helpers/CurlHelper/CurlHelper.php';
+require_once APPLICATION_PATH.'/helpers/CurlHelper/CurlRequest.php';
+class V1_LawyersController extends We_Base_Api_Rest_Controller{
+    
+    public function init(){
+        parent::init();
+    }
+    
+    public function getcurrentuserinfoAction(){
+        try
+        {
+        	//$this->dbAdapter->beginTransaction();
+        	$userId = $this->validLayerLogin();
+        	$lawyers = new Lawyers();
+        	$lawyers->id = $userId;
+        	$lawyers = $lawyers->get();
+        	if($lawyers == null){
+        		$this->logger->log("lawyers is not exist id = ".$userId,Zend_Log::ERR);
+        		throw new WeException(20103);
+        	}
+        	$lawyers->setPropertyTypeByKey("token", "readOnly");
+        	$lawyers->setPropertyTypeByKey("deviceToken", "readOnly");
+        	$lawyers->setPropertyTypeByKey("device", "readOnly");
+        	$lawyers->setPropertyTypeByKey("telPhone", "readOnly");
+        	$stringValue = $lawyers->jsonEncode();
+        	echo $stringValue;
+        	exit();
+        }catch (WeException $e) { //首先捕获weRxtException
+        	//$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	//$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+//     public function pushmsgAction(){
+//         try
+//         {
+//         	//$this->dbAdapter->beginTransaction();
+//         	$user_id = $this->validLogin();
+//         	$toUser_id = $this->getRequest()->getParam("touser");
+//         	$users = new Users();
+//         	$users->id = $toUser_id;
+//         	$users = $users->get();
+//             $deviceToken = $users->deviceToken;
+//             $isPushOn = $users->isPushMsgOn;
+//             if($deviceToken != null && $isPushOn == 1){
+//                 CommonHelper::send("您有一条新消息", $deviceToken, 1, false);
+//             }
+
+//         	//$this->dbAdapter->commit();
+//         	echo "{}";
+//         	exit();
+        
+//         }catch (WeException $e) { //首先捕获weRxtException
+//         	//$this->dbAdapter->rollback();
+//         	$this->forward('exception','global', '',array('exception'=>$e));
+//         } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+//         	//$this->dbAdapter->rollback();
+//         	$e = new WeException();
+//         	$this->forward('exception','global', '',array('exception'=>$e));
+//         }
+//     }
+    
+//     public function updatepushmsgAction(){
+//         try
+//         {
+//         	$this->dbAdapter->beginTransaction();
+//         	$user_id = $this->validLogin();
+//         	$isPushOn = $this->getRequest()->getParam("ispushon");
+//             $users = new Users();
+//             $users->id = $user_id;
+//             $users->isPushMsgOn = $isPushOn;
+//             $users = $users->update();
+            
+//             $this->dbAdapter->commit();
+//             echo "{}";
+//             exit();
+
+//         }catch (WeException $e) { //首先捕获weRxtException
+//         	$this->dbAdapter->rollback();
+//         	$this->forward('exception','global', '',array('exception'=>$e));
+//         } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+//         	$this->dbAdapter->rollback();
+//         	$e = new WeException();
+//         	$this->forward('exception','global', '',array('exception'=>$e));
+//         }
+//     }
+    public function listbyidsAction(){
+        try
+        {
+        	//$this->dbAdapter->beginTransaction();
+        	$ids = $this->getRequest()->getParam("ids");
+        	if($ids == null){
+        		echo "[]";
+        		return;
+        	}
+        	$arr = explode(",", $ids);
+        	$queryStr= "id in (";
+        	$queryParam = array();
+        	foreach ($arr as $key=>$value){
+        		$queryStr = $queryStr.'?,';
+        		$queryParam[] = $value;
+        	}
+        	$queryStr = substr($queryStr, 0,strlen($queryStr) - 1);
+        	$queryStr = $queryStr.')';
+        	$user = new Lawyer();
+        	$resultSet = $user->fetchList(null, null, null, $queryStr, $queryParam, null, null, null);
+        
+        	$returnResultSet = array();
+        	$i = 0;
+        
+        	 
+        	foreach($resultSet as $key=>$value)
+        	{
+        		$returnServiceModel = new Lawyers();
+        		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+        		$returnServiceModel->setOtherPropertyForResponse('list');
+        		 
+        		$returnServiceModel->unsetNotExposeProperty();
+        		 
+        		$returnResultSet[$i] = $returnServiceModel;
+        		$i++;
+        	}
+        	 
+        	 
+        	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        	echo $stringValue;
+        	 
+        }catch (WeException $e) { //首先捕获weRxtException
+        	//$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	//$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    public function getAction(){
+        parent::getAction();
+
+        try
+        {
+        	//$this->dbAdapter->beginTransaction();
+        	$userId = $this->getRequest()->getParam("id");
+
+        	$users = new Lawyers();
+        	$users->id = $userId;
+
+        	$users = $users->get();
+            if($users == null){
+                $this->logger->log("user is not exist id = ".$userId,Zend_Log::ERR);
+                throw new WeException(20103);
+            }
+        	
+        	$stringValue = $users->jsonEncode();
+        	echo $stringValue;
+        	exit();
+        }catch (WeException $e) { //首先捕获weRxtException
+        	//$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	//$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+        
+    }
+    public function indexAction(){
+        try
+        {
+        	//$this->dbAdapter->beginTransaction();
+        	$sort = $this->getRequest()->getParam("sort");
+        	$page = $this->getRequest()->getParam("page");
+        	$city1 = $this->getRequest()->getParam("city1");
+        	$city2 = $this->getRequest()->getParam("city2");
+        	$special = $this->getRequest()->getParam("special");
+        	//sort分为 满意度，起薪，年限,收藏，解答，委托，累计金额，默认为满意度
+        	if($sort == null){
+                $sort = "满意度";
+        	}
+        	if($page == null){
+        	    $page = 1;
+        	}
+        	if($city1 == null || $city2 == null || $special == null){
+        	    throw new WeException(20252);
+        	}
+        	$rows = array();
+        	$top = 1;
+        	$skip = ($page - 1) * $top;
+        	$lawyer = new Lawyer();
+        	if($special == "未知"){
+        	    //专业不限
+        	    if($sort == '满意度'){
+        	    	$rows = $lawyer->fetchList(null, null, null, "city1=? and city2=?", array($city1,$city2), "id DESC", $top, $skip);
+        	    }
+        	}else{
+        	    if($sort == '满意度'){
+        	    	$rows = $lawyer->fetchList(null, null, null, "city1=? and city2=? and (special1 = ? or special2 = ?)", array($city1,$city2,$special,$special), "id DESC", $top, $skip);
+        	    }
+        	}
+
+        	
+
+        	$returnResultSet = array();
+        	$i = 0;
+        	foreach($rows as $key=>$value)
+        	{
+        		$returnServiceModel = new Lawyers();
+        		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+        		$returnServiceModel->setOtherPropertyForResponse('list');
+        		$returnServiceModel->unsetNotExposeProperty();
+        		$returnResultSet[$i] = $returnServiceModel;
+        		$i++;
+        	}
+        	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        	echo $stringValue;
+        	exit();
+        	
+        }catch (WeException $e) { //首先捕获weRxtException
+        	//$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	//$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    public function postAction(){
+        $e = new WeException(20104);
+        $this->forward('exception','global', '',array('exception'=>$e));
+    }
+    public function deleteAction(){
+        $e = new WeException(20104);
+        $this->forward('exception','global', '',array('exception'=>$e));
+    }
+    
+    public function putAction(){
+        $e = new WeException(20104);
+        $this->forward('exception','global', '',array('exception'=>$e));
+    }
+    
+   
+//     public function phonelinkAction(){
+//         try
+//         {
+//         	//$this->dbAdapter->beginTransaction();
+//         	$userId = $this->validLogin();
+//         	$jsonStr = HttpHelper::getRequestPayload();
+//         	$jsonArr = json_decode($jsonStr,true);
+//         	$telPhones = $jsonArr["telPhones"];
+//         	if($telPhones == null){
+//         		echo "[]";
+//         		exit();
+//         	}
+//         	$arr = explode(",", $telPhones);
+//         	$index = 0;
+//         	$str = "";
+//         	foreach ($arr as $key=>$value){
+//         	    if($index == 0){
+//         	        $str = $value;
+//         	    }else{
+//         	        $str = $str.",".$value;
+//         	    }
+//         	    ++$index;
+//         	}
+//         	$user = new User();
+//         	$str = "telPhone in (".$str.") and id != ?";
+//         	$rows = $user->fetchList(null, null, null, $str, array($userId), null, null, null);
+
+        
+//         	$returnResultSet = array();
+//         	$i = 0;
+//         	foreach($rows as $key=>$value)
+//         	{
+//         		$returnServiceModel = new Users();
+//         		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+//         		$returnServiceModel->setOtherPropertyForResponse('list');
+//         		$returnServiceModel->unsetNotExposeProperty();
+//         		$returnResultSet[$i] = $returnServiceModel;
+//         		$i++;
+//         	}
+//         	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+//         	echo $stringValue;
+//         	exit();
+        	 
+//         }catch (WeException $e) { //首先捕获weRxtException
+//         	//$this->dbAdapter->rollback();
+//         	$this->forward('exception','global', '',array('exception'=>$e));
+//         } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+//         	//$this->dbAdapter->rollback();
+//         	$e = new WeException();
+//         	$this->forward('exception','global', '',array('exception'=>$e));
+//         }
+//     }
+    
+    
+//     public function weibolinkAction(){
+//     	try
+//     	{
+//     		//$this->dbAdapter->beginTransaction();
+//     		$weibos = $this->getRequest()->getParam("weiboUids");
+//     		if($weibos == null){
+//     			echo "[]";
+//     			exit();
+//     		}
+//     		$arr = explode(",", $weibos);
+//     		$params = array();
+//     		$index = 0;
+//     		$str = "";
+//     		foreach ($arr as $key=>$value){
+//     		    $params[] = $value;
+//     			if($index == 0){
+//     				$str = '?';
+//     			}else{
+//     				$str = $str.','.'?';
+//     			}
+//     			++$index;
+//     		}
+//     		$user = new User();
+//     		$rows = $user->fetchList(null, null, null, "weiboUid in(".$str.")", $params, null, null, null);
+    
+    
+//     		$returnResultSet = array();
+//     		$i = 0;
+//     		foreach($rows as $key=>$value)
+//     		{
+//     			$returnServiceModel = new Users();
+//     			$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+//     			$returnServiceModel->setOtherPropertyForResponse('list');
+//     			$returnServiceModel->unsetNotExposeProperty();
+//     			$returnResultSet[$i] = $returnServiceModel;
+//     			$i++;
+//     		}
+//     		$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+//     		echo $stringValue;
+//     		exit();
+    
+//     	}catch (WeException $e) { //首先捕获weRxtException
+//     		//$this->dbAdapter->rollback();
+//     		$this->forward('exception','global', '',array('exception'=>$e));
+//     	} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+//     		//$this->dbAdapter->rollback();
+//     		$e = new WeException();
+//     		$this->forward('exception','global', '',array('exception'=>$e));
+//     	}
+//     }
+    
+
+    public function changepasswdAction(){
+    	try
+    	{
+    		$this->dbAdapter->beginTransaction();
+    		$payload = HttpHelper::getRequestPayload();
+    		$arr = json_decode($payload,true);
+    		$oldPasswd = $arr['oldpasswd'];
+    		$newPasswd = $arr['newpasswd'];
+    		
+    		if($oldPasswd == null || $newPasswd == null){
+    			$this->logger->log("param invalid",Zend_Log::ERR);
+    			throw new WeException(20225);
+    		}
+    		$user_id = $this->validLayerLogin();
+    		
+    		$users = new Lawyers();
+    		$users->id = $user_id;
+    		$users = $users->get();
+    		if($users == null){
+    		    $this->logger->log("user not exist",Zend_Log::ERR);
+    		    throw new WeException(20103);
+    		}
+    		$isValid = Lawyers::verifyPassword($oldPasswd, $users->password);
+    		if(!$isValid){
+    		    $this->logger->log("old password is invalid",Zend_Log::ERR);
+    		    throw new WeException(20225);
+    		}
+            $users->password = Lawyers::encryptPassword($newPasswd);
+    		$users = $users->update();
+
+    
+    		$this->dbAdapter->commit();
+    
+    		echo "{}";
+    	}catch (WeException $e) { //首先捕获weRxtException
+    		$this->dbAdapter->rollback();
+    		$this->forward('exception','global', '',array('exception'=>$e));
+    	} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+    		$this->dbAdapter->rollback();
+    		$e = new WeException();
+    		$this->forward('exception','global', '',array('exception'=>$e));
+    	}
+    }
+    
+    
+    public function resetpasswdAction(){
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	$payload = HttpHelper::getRequestPayload();
+        	$arr = json_decode($payload,true);
+        	$telPhone = $arr['telPhone'];
+        	$resetPasswd = $arr['resetPasswd'];
+        	$identifier = $arr['identifier'];
+        	if($telPhone == null || $resetPasswd == null || $identifier == null){
+        		$this->logger->log("reset passwd param is empty",Zend_Log::ERR);
+        		throw new WeException(20223);
+        	}
+        	$user = new Lawyer();
+        	$rows = $user->fetchList(null, null, null, "telPhone=? and forgetpasswdIdentifier = ? and forgetpasswdIdentifier != ?", array($telPhone,$identifier,''), null, null, null);
+        	if(count($rows)<=0){
+        		$this->logger->log("forget identifier not exist in system = ".$identifier,Zend_Log::ERR);
+        		throw new WeException(20223);
+        	}
+        	$now = time();
+        	$resetInvalidTime = $rows[0]['resetPasswdInvalidTime'];
+        	if($now > $resetInvalidTime){
+        	    $this->logger->log("over time to valid",Zend_Log::ERR);
+        		throw new WeException(20224);
+        	}
+        	$users = new Lawyers();
+        	$users->id = $rows[0]['id'];
+        	$users->password = Lawyers::encryptPassword($resetPasswd);
+
+        	$users->update();
+
+        
+        	$this->dbAdapter->commit();
+        
+        	echo "{}";
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+    public function forgetpasswdAction(){
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	$payload = HttpHelper::getRequestPayload();
+        	$arr = json_decode($payload,true);
+        	$telPhone = $arr['telPhone'];
+        	if($telPhone == null){
+        	    $this->logger->log("telPhone should not be empty",Zend_Log::ERR);
+        	    throw new WeException(20222);
+        	}
+        	$user = new Lawyer();
+        	$rows = $user->fetchList(null, null, null, "telPhone=?", array($telPhone), null, null, null);
+        	if(count($rows)<=0){
+        	    $this->logger->log("telPhone not exist in system = ".$telPhone,Zend_Log::ERR);
+        	    throw new WeException(20222);
+        	}
+            $users = new Lawyers();
+            $users->id = $rows[0]['id'];
+            $users->resetPasswdInvalidTime = time() + 10 * 60;
+            $users->forgetpasswdIdentifier = rand(10000, 99999);
+            $users->forgetpasswdIdentifier = 222222;
+            $users->update();
+            //发送给用户短信
+            //ShortMessageHelper::PostShortMessage($telPhone, $users->forgetpasswdIdentifier);
+            
+        	$this->dbAdapter->commit();
+        
+        	echo "{}";
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+    public function logoutAction(){
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	$user_id = $this->validLayerLogin();
+        	$users = new Lawyers();
+        	$users->id = $user_id;
+        	$users->token = "";
+        	$users->device = "";
+        	$users->deviceToken = "";
+        	$users->update();
+        
+        	$this->dbAdapter->commit();
+        
+        	echo "{}";
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    public function registerAction(){
+
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	
+        	$telPhone = $this->getRequest()->getParam('telPhone');
+        	$password = $this->getRequest()->getParam('password');
+        	$userName = $this->getRequest()->getParam('userName');
+        	$officeName = $this->getRequest()->getParam("officeName");
+        	$gender = $this->getRequest()->getParam('gender');
+        	$birthday = $this->getRequest()->getParam("birthday");
+        	$city1 = $this->getRequest()->getParam("city1");
+        	$city2 = $this->getRequest()->getParam("city2");
+        	$special1 = $this->getRequest()->getParam("special1");
+        	$special2 = $this->getRequest()->getParam("special2");
+        	$minPrice = $this->getRequest()->getParam("minPrice");
+        	$idCardNumber = $this->getRequest()->getParam("idCardNumber");
+        	$lawyerRegCode = $this->getRequest()->getParam("lawyerRegCode");
+        	$deviceToken = $this->getRequest()->getParam('deviceToken');
+            $device = $this->getRequest()->getParam("device");
+
+            
+        	if($telPhone == null || $password == null || $userName == null ||
+                $gender == null || $birthday == null || $city1 == null || $city2 == null || $officeName == null
+                || $special1 == null || $special2 == null || $idCardNumber == null ||$lawyerRegCode == null ){
+        		$this->logger->log("register info is not complete",Zend_Log::ERR);
+        		throw new WeException(20219);
+        	}
+        	if($minPrice == null){
+        	    $minPrice = 0;
+        	}
+        	
+
+        	$userReg = new LawyerReg();
+        	$rows = $userReg->fetchList(null, null, null, "telPhone = ? and telPhone != ? and status = 2", array($telPhone,''), null, null, null,true);
+        	if(count($rows) > 0){
+        		$isVerified = Lawyers::verifyPassword($password, $rows[0]['password']);
+        		if(!$isVerified){
+        		    $this->logger->log("register fail telPhone = ".$telPhone.' password = '.$password,Zend_Log::ERR);
+        		    throw new WeException(20220);
+        		}
+        		//验证成功
+        		$userRegs = new LawyerRegs();
+        		$userRegs->id = $rows[0]['id'];
+        		$userRegs->status = 3;
+        		$userRegs->update();
+        		
+        		//创建出用户
+        		$users = new Lawyers();
+        		$users->telPhone = $telPhone;
+        		$users->password = $rows[0]['password'];
+        		$users->userName = $userName;
+                $users->officeName = $officeName;
+        		$users->birthday = $birthday;
+        		$users->gender = $gender;
+        		$users->deviceToken = $deviceToken;
+        		$users->device = $device;
+                $users->city1 = $city1;
+                $users->city2 = $city2;
+                $users->special1 = $special1;
+                $users->special2 = $special2;
+                $users->minPrice = $minPrice;
+                $users->idCardNumber = $idCardNumber;
+                $users->lawyerRegCode = $lawyerRegCode;
+        		$users = $users->create();
+        		
+        		//头像信息
+        		//判断http request中是否有file
+        		if (!isset ( $_FILES ['image'] ['name'] ) || !isset ( $_FILES ['image'] ['tmp_name'] ) ||
+        		!isset ( $_FILES ['image'] ['type'] ) || !isset ( $_FILES ['image'] ['size'] ) ||
+        		!isset ( $_FILES ['image'] ['error'] )) {
+        			$this->logger->log('uploadpic is illegal', Zend_Log::ERR);
+        			$e = new WeException(20501);
+        			throw $e;
+        		}
+        		 
+        		//判断是否有传输错误
+        		if ( $_FILES ['image'] ['error'] != 0) {
+        			//$iconImage =  $_FILES ['image'];
+        			$this->logger->log('file transfer failed error = '.$_FILES['image']['error'], Zend_Log::ERR);
+        			$e = new WeException(20502);
+        			throw $e;
+        		}
+        		 
+        		$image =  $_FILES ['image'];
+        		//判断大小是否超过规定 10M
+        		if ( $image['size'] > MAX_FILE_UPLOAD_SIZE || $image['size'] < 0) {
+        			$this->logger->log('file size is too big', Zend_Log::ERR);
+        			$e = new WeException(20503);
+        			throw $e;
+        			 
+        		}
+        		//不能上传空文件
+        		if ( $image['size'] == 0) {
+        			$this->logger->log('file size is equal to zero', Zend_Log::ERR);
+        			$e = new WeException(20504);
+        			throw $e;
+        		}
+        		
+        		//判断图片类型是否符合规则
+        		if ($image['type'] != 'image/jpeg' && $image['type'] != 'image/jpg' && $image['type'] != 'image/png') {
+        			$this->logger->log('file type is illegal = '.$image['type'], Zend_Log::ERR);
+        			$e = new WeException(20505);
+        			throw $e;
+        		}
+        		
+        		//获取文件信息
+        		$fileDir = $image['tmp_name'];
+        		$fileType = $image['type'];
+        		$fileSize = $image['size'];
+        		$fileName = $image['name'];
+        		
+        		
+        		
+        		//调用servicemodel将图片插入数据库
+        		$attach = new Attachments();
+        		$attach = $attach->uploadFile($fileDir, $fileType, $fileName, $fileSize, "avatars", $users->id);
+        		
+        		$users->avatar_id = $attach->id;
+        		$users = $users->update();
+        		
+        		
+        		
+        		
+        		//律师证
+        		if (!isset ( $_FILES ['certificate'] ['name'] ) || !isset ( $_FILES ['certificate'] ['tmp_name'] ) ||
+        		!isset ( $_FILES ['certificate'] ['type'] ) || !isset ( $_FILES ['certificate'] ['size'] ) ||
+        		!isset ( $_FILES ['certificate'] ['error'] )) {
+        			$this->logger->log('uploadpic is illegal', Zend_Log::ERR);
+        			$e = new WeException(20501);
+        			throw $e;
+        		}
+        		 
+        		//判断是否有传输错误
+        		if ( $_FILES ['certificate'] ['error'] != 0) {
+        			//$iconImage =  $_FILES ['image'];
+        			$this->logger->log('file transfer failed error = '.$_FILES['image']['error'], Zend_Log::ERR);
+        			$e = new WeException(20502);
+        			throw $e;
+        		}
+        		 
+        		$image =  $_FILES ['certificate'];
+        		//判断大小是否超过规定 10M
+        		if ( $image['size'] > MAX_FILE_UPLOAD_SIZE || $image['size'] < 0) {
+        			$this->logger->log('file size is too big', Zend_Log::ERR);
+        			$e = new WeException(20503);
+        			throw $e;
+        		
+        		}
+        		//不能上传空文件
+        		if ( $image['size'] == 0) {
+        			$this->logger->log('file size is equal to zero', Zend_Log::ERR);
+        			$e = new WeException(20504);
+        			throw $e;
+        		}
+        		
+        		//判断图片类型是否符合规则
+        		if ($image['type'] != 'image/jpeg' && $image['type'] != 'image/jpg' && $image['type'] != 'image/png') {
+        			$this->logger->log('file type is illegal = '.$image['type'], Zend_Log::ERR);
+        			$e = new WeException(20505);
+        			throw $e;
+        		}
+        		
+        		//获取文件信息
+        		$fileDir = $image['tmp_name'];
+        		$fileType = $image['type'];
+        		$fileSize = $image['size'];
+        		$fileName = $image['name'];
+        		
+        		
+        		
+        		//调用servicemodel将图片插入数据库
+        		$attach = new Attachments();
+        		$attach = $attach->uploadFile($fileDir, $fileType, $fileName, $fileSize, "lawyercertificates", $users->id);
+        		
+        		$users->certificateImage_id = $attach->id;
+        		$users = $users->update();
+        
+        	}else{
+        		$this->logger->log("register fail telPhone = ".$telPhone.' password = '.$password,Zend_Log::ERR);
+        		throw new WeException(20220);
+        	}
+        
+        	
+        	
+        
+        	
+        	$this->dbAdapter->commit();
+        	$users->setPropertyTypeByKey("token", "readOnly");
+        	$users->setPropertyTypeByKey("deviceToken", "readOnly");
+        	$users->setPropertyTypeByKey("device", "readOnly");
+
+            $returnStr = $users->jsonEncode();
+        	echo $returnStr;
+        	
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$this->logger->log("exception = ".$e,Zend_Log::ERR);
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+    public function valididentifierAction(){
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	$payload = HttpHelper::getRequestPayload();
+        	$jsonArr = json_decode($payload,true);
+        	$telPhone = $jsonArr['telPhone'];
+        	$identifier = $jsonArr['identifier'];
+        	$password = $jsonArr['password'];
+        	
+        	//是否绑定手机号
+        	//$isBind = $jsonArr['isBind'];
+        
+        	if($telPhone == null){
+        		$this->logger->log("telPhone is empty",Zend_Log::ERR);
+        		throw new WeException(20212);
+        	}
+        	
+        	if($identifier == null){
+        		$this->logger->log("identifier is empty",Zend_Log::ERR);
+        		throw new WeException(20213);
+        	}
+        	if($password == null){
+        		$this->logger->log("password is empty",Zend_Log::ERR);
+        		throw new WeException(20214);
+        	}
+        
+        	$userReg = new LawyerReg();
+        	$rows = $userReg->fetchList(null, null, null, "telPhone = ? and telPhone != ? and registerIdentifier = ? and registerIdentifier != ? and status = 1", array($telPhone,'',$identifier,''), null, null, null,true);
+        	if(count($rows) > 0){
+        	    $now = time();
+        	    if($now > $rows[0]['registerInValidTime']){
+        	        $this->logger->log('identifier is out of time',Zend_Log::ERR);
+        	        throw new WeException(20216);
+        	    }
+        	    
+                //注册验证成功
+                $userRegs = new LawyerRegs();
+                $userRegs->id = $rows[0]['id'];
+                $userRegs->status = 2;
+                $userRegs->password = Lawyers::encryptPassword($password);
+                $userRegs->update();
+                
+
+                
+        	}else{
+        	    $this->logger->log("valid fail telPhone = ".$telPhone.' identifier = '.$identifier,Zend_Log::ERR);
+        	    throw new WeException(20215);
+        	}
+        	 
+        	$this->dbAdapter->commit();
+        
+        	echo "{}";
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+    
+    
+    
+    public function getidentifierAction(){
+        try
+        {
+        	$this->dbAdapter->beginTransaction();
+        	$payload = HttpHelper::getRequestPayload();
+        	$jsonArr = json_decode($payload,true);
+        	$telPhone = $jsonArr['telPhone'];
+        
+        	if($telPhone == null){
+        		$this->logger->log("telPhone is empty",Zend_Log::ERR);
+        		throw new WeException(20212);
+        	}
+        
+        	$userReg = new LawyerReg();
+        	$rows = $userReg->fetchList(null, null, null, "telPhone = ? and telPhone != ?", array($telPhone,''), null, null, null,true);
+        	if(count($rows) > 0){
+                //走update
+                if($rows[0]['status'] == 3){
+                    $this->logger->log("telPhone is repeated and status = 3 telPhone = ".$this->telPhone,Zend_Log::ERR);
+                    throw new WeException(20210);
+                }else{
+                    $userRegs = new LawyerRegs();
+                    $userRegs->id = $rows[0]['id'];
+                    $userRegs->status = 1;
+                    $userRegs->password = '';
+                    $userRegs->registerIdentifier = rand(10000, 99999);
+                    $userRegs->registerIdentifier = 222222;
+                    $userRegs->registerInValidTime = time() + 30 * 60;
+                    $userRegs->update();
+                    //发送给用户短信
+                    //ShortMessageHelper::PostShortMessage($telPhone, $userRegs->registerIdentifier);
+                    
+                }
+        	}else{
+        	    $userRegs = new LawyerRegs();
+        	    $userRegs->telPhone = $telPhone;
+        	    $userRegs->create();
+        	}
+        	
+        	$this->dbAdapter->commit();
+            
+        	echo "{}";
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+    
+    
+    public function setcurrentuserAction(){
+    	try
+    	{
+    		$this->dbAdapter->beginTransaction();
+            $userName = $this->getRequest()->getParam("userName");
+            $word = $this->getRequest()->getParam("word");
+            $city1 = $this->getRequest()->getParam("city1");
+            $city2 = $this->getRequest()->getParam("city2");
+            $minPrice = $this->getRequest()->getParam("minPrice");
+            $officeName = $this->getRequest()->getParam("officeName");
+            $special1 = $this->getRequest()->getParam("special1");
+            $special2 = $this->getRequest()->getParam("special2");
+            if( $minPrice == null){
+                $minPrice = 0;
+            }
+    		if( $userName == null ||
+    		$city1 == null || $city2 == null  || $officeName == null || $special1 == null || $special2 == null){
+    			$this->logger->log("set current user info",Zend_Log::ERR);
+    			throw new WeException(20235);
+    		}
+    
+    		 
+    		$user_id = $this->validLayerLogin();
+    		$users = new Lawyers();
+    		$users->id = $user_id;
+    		$users->userName = $userName;
+    		$users->word = $word;
+    		$users->city1 = $city1;
+    		$users->city2 = $city2;
+    		$users->minPrice = $minPrice;
+    		$users->officeName = $officeName;
+    		$users->special1 = $special1;
+    		$users->special2 = $special2;
+    		$users->fromType = "setcurrentuserinfo";
+    		        
+    		        
+    		$users = $users->update();
+    		
+    		//头像信息
+    		//判断http request中是否有file
+    		if (!isset ( $_FILES ['image'] ['name'] ) || !isset ( $_FILES ['image'] ['tmp_name'] ) ||
+    		!isset ( $_FILES ['image'] ['type'] ) || !isset ( $_FILES ['image'] ['size'] ) ||
+    		!isset ( $_FILES ['image'] ['error'] ) ) {
+    		
+    		}else{
+    			//判断是否有传输错误
+    			if ( $_FILES ['image'] ['error'] != 0) {
+    				//$iconImage =  $_FILES ['image'];
+    				$this->logger->log('file transfer failed error = '.$_FILES['image']['error'], Zend_Log::ERR);
+    				$e = new WeException(20502);
+    				throw $e;
+    			}
+    				
+    			$image =  $_FILES ['image'];
+    			//判断大小是否超过规定 10M
+    			if ( $image['size'] > MAX_FILE_UPLOAD_SIZE || $image['size'] < 0) {
+    				$this->logger->log('file size is too big', Zend_Log::ERR);
+    				$e = new WeException(20503);
+    				throw $e;
+    		
+    			}
+    			//不能上传空文件
+    			if ( $image['size'] == 0) {
+    				$this->logger->log('file size is equal to zero', Zend_Log::ERR);
+    				$e = new WeException(20504);
+    				throw $e;
+    			}
+    		
+    			//判断图片类型是否符合规则
+    			if ($image['type'] != 'image/jpeg' && $image['type'] != 'image/jpg' && $image['type'] != 'image/png') {
+    				$this->logger->log('file type is illegal = '.$image['type'], Zend_Log::ERR);
+    				$e = new WeException(20505);
+    				throw $e;
+    			}
+    		
+    			//获取文件信息
+    			$fileDir = $image['tmp_name'];
+    			$fileType = $image['type'];
+    			$fileSize = $image['size'];
+    			$fileName = $image['name'];
+    		
+    		
+    			//调用servicemodel将图片插入数据库
+    			$attach = new Attachments();
+    			$attach = $attach->uploadFile($fileDir, $fileType, $fileName, $fileSize, "avatars", $user_id);
+    		
+    			$users->avatar_id = $attach->id;
+    			$users = $users->update();
+    		}
+    
+    		$this->dbAdapter->commit();
+    		$users->setPropertyTypeByKey("token", "readOnly");
+    		$users->setPropertyTypeByKey("deviceToken", "readOnly");
+    		$users->setPropertyTypeByKey("device", "readOnly");
+    		$users->setPropertyTypeByKey("telPhone", "readOnly");
+    		$returnStr = $users->jsonEncode();
+    		echo $returnStr;
+    
+    	}catch (WeException $e) { //首先捕获weRxtException
+    		$this->dbAdapter->rollback();
+    		$this->forward('exception','global', '',array('exception'=>$e));
+    	} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+    		$this->dbAdapter->rollback();
+    		$e = new WeException();
+    		$this->forward('exception','global', '',array('exception'=>$e));
+    	}
+    }
+    
+    
+    
+    public function updateavatarAction(){
+    	try
+    	{
+    		$this->dbAdapter->beginTransaction();
+    		$user_id = $this->validLogin();
+    		//头像信息
+    		//判断http request中是否有file
+    		if (!isset ( $_FILES ['image'] ['name'] ) || !isset ( $_FILES ['image'] ['tmp_name'] ) ||
+    		!isset ( $_FILES ['image'] ['type'] ) || !isset ( $_FILES ['image'] ['size'] ) ||
+    		!isset ( $_FILES ['image'] ['error'] )) {
+    			$this->logger->log('uploadpic is illegal', Zend_Log::ERR);
+    			$e = new WeException(20501);
+    			throw $e;
+    		}
+    		 
+    		//判断是否有传输错误
+    		if ( $_FILES ['image'] ['error'] != 0) {
+    			//$iconImage =  $_FILES ['image'];
+    			$this->logger->log('file transfer failed error = '.$_FILES['image']['error'], Zend_Log::ERR);
+    			$e = new WeException(20502);
+    			throw $e;
+    		}
+    		 
+    		$image =  $_FILES ['image'];
+    		//判断大小是否超过规定 10M
+    		if ( $image['size'] > MAX_FILE_UPLOAD_SIZE || $image['size'] < 0) {
+    			$this->logger->log('file size is too big', Zend_Log::ERR);
+    			$e = new WeException(20503);
+    			throw $e;
+    
+    		}
+    		//不能上传空文件
+    		if ( $image['size'] == 0) {
+    			$this->logger->log('file size is equal to zero', Zend_Log::ERR);
+    			$e = new WeException(20504);
+    			throw $e;
+    		}
+    
+    		//判断图片类型是否符合规则
+    		if ($image['type'] != 'image/jpeg' && $image['type'] != 'image/jpg' && $image['type'] != 'image/png') {
+    			$this->logger->log('file type is illegal = '.$image['type'], Zend_Log::ERR);
+    			$e = new WeException(20505);
+    			throw $e;
+    		}
+    
+    		//获取文件信息
+    		$fileDir = $image['tmp_name'];
+    		$fileType = $image['type'];
+    		$fileSize = $image['size'];
+    		$fileName = $image['name'];
+    
+    		$users = new Users();
+    		$users->id = $user_id;
+    
+    		//调用servicemodel将图片插入数据库
+    		$attach = new Attachments();
+    		$attach = $attach->uploadFile($fileDir, $fileType, $fileName, $fileSize, "avatars", $user_id);
+    
+    		$users->avatar_id = $attach->id;
+    		$users = $users->update();
+    
+    		$this->dbAdapter->commit();
+    		 
+    		$jsonStr = $attach->jsonEncode();
+    		echo $jsonStr;
+    
+    
+    	}catch (WeException $e) { //首先捕获weRxtException
+    		$this->dbAdapter->rollback();
+    		$this->forward('exception','global', '',array('exception'=>$e));
+    	} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+    		$this->dbAdapter->rollback();
+    		$e = new WeException();
+    		$this->forward('exception','global', '',array('exception'=>$e));
+    	}
+    
+    }
+    
+    
+    
+    
+    public function loginAction(){
+        try
+        {
+//             $imageArr = $_FILES["image"];
+//             foreach ($imageArr as $key => $value)
+//             {
+//                 $this->logger->log("key = ".$key." length = ".$value['size']." type = ".$value["type"],Zend_Log::ERR);
+//             }
+//             return;
+        	$this->dbAdapter->beginTransaction();
+            $payload = HttpHelper::getRequestPayload();
+            $jsonArr = json_decode($payload,true);
+            $deviceToken = $jsonArr['deviceToken'];
+            $device = $jsonArr['device'];
+            $telPhone = $jsonArr['telPhone'];
+            $password = $jsonArr['password'];
+            
+            
+            if($telPhone == null || $password == null){
+            	$this->logger->log("login information is not complete",Zend_Log::ERR);
+            	throw new WeException(20204);
+            }
+            AuthenticationMgr::$isActAsRoot = true;
+            $user = new Lawyer();
+            $row = $user->fetchList(null, null, null, "telPhone=? and telPhone !=?",
+            		array($telPhone,''), null, null, null);
+            
+            if(count($row) <= 0){
+            	$this->logger->log("login information is not correct",Zend_Log::ERR);
+            	throw new WeException(20204);
+            }
+            $inPasswd = $row[0]['password'];
+            $isValid = Lawyers::verifyPassword($password, $inPasswd);
+            if(!$isValid){
+            	$this->logger->log("password is incorrect",Zend_Log::ERR);
+            	throw new WeException(20204);
+            }
+            $lawyer_id = $row[0]['id'];
+            $lawyerCheck = new Lawyers();
+            $lawyerCheck->id = $lawyer_id;
+            $lawyerCheck = $lawyerCheck->get();
+            if($lawyerCheck->disabled_flag == 1){
+                throw new WeException(20107);
+            }
+            if($lawyerCheck->isApproved == 0){
+                throw new WeException(20108);
+            }
+            AuthenticationMgr::$isActAsRoot = false;
+            
+            $users = new Lawyers();
+            $users->id = $row[0]['id'];
+            $users->deviceToken = $deviceToken;
+            $users->device = $device;
+            if($row[0]['token'] == null){
+            	$users->token = CommonHelper::create_uuid();
+            }
+            $users = $users->update();
+ 
+
+            
+            $users->setPropertyTypeByKey("token", "readOnly");
+            $users->setPropertyTypeByKey("deviceToken", "readOnly");
+            $users->setPropertyTypeByKey("device", "readOnly");
+            $users->setPropertyTypeByKey("telPhone", "readOnly");
+        	$stringValue = $users->jsonEncode();
+        	$this->dbAdapter->commit();
+        	echo $stringValue;
+        	exit();
+        }catch (WeException $e) { //首先捕获weRxtException
+        	$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+        
+    }
+    
+    
+  
+}
+
+
+
+
+?>

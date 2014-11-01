@@ -1,0 +1,81 @@
+<?php
+
+
+require_once APPLICATION_PATH . '/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH . '/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH . '/helpers/HttpHelper.php';
+require_once APPLICATION_PATH . '/helpers/CommonHelper.php';
+require_once APPLICATION_PATH . '/helpers/HttpHelper.php';
+require_once APPLICATION_PATH . '/helpers/QueryCondition.php';
+require_once APPLICATION_PATH . '/helpers/WeException.php';
+require_once APPLICATION_PATH . '/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Users.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Trades.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH . '/models/tablemodel/RobotCount.php';
+require_once APPLICATION_PATH . '/models/servicemodel/RobotQuestions.php';
+require_once APPLICATION_PATH . '/helpers/Constant.php';
+require_once APPLICATION_PATH . '/helpers/AuthenticationMgr.php';
+
+
+class SystemprocessController extends We_Base_Action_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+		if(!HttpHelper::isLocalIp()){
+		    echo "invalid because ip is not local";
+		    exit();
+		}
+	}
+
+	
+	
+	public function reviewtradeAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    
+	    	$trades = new Trades();
+            $now = time();
+            $duration = $now - 7 * 86400;
+	        $rows = $trades->tableModel->fetchList(array("id"),null,null,"status=? and creationTime <= ?",array(1,$duration),null,null,null,true);
+	        
+	        foreach ($rows as $key=>$value){
+	            $tradesForUpdate = new Trades();
+	            $tradesForUpdate->id = $value["id"];
+	            $tradesForUpdate->status = 2;
+	            $tradesForUpdate = $tradesForUpdate->update();
+	            
+	            //通知中心
+	            $notifications = new Notifications();
+	            $notifications->msgType = 6;
+	            $notifications->creator = $tradesForUpdate->user_id;
+	            $notifications->creator_type = "用户";
+	            $notifications->msgTo = $tradesForUpdate->creator;
+	            $notifications->msgTo_type = "律师";
+	            $notifications->msgRef_id = $tradesForUpdate->id;
+	            $notifications->msgOption = 1;
+	            NotificationHelper::pushNotification($notifications);
+	        }
+	        
+	        
+	    	$this->dbAdapter->commit();
+	    	
+	    	echo "success totalsize = ".count($rows);
+	    	exit();
+	    
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+
+
+
+}

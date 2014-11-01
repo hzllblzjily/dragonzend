@@ -1,0 +1,357 @@
+function setHome(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		insertContent = '<li class="start active"><a href="/console/index"><i class="fa fa-home"></i><span class="title"> 首页 </span><span class="selected"></span></a></li>';
+		
+	}else {
+		insertContent = '<li><a href="/console/index"><i class="fa fa-home"></i><span class="title"> 首页 </span></a></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+
+///////////////////////////////////////////////////////
+
+function setAudit(isOpen,active_number) {
+	var insertContent;
+	insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 审核 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/dashboard/activitys/list?page=1">审核律师 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">审核企业 </a></li>' +
+		'</ul></li>';
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSyetemConfig(isOpen,active_number) {
+	var insertContent;
+	insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 系统维护 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/admin/enteraddadmin">新建管理员 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">处理反馈 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">处理举报</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">群发消息</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计信息</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">管理员信息设置</a></li>' +
+		'<li><a href="/admin/resetpasswordrender">更改密码</a></li>' +
+		'</ul></li>';
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setRobot(isOpen,active_number) {
+	var insertContent;
+	insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 模拟用户 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">新建模拟用户 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">新建题库 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户提问</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户回复</a></li>' +
+		'</ul></li>';
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSyetemConfig1(isOpen,active_number) {
+	var insertContent;
+	insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 系统维护 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/admin/activitys/list?page=1">处理反馈 </a></li>' +
+		'<li><a href="/admin/activitys/list?page=1">处理举报</a></li>' +
+		'<li><a href="/admin/activitys/list?page=1">群发消息</a></li>' +
+		'<li><a href="/admin/activitys/list?page=1">统计信息</a></li>' +
+		'<li><a href="/admin/resetpasswordrender">更改密码</a></li>' +
+		'</ul></li>';
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setRobot1(isOpen,active_number) {
+	var insertContent;
+	insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 模拟用户 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/dashboard/activitys/list?page=1">新建模拟用户 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户提问</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户回复</a></li>' +
+		'</ul></li>';
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+/////////////////////////////////////////////////////////////
+function setActivityReadOnly(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 线下活动 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/dashboard/activitys/list?page=1">查看所有活动 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 线下活动 </span><span class="arrow"></span></a><ul class="sub-menu"><li><a href="/dashboard/activitys/list?page=1">查看所有线下活动 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setAdvertisement(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-puzzle-piece"></i><span class="title"> 广告 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/advertisementsbk/list">查看所有广告 </a></li><li><a href="/advertisementsbk/new">创建一个广告 </a></li></ul></li>';
+				break;
+			case 2:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-puzzle-piece"></i><span class="title"> 广告 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/advertisementsbk/list">查看所有广告 </a></li><li class="active"><a href="/advertisementsbk/new">创建一个广告 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-puzzle-piece"></i><span class="title"> 广告 </span><span class="arrow"></span></a><ul class="sub-menu"><li><a href="/advertisementsbk/list">查看所有广告 </a></li><li><a href="/advertisementsbk/new">创建一个广告 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setUser(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		insertContent = '<li class="active open"><a href="/usersbk/list" class="tooltips" data-container="body" data-placement="right" data-html="true" data-original-title="查看所有本校的学生用户信息"><i class="fa fa-user"></i><span class="title"> 学生用户 </span><span class="selected"></span></a></li>';
+		
+	}else {
+		insertContent = '<li><a href="/usersbk/list" class="tooltips" data-container="body" data-placement="right" data-html="true" data-original-title="查看所有本校的学生用户信息"><i class="fa fa-user"></i><span class="title"> 学生用户 </span><span class="selected"></span></a></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setOrganization(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-sitemap"></i><span class="title"> 公共组织 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/organizationsbk/list">查看公共组织列表 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-sitemap"></i><span class="title"> 公共组织 </span><span class="arrow"></span></a><ul class="sub-menu"><li><a href="/organizationsbk/list">查看公共组织列表 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSchool(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-map-marker"></i><span class="title"> 学校 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/schoolsbk/list">查看学校列表 </a></li><li><a href="/schoolsbk/new">添加一个学校 </a></li><li><a href="/adminsbk/schooladmins">查看学校管理员列表 </a></li></ul></li>';
+				break;
+			case 2:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-map-marker"></i><span class="title"> 学校 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/schoolsbk/list">查看学校列表 </a></li><li class="active"><a href="/schoolsbk/new">添加一个学校 </a></li><li><a href="/adminsbk/schooladmins">查看学校管理员列表 </a></li></ul></li>';
+				break;
+			case 3:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-map-marker"></i><span class="title"> 学校 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/schoolsbk/list">查看学校列表 </a></li><li><a href="/schoolsbk/new">添加一个学校 </a></li><li class="active"><a href="/adminsbk/schooladmins">查看学校管理员列表 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-map-marker"></i><span class="title"> 学校 </span><span class="arrow"></span></a><ul class="sub-menu"><li><a href="/schoolsbk/list">查看学校列表 </a></li><li><a href="/schoolsbk/new">添加一个学校 </a></li><li><a href="/adminsbk/schooladmins">查看学校管理员列表 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSocialActivity(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-rocket"></i><span class="title"> 同城活动 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/socialactivitiesbk/list">查看同城活动列表 </a></li><li><a href="/socialactivitiesbk/new">创建一个同城活动 </a></li></ul></li>';
+				break;
+			case 2:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-rocket"></i><span class="title"> 同城活动 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/socialactivitiesbk/list">查看同城活动列表 </a></li><li class="active"><a href="/socialactivitiesbk/new">创建一个同城活动 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-rocket"></i><span class="title"> 同城活动 </span><span class="arrow"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/socialactivitiesbk/list">查看同城活动列表 </a></li><li><a href="/socialactivitiesbk/new">创建一个同城活动 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSocialActivityReadOnly(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-rocket"></i><span class="title"> 同城活动 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/socialactivitiesbk/list">查看同城活动列表 </a></li><li><a href="/socialactivitycategoriesbk/list">同城活动类型管理 </a></li></ul></li>';
+				break;
+			case 2:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-rocket"></i><span class="title"> 同城活动 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/socialactivitiesbk/list">查看同城活动列表 </a></li><li class="active"><a href="/socialactivitycategoriesbk/list">同城活动类型管理 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-rocket"></i><span class="title"> 同城活动 </span><span class="arrow"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/socialactivitiesbk/list">查看同城活动列表 </a></li><li><a href="/socialactivitycategoriesbk/list">同城活动类型管理 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSpecial(isOpen,active_number,canCreate) {
+	var insertContent;
+	if (canCreate) {
+		if (isOpen) {
+			switch (active_number)
+			{
+				case 1:
+					insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-film"></i><span class="title"> 专题 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/specialsbk/list">查看专题列表 </a></li><li><a href="/specialsbk/new">创建一个专题 </a></li></ul></li>';
+					break;
+				case 2:
+					insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-film"></i><span class="title"> 专题 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/specialsbk/list">查看专题列表 </a></li><li class="active"><a href="/specialsbk/new">创建一个专题 </a></li></ul></li>';
+					break;
+				default:
+					insertContent = "";
+			}
+		}else {
+			insertContent = '<li><a href="javascript:;"><i class="fa fa-film"></i><span class="title"> 专题 </span><span class="arrow"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/specialsbk/list">查看专题列表 </a></li><li><a href="/specialsbk/new">创建一个专题 </a></li></ul></li>';
+		};
+	} else {
+		if (isOpen) {
+			insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-film"></i><span class="title"> 专题 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/specialsbk/list">查看专题列表 </a></li></ul></li>';
+		}else {
+			insertContent = '<li><a href="javascript:;"><i class="fa fa-film"></i><span class="title"> 专题 </span><span class="arrow"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/specialsbk/list">查看专题列表 </a></li></ul></li>';
+		};
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setOther(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		switch (active_number)
+		{
+			case 1:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-cogs"></i><span class="title"> 其他功能 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li class="active"><a href="/activitycategoriesbk/list">查看所有活动分类 </a></li><li><a href="/regionsbk/list">查看所有区域 </a></li><li><a href="/adminsbk/regionadmins">查看区域管理员列表 </a></li></ul></li>';
+				break;
+			case 2:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-cogs"></i><span class="title"> 其他功能 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/activitycategoriesbk/list">查看所有活动分类 </a></li><li class="active"><a href="/regionsbk/list">查看所有区域 </a></li><li><a href="/adminsbk/regionadmins">查看区域管理员列表 </a></li></ul></li>';
+				break;
+			case 3:
+				insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-cogs"></i><span class="title"> 其他功能 </span><span class="arrow open"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/activitycategoriesbk/list">查看所有活动分类 </a></li><li><a href="/regionsbk/list">查看所有区域 </a></li><li class="active"><a href="/adminsbk/regionadmins">查看区域管理员列表 </a></li></ul></li>';
+				break;
+			default:
+				insertContent = "";
+		}
+		
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-cogs"></i><span class="title"> 其他功能 </span><span class="arrow"></span><span class="selected"></span></a><ul class="sub-menu"><li><a href="/activitycategoriesbk/list">查看所有活动分类 </a></li><li><a href="/regionsbk/list">查看所有区域 </a></li><li><a href="/adminsbk/regionadmins">查看区域管理员列表 </a></li></ul></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setOrgDropmenu(hasWeibo) {
+	var insertContent = "";
+	if (hasWeibo) {
+		insertContent = '<li><div style="padding:13px;"><img id="weiboAvatar" src="" style="width:30px;height:30px;"><span id="weiboUid"></span></div><a href="javascript:weibounbind();"><i class="fa fa-ban"></i> 解除绑定 </a></li>';	
+	} else insertContent = '<li><a href="javascript:weibobind();"><i class="fa fa-weibo"></i> 绑定微博账号 </a></li>';
+	
+	insertContent += '<li class="divider"></li><li><a href="/organizationsbk/getprofile"><i class="fa fa-user"></i> 编辑组织信息 </a></li><li><a href="/dashboard/modifypassword"><i class="fa fa-lock"></i> 修改密码 </a></li><li><a href="/documents/admin_user_guide.pdf"><i class="fa fa-book"></i> 查看使用帮助手册 </a></li><li class="divider"></li><li><a href="/dashboard/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+	document.getElementById('dropdown-container').innerHTML = insertContent;
+}
+
+function setSchoolDropmenu() {
+	var insertContent = '<li><a href="/schoolsbk/getprofile"><i class="fa fa-map-marker"></i> 编辑学校信息 </a></li><li><a href="/dashboard/modifypassword"><i class="fa fa-lock"></i> 修改密码 </a></li><li><a href="/documents/admin_user_guide.pdf"><i class="fa fa-book"></i> 查看使用帮助手册 </a></li><li class="divider"></li><li><a href="/dashboard/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+
+	document.getElementById('dropdown-container').innerHTML = insertContent;
+}
+
+function setSuperDropmenu() {
+//	var insertContent = '<li><a href="/dashboard/modifypassword"><i class="fa fa-lock"></i> 修改密码 </a></li><li><a href="/documents/admin_user_guide.pdf"><i class="fa fa-book"></i> 查看使用帮助手册 </a></li><li class="divider"></li><li><a href="/dashboard/connection/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+	var insertContent = '<li><a href="/connection/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+
+	document.getElementById('dropdown-container').innerHTML = insertContent;
+}
+
+function setOrgWeibo(uid,avatarSrc) {
+	document.getElementById('weiboUid').innerHTML = uid;
+	document.getElementById('weiboAvatar').src = avatarSrc;
+}
+
+function setOrgRenren(uid,avatarSrc) {
+	document.getElementById('renrenUid').innerHTML = uid;
+	document.getElementById('renrneAvatar').src = avatarSrc;
+}
+
+function weibobind() {
+	WB2.login(function() {
+		var weiboId;
+
+    	//获取微薄access token & userID
+	  	var aCookie = document.cookie.split("; ");
+	  	var weibotoken;
+	  	for (var i=0; i < aCookie.length; i++)
+		{
+			// a name/value pair (a crumb) is separated by an equal sign
+			var aCrumb = aCookie[i].split("=");
+			if (aCrumb[0] == "weibojs_1267976054"){ 
+				var tmp = aCrumb[1].split("%");
+				weibotoken = tmp[1].substring(2);
+				weiboId = tmp[7].substring(2);
+			}
+		}
+
+		var xx = new Object();
+	   	xx.weiboUid = weiboId;
+	   	xx.weiboAccessToken = weibotoken;
+	   	jInfo = JSON.stringify(xx);
+	   
+	    jQuery.ajax({
+	        type : "POST",  
+	        contentType : "application/json",  
+	        url : "/adminsbk/bindweibo",
+	        beforeSend: function(request) {
+	            //request.setRequestHeader("Auth-Token", "37636f37cd7779459eea00699bfc0a12");
+	        },
+	        data : jInfo,
+	        success : function(data){
+	        	location.reload();
+	        },  
+	        error : function(data){
+	        	alert(data.responseText);
+	        }
+	    });
+	});
+};
+
+function weibounbind(){
+	jQuery.ajax({
+        type : "POST",  
+        contentType : "application/json",  
+        url : "/adminsbk/unbindweibo",
+        beforeSend: function(request) {
+            //request.setRequestHeader("Auth-Token", "37636f37cd7779459eea00699bfc0a12");
+        },
+        success : function(data){
+        	location.reload();
+        },  
+        error : function(data){
+        	alert(data.responseText);
+        }
+    });
+};

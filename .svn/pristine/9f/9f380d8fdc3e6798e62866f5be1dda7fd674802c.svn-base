@@ -1,0 +1,293 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Attachments.php';
+require_once APPLICATION_PATH.'/models/tablemodel/User.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/Social/WeiboHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Users extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $userName;
+    public $city1;
+    public $city2;
+    public $companyName;
+    public $avatar_id;
+    public $contactTelPhone;
+    public $address;
+    public $zipCode;
+    public $email;
+
+    
+    
+    
+
+    
+    //table
+    public $password;
+    public $token;
+    public $deviceToken;
+    public $device;   //Iphone或Android
+    public $telPhone;
+    public $companyRegCode;
+    public $forgetpasswdIdentifier;
+    public $resetPasswdInvalidTime;
+
+    
+    //aggregation
+    public $avatarOriginUrl;
+    public $avatarMediumUrl;
+    public $avatarThumbUrl;
+    
+    //readonly
+    public $birthday;
+    public $gender;
+    
+
+    
+
+	public function __construct()
+	{
+	    parent::__construct();
+	        
+		$this->propertyTypes["id"] = $this->columnProperty;
+		$this->propertyTypes["userName"] = $this->columnProperty;
+        $this->propertyTypes["contactTelPhone"] = $this->columnProperty;
+        $this->propertyTypes["avatar_id"] = $this->columnProperty;
+
+        
+
+        $this->propertyTypes["companyName"] = $this->columnProperty;
+        $this->propertyTypes["city1"] = $this->columnProperty;
+        $this->propertyTypes["city2"] = $this->columnProperty;
+        $this->propertyTypes["address"] = $this->columnProperty;
+        $this->propertyTypes["zipCode"] = $this->columnProperty;
+        $this->propertyTypes["email"] = $this->columnProperty;
+        
+		$this->propertyTypes["password"] = $this->tableProperty;
+		$this->propertyTypes["companyRegCode"] = $this->tableProperty;
+		$this->propertyTypes["token"] = $this->tableProperty;
+		$this->propertyTypes["deviceToken"] = $this->tableProperty;
+		$this->propertyTypes["device"] = $this->tableProperty;
+		$this->propertyTypes["telPhone"] = $this->tableProperty;
+		$this->propertyTypes["forgetpasswdIdentifier"] = $this->tableProperty;
+		$this->propertyTypes["resetPasswdInvalidTime"] = $this->tableProperty;
+		
+		
+		
+		
+		$this->propertyTypes["avatarOriginUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["avatarMediumUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["avatarThumbUrl"] = $this->aggregationProperty;
+
+
+		$this->propertyTypes["birthday"] = $this->readOnlyProperty;
+		$this->propertyTypes["gender"] = $this->readOnlyProperty;
+		
+
+	}
+	
+	public function setOtherPropertyForResponse($operation){
+	    parent::setOtherPropertyForResponse($operation);
+		if($operation != 'delete'){
+
+		    
+		    if($this->avatar_id != null){
+		        $this->avatarOriginUrl = Attachments::getAttachmentUrl($this->avatar_id, 1);
+		        $this->avatarMediumUrl = Attachments::getAttachmentUrl($this->avatar_id, 2);
+		        $this->avatarThumbUrl = Attachments::getAttachmentUrl($this->avatar_id, 3);
+		    }
+
+		 
+		    
+	
+		    
+		    
+		}
+		return $this;
+	}
+	
+	
+	public function onGet()
+	{
+		parent::onGet();
+	}
+
+
+	
+	
+	public function onCreate()
+	{
+		parent::onCreate();
+
+		if($this->telPhone == null || (!Verification::varifyTelPhone($this->telPhone))){
+			$this->logger->log('telPhone is invalid = '.$this->telPhone,Zend_Log::ERR);
+			throw new WeException(20207);
+		}
+		if($this->password == null){
+			$this->logger->log('password is invalid = '.$this->password,Zend_Log::ERR);
+			throw new WeException(20208);
+		}
+		
+		//手机号唯一
+		$rows = $this->tableModel->fetchList(null,null,null,'telPhone=? and telPhone != ?',array($this->telPhone,''), null, null, null,true);
+		if(count($rows) > 0){
+			$this->logger->log('telPhone is repeated = '.$this->telPhone,Zend_Log::ERR);
+			throw new WeException(20210);
+		}
+		
+
+        
+        
+        
+		
+		//昵称唯不能为空
+		if($this->userName == null){
+		    $this->logger->log('userName is null',Zend_Log::ERR);
+		    throw new WeException(20209);
+		}
+		
+
+		
+		if($this->device != null && $this->device != 'Iphone' && $this->device != 'Android'){
+		    $this->logger->log('device is invalid  = '.$this->device,Zend_Log::ERR);
+		    throw new WeException(20221);
+		}
+		
+		//密码外部加密好
+
+		
+		
+// 		if($this->gender == null){
+// 		    $this->logger->log('gender should not be empty',Zend_Log::ERR);
+// 		    throw new WeException(20217);
+// 		}
+
+
+		$token = CommonHelper::create_uuid();
+		$this->token = $token;
+		
+		$rows = $this->tableModel->fetchList(null,null,null,'token=? ',array($this->token), null, null, null,true);
+		if(count($rows) > 0){
+			$this->logger->log('token is repeated unexpectedly',Zend_Log::ERR);
+			throw new WeException(20202);
+		}
+		
+
+
+	}
+	
+	
+	
+	public function operationOfOtherProperty($operation)
+	{
+	   parent::operationOfOtherProperty($operation);
+	   if($operation == 'create'){
+
+	   }
+	   if($operation == 'update'){
+	       if($this->fromType == 'setcurrentuserinfo'){
+	          
+	       }
+	   }
+	  
+	}
+	
+	
+	
+	public function onUpdate()
+	{
+		parent::onUpdate();
+		
+		//昵称唯不能为空
+		if($this->userName == null){
+		    $this->logger->log('userName is null',Zend_Log::ERR);
+		    throw new WeException(20209);
+		}
+		
+		//手机号不能修改
+		$oldTelPhone = $this->snapshotColumnPropertyValues['telPhone'];
+		if($oldTelPhone != $this->telPhone){
+			$this->logger->log("telPhone should not be changed to ".$this->telPhone.' when update',Zend_Log::ERR);
+			throw new WeException(20211);
+		}
+
+
+		
+		
+// 		if($this->gender == null){
+// 			$this->logger->log('gender should not be empty',Zend_Log::ERR);
+// 			throw new WeException(20217);
+// 		}
+		
+		
+		if($this->device != null && $this->device != 'Iphone' && $this->device != 'Android'){
+			$this->logger->log('device is invalid  = '.$this->device,Zend_Log::ERR);
+			throw new WeException(20221);
+		}
+		
+		
+		
+		
+		
+		
+	}
+	
+	public function onDelete()
+	{
+		parent::onDelete();
+	}
+	
+	
+
+	
+	public function beforeSetOtherOperationForResponse($oldObject){
+
+	}
+	
+	
+	public static function getUserIdByToken($token){
+	    if($token == null){
+	        return 0;
+	    }
+	    $user = new User();
+	    $rows = $user->fetchList(array('id','token'), null, null, "token = ? and token != ?", array($token,''), null, null, null);
+	    if(count($rows)<=0){
+	        return 0;
+	    }else{
+	        $id = $rows[0]["id"];
+	        return $id;
+	    }
+	}
+	
+
+	
+	public static function encryptPassword($str){
+		$entryPasswd = password_hash($str, PASSWORD_DEFAULT);
+		return $entryPasswd;
+	}
+	
+	public static function verifyPassword($str,$encrptPassword){
+		if(password_verify($str,$encrptPassword)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	
+	
+	
+
+	
+	
+}
+
+
+?>

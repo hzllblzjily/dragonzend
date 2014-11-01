@@ -1,0 +1,294 @@
+function setHome(isOpen,active_number) {
+	var insertContent;
+	if (isOpen) {
+		insertContent = '<li class="start active"><a href="/console/index"><i class="fa fa-home"></i><span class="title"> 首页 </span><span class="selected"></span></a></li>';
+		
+	}else {
+		insertContent = '<li><a href="/console/index"><i class="fa fa-home"></i><span class="title"> 首页 </span></a></li>';
+	};
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+
+///////////////////////////////////////////////////////
+
+function setAudit(isOpen,active_number) {
+	var insertContent;
+	if (isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 审核 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/audit/enterauditlawyer?page=1">审核律师 </a></li>' +
+		'<li><a href="/audit/list?page=1">审核企业 </a></li>' +
+		'</ul></li>';		
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 审核 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/audit/enterauditlawyer?page=1">审核律师 </a></li>' +
+		'<li><a href="/audit/list?page=1">审核企业 </a></li>' +
+		'</ul></li>';
+	}
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setSyetemConfig(isOpen,active_number) {
+	var insertContent;
+	if (isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 系统维护 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/admin/enteraddadmin">新建管理员 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">群发消息</a></li>' +
+		'<li><a href="/admin/listadmin?page=1">管理员列表</a></li>' +
+		'<li><a href="/admin/resetpasswordrender">更改密码</a></li>' +
+		'</ul></li>';
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 系统维护 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/admin/enteraddadmin">新建管理员 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">群发消息</a></li>' +
+		'<li><a href="/admin/listadmin?page=1">管理员列表</a></li>' +
+		'<li><a href="/admin/resetpasswordrender">更改密码</a></li>' +
+		'</ul></li>';
+	}
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+	
+}
+
+function setReportFeedback(isOpen,active_number){
+	var insertContent;
+	if (isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 举报和反馈</span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/reportfeedback/listuserfeedback?page=1">处理用户反馈 </a></li>' +
+		'<li><a href="/reportfeedback/listlawyerfeedback?page=1">处理律师反馈</a></li>' +
+		'<li><a href="/reportfeedback/listuserreport?page=1">处理举报用户</a></li>' +
+		'<li><a href="/reportfeedback/listlawyerreport?page=1">处理举报律师</a></li>' +
+		'<li><a href="/reportfeedback/listreporteduser?page=1">解封用户</a></li>' +
+		'<li><a href="/reportfeedback/listreportedlawyer?page=1">解封律师</a></li>' +
+		'</ul></li>';
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 举报和反馈</span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/reportfeedback/listuserfeedback?page=1">处理用户反馈 </a></li>' +
+		'<li><a href="/reportfeedback/listlawyerfeedback?page=1">处理律师反馈</a></li>' +
+		'<li><a href="/reportfeedback/listuserreport?page=1">处理举报用户</a></li>' +
+		'<li><a href="/reportfeedback/listlawyerreport?page=1">处理举报律师</a></li>' +
+		'<li><a href="/reportfeedback/listreporteduser?page=1">解封用户</a></li>' +
+		'<li><a href="/reportfeedback/listreportedlawyer?page=1">解封律师</a></li>' +
+		'</ul></li>';
+	}
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setRobot(isOpen,active_number) {
+	var insertContent;
+	if(isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 模拟用户 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">新建模拟用户 </a></li>' +
+		'<li><a href="/robot/enteraddquestion">新建题库 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户提问</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户回复</a></li>' +
+		'</ul></li>';
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 模拟用户 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">新建模拟用户 </a></li>' +
+		'<li><a href="/robot/enteraddquestion">新建题库 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户提问</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户回复</a></li>' +
+		'</ul></li>';
+	}
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setTotal(isOpen,active_number) {
+	var insertContent;
+	if(isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 数据统计 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">统计1</a></li>' +
+		'<li><a href="/robot/enteraddquestion">统计2 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'</ul></li>';
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 数据统计 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">统计1</a></li>' +
+		'<li><a href="/robot/enteraddquestion">统计2 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'</ul></li>';
+	}
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+///////////////////////////////////////////////////////////////
+function setSyetemConfig1(isOpen,active_number) {
+	var insertContent;
+	if (isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 系统维护 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/dashboard/activitys/list?page=1">群发消息</a></li>' +
+		'<li><a href="/admin/resetpasswordrender">更改密码</a></li>' +
+		'</ul></li>';
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 系统维护 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/dashboard/activitys/list?page=1">群发消息</a></li>' +
+		'<li><a href="/admin/resetpasswordrender">更改密码</a></li>' +
+		'</ul></li>';
+	}
+
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+	
+}
+
+function setReportFeedback1(isOpen,active_number){
+	var insertContent;
+	if (isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 举报和反馈</span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/reportfeedback/listuserfeedback?page=1">处理用户反馈 </a></li>' +
+		'<li><a href="/reportfeedback/listlawyerfeedback?page=1">处理律师反馈</a></li>' +
+		'<li><a href="/reportfeedback/listuserreport?page=1">处理举报用户</a></li>' +
+		'<li><a href="/reportfeedback/listlawyerreport?page=1">处理举报律师</a></li>' +
+		'<li><a href="/reportfeedback/listreporteduser?page=1">解封用户</a></li>' +
+		'<li><a href="/reportfeedback/listreportedlawyer?page=1">解封律师</a></li>' +
+		'</ul></li>';
+	}else {
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 举报和反馈</span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/reportfeedback/listuserfeedback?page=1">处理用户反馈 </a></li>' +
+		'<li><a href="/reportfeedback/listlawyerfeedback?page=1">处理律师反馈</a></li>' +
+		'<li><a href="/reportfeedback/listuserreport?page=1">处理举报用户</a></li>' +
+		'<li><a href="/reportfeedback/listlawyerreport?page=1">处理举报律师</a></li>' +
+		'<li><a href="/reportfeedback/listreporteduser?page=1">解封用户</a></li>' +
+		'<li><a href="/reportfeedback/listreportedlawyer?page=1">解封律师</a></li>' +
+		'</ul></li>';
+	}
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setRobot1(isOpen,active_number) {
+	var insertContent;
+	if(isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 模拟用户 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">新建模拟用户 </a></li>' +
+		'<li><a href="/robot/enteraddquestion">新建题库 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户提问</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户回复</a></li>' +
+		'</ul></li>';
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 模拟用户 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">新建模拟用户 </a></li>' +
+		'<li><a href="/robot/enteraddquestion">新建题库 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户提问</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">模拟用户回复</a></li>' +
+		'</ul></li>';
+	}
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+function setTotal1(isOpen,active_number) {
+	var insertContent;
+	if(isOpen){
+		insertContent = '<li class="active open"><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 数据统计 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">统计1</a></li>' +
+		'<li><a href="/robot/enteraddquestion">统计2 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'</ul></li>';
+	}else{
+		insertContent = '<li><a href="javascript:;"><i class="fa fa-flag"></i><span class="title"> 数据统计 </span><span class="arrow"></span></a><ul class="sub-menu">' +
+		'<li><a href="/robot/enteraddrobot">统计1</a></li>' +
+		'<li><a href="/robot/enteraddquestion">统计2 </a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'<li><a href="/dashboard/activitys/list?page=1">统计2</a></li>' +
+		'</ul></li>';
+	}
+	document.getElementById('sidebar-container').innerHTML = document.getElementById('sidebar-container').innerHTML + insertContent;
+}
+
+/////////////////////////////////////////////////////////////
+
+
+function setOrgDropmenu(hasWeibo) {
+	var insertContent = "";
+	if (hasWeibo) {
+		insertContent = '<li><div style="padding:13px;"><img id="weiboAvatar" src="" style="width:30px;height:30px;"><span id="weiboUid"></span></div><a href="javascript:weibounbind();"><i class="fa fa-ban"></i> 解除绑定 </a></li>';	
+	} else insertContent = '<li><a href="javascript:weibobind();"><i class="fa fa-weibo"></i> 绑定微博账号 </a></li>';
+	
+	insertContent += '<li class="divider"></li><li><a href="/organizationsbk/getprofile"><i class="fa fa-user"></i> 编辑组织信息 </a></li><li><a href="/dashboard/modifypassword"><i class="fa fa-lock"></i> 修改密码 </a></li><li><a href="/documents/admin_user_guide.pdf"><i class="fa fa-book"></i> 查看使用帮助手册 </a></li><li class="divider"></li><li><a href="/dashboard/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+	document.getElementById('dropdown-container').innerHTML = insertContent;
+}
+
+function setSchoolDropmenu() {
+	var insertContent = '<li><a href="/schoolsbk/getprofile"><i class="fa fa-map-marker"></i> 编辑学校信息 </a></li><li><a href="/dashboard/modifypassword"><i class="fa fa-lock"></i> 修改密码 </a></li><li><a href="/documents/admin_user_guide.pdf"><i class="fa fa-book"></i> 查看使用帮助手册 </a></li><li class="divider"></li><li><a href="/dashboard/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+
+	document.getElementById('dropdown-container').innerHTML = insertContent;
+}
+
+function setSuperDropmenu() {
+//	var insertContent = '<li><a href="/dashboard/modifypassword"><i class="fa fa-lock"></i> 修改密码 </a></li><li><a href="/documents/admin_user_guide.pdf"><i class="fa fa-book"></i> 查看使用帮助手册 </a></li><li class="divider"></li><li><a href="/dashboard/connection/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+	var insertContent = '<li><a href="/connection/logout"><i class="fa fa-key"></i> 注销 </a></li>';
+
+	document.getElementById('dropdown-container').innerHTML = insertContent;
+}
+
+function setOrgWeibo(uid,avatarSrc) {
+	document.getElementById('weiboUid').innerHTML = uid;
+	document.getElementById('weiboAvatar').src = avatarSrc;
+}
+
+function setOrgRenren(uid,avatarSrc) {
+	document.getElementById('renrenUid').innerHTML = uid;
+	document.getElementById('renrneAvatar').src = avatarSrc;
+}
+
+function weibobind() {
+	WB2.login(function() {
+		var weiboId;
+
+    	//获取微薄access token & userID
+	  	var aCookie = document.cookie.split("; ");
+	  	var weibotoken;
+	  	for (var i=0; i < aCookie.length; i++)
+		{
+			// a name/value pair (a crumb) is separated by an equal sign
+			var aCrumb = aCookie[i].split("=");
+			if (aCrumb[0] == "weibojs_1267976054"){ 
+				var tmp = aCrumb[1].split("%");
+				weibotoken = tmp[1].substring(2);
+				weiboId = tmp[7].substring(2);
+			}
+		}
+
+		var xx = new Object();
+	   	xx.weiboUid = weiboId;
+	   	xx.weiboAccessToken = weibotoken;
+	   	jInfo = JSON.stringify(xx);
+	   
+	    jQuery.ajax({
+	        type : "POST",  
+	        contentType : "application/json",  
+	        url : "/adminsbk/bindweibo",
+	        beforeSend: function(request) {
+	            //request.setRequestHeader("Auth-Token", "37636f37cd7779459eea00699bfc0a12");
+	        },
+	        data : jInfo,
+	        success : function(data){
+	        	location.reload();
+	        },  
+	        error : function(data){
+	        	alert(data.responseText);
+	        }
+	    });
+	});
+};
+
+function weibounbind(){
+	jQuery.ajax({
+        type : "POST",  
+        contentType : "application/json",  
+        url : "/adminsbk/unbindweibo",
+        beforeSend: function(request) {
+            //request.setRequestHeader("Auth-Token", "37636f37cd7779459eea00699bfc0a12");
+        },
+        success : function(data){
+        	location.reload();
+        },  
+        error : function(data){
+        	alert(data.responseText);
+        }
+    });
+};

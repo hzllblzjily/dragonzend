@@ -1,0 +1,126 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Attachments.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Trades.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Traderemarks extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $creator;
+	public $trade_id;
+	public $content;
+	public $isSatisfied;   //1为满意，2为不满意
+    public $lawyer_id;    //冗余字段，方便查询
+    public $creationTime;
+	//aggregation
+
+    
+    //innode
+    public $creatorUser;
+    public $toLawyer;
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    	$this->propertyTypes["creator"] = $this->columnProperty;
+    	$this->propertyTypes["trade_id"] = $this->columnProperty;
+    	$this->propertyTypes["content"] = $this->columnProperty;
+    	$this->propertyTypes["isSatisfied"] = $this->columnProperty;
+    	$this->propertyTypes["lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["creationTime"] = $this->columnProperty;
+ 
+    	
+    	$this->propertyTypes["creatorUser"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creatorUser"] = "Users";
+    	$this->propertyTypes["toLawyer"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["toLawyer"] = "Lawyers";
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+
+    	    $this->toLawyer = new Lawyers();
+    	    $this->toLawyer->id = $this->lawyer_id;
+    	    $this->toLawyer = $this->toLawyer->get();
+    	    
+    	    $this->creatorUser = new Users();
+    	    $this->creatorUser->id = $this->creator;
+    	    $this->creatorUser = $this->creatorUser->get();
+    	    
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+    	$users = new Users();
+    	$users->id = $this->creator;
+    	
+    	$users = $users->get();
+    	if($users == null){
+    	    $this->logger->log("user id is not exist = ".$this->user_id,Zend_Log::ERR);
+    	    throw new WeException(20247);
+    	}
+    	
+    	$trades = new Trades();
+    	$trades->id = $this->trade_id;
+    	$trades = $trades->get();
+    	if($trades == null){
+    		throw new WeException(20281);
+    	}
+    	 
+    	$this->lawyer_id = $trades->creator;
+    	
+    	 
+    	if($this->content == null || mb_strlen($this->content,'UTF8') < 20){
+    	    $this->logger->log("content is too short ",Zend_Log::ERR);
+    	    throw new WeException(20279);
+    	}
+
+    	$this->creationTime = time();
+
+
+    	
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

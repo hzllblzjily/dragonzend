@@ -1,0 +1,154 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Trades.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Problems.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Notifications extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $msgType;  
+    public $creator;        //创建人id
+    public $creator_type;
+    public $msgTo;
+    public $msgTo_type;
+    public $msgOption;         //int
+    public $msgOptionContent;
+    public $msgRef_id; 
+    public $creationTime;
+	
+    //innode
+    public $creatorUser;
+    public $creatorLawyer;
+    public $msgToUser;
+    public $msgToLawyer;
+    
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    	$this->propertyTypes["msgType"] = $this->columnProperty;
+    	$this->propertyTypes["creator"] = $this->columnProperty;
+    	$this->propertyTypes["creator_type"] = $this->columnProperty;
+    	$this->propertyTypes["msgTo"] = $this->columnProperty;
+    	$this->propertyTypes["msgTo_type"] = $this->columnProperty;
+    	$this->propertyTypes["msgOption"] = $this->columnProperty;
+    	$this->propertyTypes["msgOptionContent"] = $this->columnProperty;
+    	$this->propertyTypes["msgRef_id"] = $this->columnProperty;
+    	$this->propertyTypes["creationTime"] = $this->columnProperty;
+
+    	$this->propertyTypes["creatorUser"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creatorUser"] = "Users";
+    	$this->propertyTypes["creatorLawyer"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creatorLawyer"] = "Lawyers";
+    	$this->propertyTypes["msgToUser"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["msgToUser"] = "Users";
+    	$this->propertyTypes["msgToLawyer"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["msgToLawyer"] = "Lawyers";
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+            if($this->creator_type == "用户"){
+                $this->creatorUser = new Users();
+                $this->creatorUser->id = $this->creator;
+                $this->creatorUser = $this->creatorUser->get();
+            }
+            if($this->creator_type == "律师"){
+            	$this->creatorLawyer = new Lawyers();
+            	$this->creatorLawyer->id = $this->creator;
+            	$this->creatorLawyer = $this->creatorLawyer->get();
+            }
+            if($this->msgTo_type == "用户"){
+            	$this->msgToUser = new Users();
+            	$this->msgToUser->id = $this->msgTo;
+            	$this->msgToUser = $this->msgToUser->get();
+            }
+            if($this->msgTo_type == "律师"){
+            	$this->msgToLawyer = new Lawyers();
+            	$this->msgToLawyer->id = $this->msgTo;
+            	$this->msgToLawyer = $this->msgToLawyer->get();
+            }
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+    
+    	$this->creationTime = time();
+    	
+    	if($this->creator_type == "用户"){
+    	    $userValid = new Users();
+    	    $userValid->id = $this->creator;
+    	    $userValid = $userValid->get();
+    	    if($userValid == null){
+    	        throw new WeException(20247);
+    	    }
+    	}
+    	if($this->creator_type == "律师"){
+    	    $lawyerValid = new Lawyers();
+    	    $lawyerValid->id = $this->creator;
+    	    $lawyerValid = $lawyerValid->get();
+    	    if($lawyerValid == null){
+    	        throw new WeException(20248);
+    	    }
+    	}
+    	if($this->msgTo_type == "用户"){
+    	    $userValid = new Users();
+    	    $userValid->id = $this->msgTo;
+    	    $userValid = $userValid->get();
+    	    if($userValid == null){
+    	        throw new WeException(20247);
+    	    }
+    	}
+    	if($this->msgTo_type == "律师"){
+    	    $lawyerValid = new Lawyers();
+    	    $lawyerValid->id = $this->msgTo;
+    	    $lawyerValid = $lawyerValid->get();
+    	    if($lawyerValid == null){
+    	        throw new WeException(20248);
+    	    }
+    	}
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

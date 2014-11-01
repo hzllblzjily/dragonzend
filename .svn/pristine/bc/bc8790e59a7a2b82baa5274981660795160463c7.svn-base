@@ -1,0 +1,124 @@
+<?php
+
+require_once APPLICATION_PATH . '/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH . '/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH . '/helpers/HttpHelper.php';
+require_once APPLICATION_PATH . '/helpers/CommonHelper.php';
+require_once APPLICATION_PATH . '/helpers/NotificationHelper.php';
+require_once APPLICATION_PATH . '/helpers/QueryCondition.php';
+require_once APPLICATION_PATH . '/helpers/WeException.php';
+require_once APPLICATION_PATH . '/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Users.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH . '/models/tablemodel/RobotCount.php';
+
+require_once APPLICATION_PATH . '/models/servicemodel/RobotQuestions.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Notifications.php';
+require_once APPLICATION_PATH . '/helpers/Constant.php';
+require_once APPLICATION_PATH . '/helpers/AuthenticationMgr.php';
+
+
+class SystemmsgController extends We_Base_Backend_Action_Controller {
+	public function init() {
+		/* Initialize action controller here */
+		parent::init ();
+	}
+	public function broadcastAction() {
+		try{
+		    //不启事务
+		    //$this->dbAdapter->beginTransaction();
+		    $msgToType = $this->getRequest()->getParam("msgToType");  //用户，律师，全部
+		    $content = $this->getRequest()->getParam("content"); //内容
+		    if($msgToType == null || $content == null){
+		        throw new WeException(20219);
+		    }
+		    if($msgToType == '用户'){
+		        $users = new Users();
+		        $rows = $users->tableModel->fetchList(array("id","deviceToken"),null,null,"1=1",array(),null,null,null);
+		        foreach ($rows as $key=>$value){
+		            $notifications = new Notifications();
+		            $notifications->msgType = 8;
+		            $notifications->creator = -1;
+		            $notifications->creator_type = "系统";
+		            $notifications->msgTo = $value["id"];
+		            $notifications->msgTo_type = "用户";
+		            $notifications->msgRef_id = 0;
+		            $notifications->msgOptionContent = $content;
+		             
+		            NotificationHelper::pushNotification($notifications);
+		        }
+
+		    }else if($msgToType == "律师"){
+		        $lawyers = new Lawyers();
+		        $rows = $lawyers->tableModel->fetchList(array("id","deviceToken"),null,null,"1=1",array(),null,null,null);
+		        foreach ($rows as $key=>$value){
+		            $notifications = new Notifications();
+		            $notifications->msgType = 8;
+		            $notifications->creator = -1;
+		            $notifications->creator_type = "系统";
+		            $notifications->msgTo = $value["id"];
+		            $notifications->msgTo_type = "律师";
+		            $notifications->msgRef_id = 0;
+		            $notifications->msgOptionContent = $content;
+		             
+		            NotificationHelper::pushNotification($notifications);
+		        }
+		    }else if($msgToType == "全部"){
+		        
+		        $users = new Users();
+		        $rows = $users->tableModel->fetchList(array("id","deviceToken"),null,null,"1=1",array(),null,null,null);
+		        foreach ($rows as $key=>$value){
+		        	$notifications = new Notifications();
+		        	$notifications->msgType = 8;
+		        	$notifications->creator = -1;
+		        	$notifications->creator_type = "系统";
+		        	$notifications->msgTo = $value["id"];
+		        	$notifications->msgTo_type = "用户";
+		        	$notifications->msgRef_id = 0;
+		        	$notifications->msgOptionContent = $content;
+		        	 
+		        	NotificationHelper::pushNotification($notifications);
+		        }
+		        
+		        $lawyers = new Lawyers();
+		        $rows = $lawyers->tableModel->fetchList(array("id","deviceToken"),null,null,"1=1",array(),null,null,null);
+		        foreach ($rows as $key=>$value){
+		            $notifications = new Notifications();
+		            $notifications->msgType = 8;
+		            $notifications->creator = -1;
+		            $notifications->creator_type = "系统";
+		            $notifications->msgTo = $value["id"];
+		            $notifications->msgTo_type = "律师";
+		            $notifications->msgRef_id = 0;
+		            $notifications->msgOptionContent = $content;
+		             
+		            NotificationHelper::pushNotification($notifications);
+		        }
+		    }
+            
+
+		    
+		    
+			//$this->dbAdapter->commit();
+
+		
+		} catch ( WeException $e ) { // 首先捕获weRxtException
+ 			//$this->dbAdapter->rollback ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		} catch ( Exception $e ) { // 如果捕获不到，作为weException中的默认错误$code = '0000'
+ 			//$this->dbAdapter->rollback ();
+			$this->logger->log ( "exception = " . $e, Zend_Log::ERR );
+			$e = new WeException ();
+			$this->forward ( 'exception', 'global', '', array (
+					'exception' => $e
+			) );
+		}
+	}
+	
+	
+	
+}
+
+?>

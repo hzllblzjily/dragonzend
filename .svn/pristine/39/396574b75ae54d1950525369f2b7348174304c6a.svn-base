@@ -1,0 +1,245 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Api_Rest_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Trades.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+
+class V1_TradesController extends We_Base_Api_Rest_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+	
+	public function getAction(){
+		parent::getAction();
+	
+	
+		try
+		{
+			//$this->dbAdapter->beginTransaction();
+			$tradeId = $this->getRequest()->getParam("id");
+	
+			$trades = new Trades();
+			$trades->id = $tradeId;
+	
+			$trades = $trades->get();
+			if($trades == null){
+				$this->logger->log("trade is not exist id = ".$tradeId,Zend_Log::ERR);
+				throw new WeException(20103);
+			}
+	
+			$stringValue = $tradeId->jsonEncode();
+			echo $stringValue;
+			exit();
+		}catch (WeException $e) { //首先捕获weRxtException
+			//$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			//$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	
+	}
+	
+	
+	
+	//创建委托
+	public function postAction()
+	{
+	
+		parent::postAction();
+		try
+		{
+			$this->dbAdapter->beginTransaction();
+			$creator = $this->validLayerLogin();
+			$title = $this->getRequest()->getParam("title");
+			$invoiceNumber = $this->getRequest()->getParam("invoiceNumber");
+			$user_id = $this->getRequest()->getParam("user_id");
+			$totalPrice = $this->getRequest()->getParam("totalPrice");
+			if($title == null || $invoiceNumber == null || $user_id == null ||
+			$totalPrice == null){
+				$this->logger->log("information is not complete when create trades",Zend_Log::ERR);
+				throw new WeException(20275);
+			}
+
+		  
+			$trades = new Trades();
+			$trades->title = $title;
+			$trades->creator = $creator;
+			$trades->invoiceNumber = $invoiceNumber;
+			$trades->user_id = $user_id;
+			$trades->totalPrice = $totalPrice;
+		  
+			$trades = $trades->create();
+	
+		  
+			//发票信息
+			//判断http request中是否有file
+			if (!isset ( $_FILES ["image"] ['name'] ) || !isset ( $_FILES ["image"] ['tmp_name'] ) ||
+			!isset ( $_FILES ["image"] ['type'] ) || !isset ( $_FILES ["image"] ['size'] ) ||
+			!isset ( $_FILES ["image"] ['error'] ) ) {
+				throw new WeException(20255);
+			}else{
+				//判断是否有传输错误
+				if ( $_FILES ["image"] ['error'] != 0) {
+					//$iconImage =  $_FILES ['image'];
+					$this->logger->log('file transfer failed error = '.$_FILES['image']['error'], Zend_Log::ERR);
+					$e = new WeException(20502);
+					throw $e;
+				}
+			
+				$image =  $_FILES ["image"];
+				//判断大小是否超过规定 10M
+				if ( $image['size'] > MAX_FILE_UPLOAD_SIZE || $image['size'] < 0) {
+					$this->logger->log('file size is too big', Zend_Log::ERR);
+					$e = new WeException(20503);
+					throw $e;
+			
+				}
+				//不能上传空文件
+				if ( $image['size'] == 0) {
+					$this->logger->log('file size is equal to zero', Zend_Log::ERR);
+					$e = new WeException(20504);
+					throw $e;
+				}
+			
+				//判断图片类型是否符合规则
+				if ($image['type'] != 'image/jpeg' && $image['type'] != 'image/jpg' && $image['type'] != 'image/png') {
+					$this->logger->log('file type is illegal = '.$image['type'], Zend_Log::ERR);
+					$e = new WeException(20505);
+					throw $e;
+				}
+			
+				//获取文件信息
+				$fileDir = $image['tmp_name'];
+				$fileType = $image['type'];
+				$fileSize = $image['size'];
+				$fileName = $image['name'];
+			
+			
+				//调用servicemodel将图片插入数据库
+				$attach = new Attachments();
+				$attach = $attach->uploadFile($fileDir, $fileType, $fileName, $fileSize, "trades", $trades->id);
+			
+				$trades->invoiceImage = $attach->id;
+				$trades = $trades->update();
+			
+			}
+
+			$this->dbAdapter->commit();
+	
+
+			$stringValue = $trades->jsonEncode();
+			echo $stringValue;
+	
+			exit();
+		}catch (WeException $e) { //首先捕获weRxtException
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	
+	//用户查看对应自己的委托
+	public function userlisttradeAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$page = $this->getRequest()->getParam("page");
+	    	$user_id = $this->validLogin();
+	    	if($page == null){
+	    		$page = 1;
+	    	}
+	    	$top = 20;
+	    	$skip = ($page - 1) * $top;
+	    
+	    	$trades = new Trades();
+	    	$rows = $trades->tableModel->fetchList(null, null, null, "user_id=?", array($user_id), "id DESC", $top, $skip);
+	    
+	    
+	    	$returnResultSet = array();
+	    	$i = 0;
+	    	foreach($rows as $key=>$value)
+	    	{
+	    		$returnServiceModel = new Trades();
+	    		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+	    		$returnServiceModel->setOtherPropertyForResponse('list');
+	    		$returnServiceModel->unsetNotExposeProperty();
+	    		$returnResultSet[$i] = $returnServiceModel;
+	    		$i++;
+	    	}
+	    	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+	    	echo $stringValue;
+	    	exit();
+	    
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	
+	//律师查看自己的委托
+	public function lawyerlisttradeAction(){
+		try
+		{
+			//$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam("page");
+			$lawyer_id = $this->validLayerLogin();
+			if($page == null){
+				$page = 1;
+			}
+			$top = 20;
+			$skip = ($page - 1) * $top;
+		  
+			$trades = new Trades();
+			$rows = $trades->tableModel->fetchList(null, null, null, "creator=?", array($lawyer_id), "id DESC", $top, $skip);
+		  
+		  
+			$returnResultSet = array();
+			$i = 0;
+			foreach($rows as $key=>$value)
+			{
+				$returnServiceModel = new Trades();
+				$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+				$returnServiceModel->setOtherPropertyForResponse('list');
+				$returnServiceModel->unsetNotExposeProperty();
+				$returnResultSet[$i] = $returnServiceModel;
+				$i++;
+			}
+			$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+			echo $stringValue;
+			exit();
+		  
+		}catch (WeException $e) { //首先捕获weRxtException
+			//$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+			//$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+
+}
+	
+?>

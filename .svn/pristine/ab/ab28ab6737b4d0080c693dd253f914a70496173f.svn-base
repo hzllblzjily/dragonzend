@@ -1,0 +1,104 @@
+[production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+includePaths.library = APPLICATION_PATH "/../library"
+bootstrap.path = APPLICATION_PATH "/Bootstrap.php"
+bootstrap.class = "Bootstrap"
+appnamespace = "Application"
+
+
+resources.frontController.moduleDirectory = APPLICATION_PATH "/modules"
+resources.frontController.moduleControllerDirectoryName = "controllers"
+resources.frontController.params.displayExceptions = 1
+
+resources.session.save_path = APPLICATION_PATH "/../data/session" 
+resources.session.use_only_cookies = true 
+resources.session.remember_me_seconds = 1800
+
+
+[staging : production]
+
+[testing : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+
+[development : production]
+phpSettings.display_startup_errors = 1
+phpSettings.display_errors = 1
+resources.frontController.params.displayExceptions = 1
+
+[mysql]
+db.adapter = PDO_MYSQL
+db.params.host = localhost
+db.params.username = root
+db.params.password = junyue2014
+db.params.dbname = cim
+
+[logger]
+dir = APPLICATION_PATH "/../log/" 
+priority = 7
+
+
+[server]
+apidomainName=http://localhost/
+bkdomainName=http://localhost/
+easemobdomainName=http://cimeasemob.rxtnok.com/
+
+[pushSrcIP]
+sourceIP = "115.28.59.132"
+
+
+[module]
+name=api
+
+
+[Weixin]
+token=24927DCC487E8CD16667854923968260
+AppId=wxf1cd9ad8d4753cf4
+AppSecret=2ce70ff2e2a9f5ec2faf61b9a002633b
+
+[Weibo]
+apiAppId=2393509052
+apiAppSecret=953a4547104591e407b7b4b9c7554eaa
+apiCallback=http://cimapi.rxtnok.com
+bkAppId=378082838
+bkAppSecret=a80cdccb16d685f6e5959a4febbed2a4
+bkCallback=http://cim.rxtnok.com
+
+[filecache]
+dir = APPLICATION_PATH "/../data/cache/"
+lifeTime = 8640000 
+
+
+[ossservice]
+accessKey = "nQqUysdk5lJHqoX9"
+accessKeySecret = "BIP1VIKhuNzETBafutkeE6WM1lkKOy"
+hostName = "oss-cn-qingdao.aliyuncs.com"
+hostNameinternal = "oss-cn-qingdao.aliyuncs.com"
+bucket = "cimbucket"
+dbbucket = "cimdbbucket"
+
+
+[chatIndexServer]
+serverIp="localhost"
+serverPort=13800
+
+[shortmessage]
+account = "cf_hzlcmy126"
+passwd = "cmyhzljiantou"
+targeturl = "http://106.ihuyi.com/webservice/sms.php?method=Submit"
+
+[easemob]
+organName=nokstudio
+appName=cim
+adminName=huzilong
+adminPassword=hzlcmy862
+clientId=YXA6k7RIEBxOEeSRqVvEs44cmQ
+clientSecret=YXA6ldJIIgidsopSuHKBN5hqVpb0zuQ
+
+
+[androidpush]
+appkey="53d5d05556240b6d70025b6d"
+umsecret="485aeb5d906ffad2552f6b6012654266"
+appsecret="jsatk5kr01youtllmi3rcfjdoeohvwfk"
+packagename="com.him"

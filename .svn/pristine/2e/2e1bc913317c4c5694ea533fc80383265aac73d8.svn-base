@@ -1,0 +1,21 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+
+class AuditController extends We_Base_Backend_Action_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+}
+	
+?>

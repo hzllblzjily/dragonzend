@@ -1,0 +1,108 @@
+<?php
+
+
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/tablemodel/LawyerRegs.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/Social/WeiboHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class LawyerRegs extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    
+    //table
+    public $telPhone;
+    public $password;
+    public $registerIdentifier;
+    public $status;   //1为手机号码发送短信但未验证，2为验证并且有了密码但没有profile,3为已经注册完成了
+    public $registerInValidTime;
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    
+    	$this->propertyTypes["telPhone"] = $this->tableProperty;
+    	$this->propertyTypes["password"] = $this->tableProperty;
+    	$this->propertyTypes["registerIdentifier"] = $this->tableProperty;
+    	$this->propertyTypes["status"] = $this->tableProperty;
+    	$this->propertyTypes["registerInValidTime"] = $this->tableProperty;
+
+    
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+        
+    	//手机号不能为空
+    	if($this->telPhone == null){
+    	    $this->logger->log("telPhone is empty",Zend_Log::ERR);
+    	    throw new WeException(20212);
+    	}
+    	if(!Verification::varifyTelPhone($this->telPhone)){
+    	    $this->logger->log("telPhone is invalid = ".$this->telPhone,Zend_Log::ERR);
+    	    throw new WeException(20207);
+    	}
+
+        $lawyerReg = new LawyerReg();
+        $rows = $lawyerReg->fetchList(null, null, null, "telPhone = ? and telPhone != ?", array($this->telPhone,''), null, null, null,true);
+        if(count($rows) > 0){
+            $this->logger->log("telPhone is repeated = ".$this->telPhone,Zend_Log::ERR);
+            throw new WeException(20210);
+        }
+        
+    	$this->status = 1;
+    	$this->password = '';
+    	$this->registerIdentifier = rand(10000, 99999);
+    	//$this->registerIdentifier = 111111;
+    	$this->registerInValidTime = time() + 30 * 60;
+    	//发送给用户短信
+    	ShortMessageHelper::PostShortMessage($this->telPhone, $this->registerIdentifier);
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

@@ -1,0 +1,255 @@
+<?php
+class CommonHelper
+{
+
+	//Object 转array
+    	static public function objectToArray($object)
+    	{
+    		$result = array();
+    		$object = is_object($object) ? get_object_vars($object) : $object;
+    		foreach ($object as $key => $val) {
+    			$val = (is_object($val) || is_array($val)) ? self::objectToArray($val) : $val;
+    			$result[$key] = $val;
+    		}
+    		return $result;
+    
+    	}
+    	static public function filterArrayNull($var)
+    	{
+    		if(is_null($var))
+    		{
+    			return false;
+    		}
+    
+    		return true;
+    	}
+
+    
+    	static public function getConstellation($month,$day){
+    		switch($month){
+    			case "01":
+    				if($day<20){$res=12;}else{$res=1;} break;
+    			case "02":
+    				if($day<19){$res=1;}else{$res=2;} break;
+    			case "03":
+    				if($day<21){$res=2;}else{$res=3;} break;
+    			case "04":
+    				if($day<21){$res=3;}else{$res=4;} break;
+    			case "05":
+    				if($day<21){$res=4;}else{$res=5;} break;
+    			case "06":
+    				if($day<22){$res=5;}else{$res=6;} break;
+    			case "07":
+    				if($day<23){$res=6;}else{$res=7;} break;
+    			case "08":
+    				if($day<23){$res=7;}else{$res=8;} break;
+    			case "09":
+    				if($day<23){$res=8;}else{$res=9;} break;
+    			case "10":
+    				if($day<23){$res=9;}else{$res=10;} break;
+    			case "11":
+    				if($day<23){$res=10;}else{$res=11;} break;
+    			case "12":
+    				if($day<22){$res=11;}else{$res=12;} break;
+    		}
+    		return $res;
+    	}
+    
+    	static function compresImage($img_name,$newname, $type, $modwidth, $modheight) {
+    		list ( $width, $height ) = getimagesize ( $img_name );
+    
+    		$tn = imagecreatetruecolor ( $modwidth, $modheight );
+    		if (strcmp ( "image/png", $type ) == 0) {
+    			imagealphablending ( $tn, false ); // For transparent BackGround
+    			imagesavealpha ( $tn, true );
+    		}
+    
+    		if ( strcmp ( "image/jpg", $type ) == 0 ||  strcmp ( "image/jpeg", $type ) == 0 ||  strcmp ( "image/pjpeg", $type ) == 0){
+    		    $src_img = imagecreatefromjpeg ( $img_name );
+    		}
+    
+
+    		if ( strcmp ( "image/png", $type ) == 0 ){
+    		    $src_img = imagecreatefrompng ( $img_name );
+    		}
+
+    
+    		if ( strcmp ( "image/gif", $type ) == 0){
+    		    $src_img = imagecreatefromgif ( $img_name );
+    		}
+
+    
+    		imagecopyresampled ( $tn, $src_img, 0, 0, 0, 0, $modwidth, $modheight, $width, $height );
+    
+    		if ( strcmp ( "image/png", $type ) == 0) {
+    			imagesavealpha ( $src_img, true );
+    			$ok = imagepng ( $tn, $newname );
+    		} else if ( strcmp ( "image/gif", $type ) == 0) {
+    			$ok = imagegif ( $tn, $newname );
+    		} else {
+    			$ok = imagejpeg ( $tn, $newname,95 );
+    		}
+    
+    		if ($ok == 1) {
+    			//return "<img src=" . $_FILES ['image'] ['name'] . " border='0'>";
+    			return $newname;
+    		}
+    	}
+    
+    	static function curl_post_async($url, $json)
+    	{
+    		//     	foreach ($params as $key => &$val) {
+    		//     		if (is_array($val)) $val = implode(',', $val);
+    		//     		$post_params[] = $key.'='.urlencode($val);
+    		//     	}
+    		//     	$post_string = implode('&', $post_params);
+    
+    		$parts=parse_url($url);
+    
+    		$fp = fsockopen($parts['host'],
+    				isset($parts['port'])?$parts['port']:80,
+    				$errno, $errstr, 30);
+    
+    		$out = "POST ".$parts['path']." HTTP/1.1\r\n";
+    		$out.= "Host: ".$parts['host']."\r\n";
+    		$out.= "Content-Type: application/json\r\n";
+    		$out.= "Content-Length: ".strlen($json)."\r\n";
+    		$out.= "Connection: Close\r\n\r\n";
+    		if (isset($json)) $out.= $json;
+    
+    		fwrite($fp, $out);
+    		fclose($fp);
+    }
+    
+    /**
+     * @param string $uid ��ㄦ��uid
+     * @param int $flag 1琛ㄧず��ㄦ�ｅ��锛�0琛ㄧず��ㄥ�����
+     * @param string $message ��ㄩ�����瀹�
+     */
+//     static public function pushMsg($uid , $flag , $message) {
+//     	//$this->logger->log("TestpushController::indexAction", Zend_Log::DEBUG);
+//     	//$json = HttpHelper::getRequestPayload();
+//     	//$json = json_decode($json);
+//     	//     	$uid = $json->uid;
+//     	//     	$flag = $json->flag;
+//     	if ($flag == 1) {
+//     		$flag = false;
+//     	}else{
+//     		$flag = true;
+//     	}
+    
+//     	$user = new User();
+//     	$row = $user->fetchList('uid = ?', null, null, null, array($uid), array('deviceToken'));
+//     	if ($row[0]['deviceToken'] == '') {
+//     		return;
+//     	}
+//     	$deviceToken = $row[0]['deviceToken'];
+//     	self::send($message, $deviceToken, 1, $flag);
+//     	//exit;
+//     }
+    
+    static public function send($message, $deviceToken, $badge,$isTest){
+    	if($isTest){
+    		$serverUrl   = 'ssl://gateway.sandbox.push.apple.com:2195';
+    		$apnsCert = APPLICATION_PATH.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'ckdev.pem';
+    	}
+    	else{
+    		$serverUrl = 'ssl://gateway.push.apple.com:2195';
+    		$apnsCert = APPLICATION_PATH.DIRECTORY_SEPARATOR.'configs'.DIRECTORY_SEPARATOR.'ck.pem';
+    	}
+    	$pass        = 'hzlcmy862';//璇�涔���ｄ护
+    	$deviceToken = str_replace('>', '', $deviceToken);
+    	$deviceToken = str_replace('<', '', $deviceToken);
+    	$sound   = 'default';
+    	$body    = array('aps' => array('alert' => $message , 'badge' => $badge , 'sound' => $sound));
+    	$streamContext = stream_context_create();
+    	stream_context_set_option ( $streamContext, 'ssl', 'local_cert', $apnsCert );
+    	stream_context_set_option ( $streamContext, 'ssl', 'passphrase', $pass );
+    	$apns = stream_socket_client ( $serverUrl, $error, $errorString, 60, STREAM_CLIENT_CONNECT|STREAM_CLIENT_PERSISTENT, $streamContext);//杩���ユ����″��
+    
+    	//$this->logger->log('apns', Zend_Log::DEBUG);
+    	if ($apns) {
+    		//echo 'Connection OK <br/>';
+    	} else {
+    		//     		echo 'Failed to connect '.$errorString;
+    		//     		var_dump($error);
+    		return;
+    	}
+    	$payload = json_encode ( $body );
+    	$msg = chr(0).pack('n',32).pack('H*', str_replace(' ','',$deviceToken)).pack('n',strlen($payload)).$payload;
+    
+    	$result  = fwrite ( $apns, $msg);
+    	//$this->logger->log($msg, Zend_Log::DEBUG);
+    	fclose ( $apns );
+    	//     	echo $msg;
+    	//     	echo $deviceToken;
+    	//     	exit;
+    	if ($result){
+    		//echo 'Sending message successfully: ' . $payload;
+    	}else{
+    		//echo 'Message not delivered';
+    	}
+    }
+    
+    //获取对段ip
+    static public function getip() {
+    	$unknown = 'unknown';
+    	if (isset ( $_SERVER ['HTTP_X_FORWARDED_FOR'] ) && $_SERVER ['HTTP_X_FORWARDED_FOR'] && strcasecmp ( $_SERVER ['HTTP_X_FORWARDED_FOR'], $unknown )) {
+    		$ip = $_SERVER ['HTTP_X_FORWARDED_FOR'];
+    	} elseif (isset ( $_SERVER ['REMOTE_ADDR'] ) && $_SERVER ['REMOTE_ADDR'] && strcasecmp ( $_SERVER ['REMOTE_ADDR'], $unknown )) {
+    		$ip = $_SERVER ['REMOTE_ADDR'];
+    	}
+    	/*
+    	 * 澶����澶�灞�浠ｇ����������� ������浣跨�ㄦ�ｅ����瑰��锛�$ip = preg_match("/[\d\.] {7,15}/", $ip, $matches) ?
+    	* $matches[0] : $unknown;
+    	*/
+    	if (false !== strpos ( $ip, ',' ))
+    		$ip = reset ( explode ( ',', $ip ) );
+    	return $ip;
+    }
+    
+    static function create_uuid($prefix = ""){
+    	$str = md5(uniqid(mt_rand(), true));
+    	$uuid  = substr($str,0,8) . '';
+    	$uuid .= substr($str,8,4) . '';
+    	$uuid .= substr($str,12,4) . '';
+    	$uuid .= substr($str,16,4) . '';
+    	$uuid .= substr($str,20,12);
+    	return $prefix . $uuid;
+    }
+
+    
+    static public function calcDistance($latitude1, $latitude2,$longitude1,$longitude2){
+        $theta = $longitude1 - $longitude2;
+        $miles = (sin(deg2rad($latitude1)) * sin(deg2rad($latitude2))) + (cos(deg2rad($latitude1)) * cos(deg2rad($latitude2)) * cos(deg2rad($theta)));
+        $miles = acos($miles);
+        $miles = rad2deg($miles);
+        $miles = $miles * 60 * 1.1515;
+        $feet = $miles * 5280;
+        $yards = $feet / 3;
+        $kilometers = $miles * 1.609344;
+        $meters = $kilometers * 1000;
+        $meters = ceil($meters);
+        if($meters <= 0){
+            //0表示未定义，所以用1表示最小距离
+            $meters = 1;
+        }
+        return $meters;
+        
+//         $EARTH_RADIUS = 6378.137;   //公里
+//         $radLat1 = deg2rad($latitude1);
+//         $radLat2 = deg2rad($latitude2);
+        
+//         $a = $radLat1-$radLat2;
+//         //$b = deg2rad($longitude1) – deg2rad($longitude2);
+//         $b = deg2rad($longitude1) - deg2rad($longitude2);
+//         $s = 2 * asin(sqrt(pow(sin($a/2),2) +
+//         		cos($radLat1)*cos($radLat2)*pow(sin($b/2),2)));
+//         $s = $s *$EARTH_RADIUS;
+//         $s = round($s * 10000) / 10000;
+//         return $s;
+        //return compact('miles','feet','yards','kilometers','meters'); 
+    }
+}
+
+?>

@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<!-- 
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.1.1
+Version: 2.0.2
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+<meta charset="utf-8"/>
+<title>法律问问管理平台</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<!-- BEGIN GLOBAL MANDATORY STYLES -->
+<link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+<!-- END GLOBAL MANDATORY STYLES -->
+<!-- BEGIN PAGE LEVEL PLUGIN STYLES -->
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-select/bootstrap-select.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/select2/select2.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/jquery-multi-select/css/multi-select.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.css"/>
+
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/clockface/css/clockface.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-datepicker/css/datepicker3.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-timepicker/css/bootstrap-timepicker.min.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-colorpicker/css/colorpicker.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css"/>
+<link rel="stylesheet" type="text/css" href="/assets/global/plugins/bootstrap-datetimepicker/css/datetimepicker.css"/>
+<!-- END PAGE LEVEL PLUGIN STYLES -->
+<!-- BEGIN THEME STYLES -->
+<link href="/assets/global/css/components.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/layout/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color"/>
+<link href="/assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
+<!-- END THEME STYLES -->
+<link rel="shortcut icon" href="favicon.ico"/>
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+<!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+<!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+<!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+<!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+<!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+<!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+<body class="page-header-fixed ">
+<!-- BEGIN HEADER -->
+<div class="page-header navbar navbar-fixed-top">
+	<!-- BEGIN HEADER INNER -->
+	<div class="page-header-inner">
+		<!-- BEGIN LOGO -->
+		<div class="page-logo">
+			<a href="/console/index">
+			<img src="/assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/>
+			</a>
+			<div class="menu-toggler sidebar-toggler hide">
+				<!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
+			</div>
+		</div>
+		<!-- END LOGO -->
+		<!-- BEGIN RESPONSIVE MENU TOGGLER -->
+		<div class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+		</div>
+		<!-- END RESPONSIVE MENU TOGGLER -->
+		<!-- BEGIN TOP NAVIGATION MENU -->
+		<div class="top-menu">
+			<ul class="nav navbar-nav pull-right">
+				<!-- END TODO DROPDOWN -->
+				<!-- BEGIN USER LOGIN DROPDOWN -->
+				<li class="dropdown dropdown-user">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+					<?php if($this->logo != null){
+					   echo'<img alt="" style="width:28px;height:28px;" class="img-circle" src="'.$this->logo.'"/>';
+					}?>
+
+					<span class="username">
+					<?php echo AuthenticationMgr::getAuthInfo()->userName?> </span>
+					<i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu" id="dropdown-container">
+					</ul>
+				</li>
+				<!-- END USER LOGIN DROPDOWN -->
+			</ul>
+		</div>
+		<!-- END TOP NAVIGATION MENU -->
+	</div>
+	<!-- END HEADER INNER -->
+</div>
+<!-- END HEADER -->
+<div class="clearfix">
+</div>
+<!-- BEGIN CONTAINER -->
+<div class="page-container">
+	<!-- BEGIN SIDEBAR -->
+	<div class="page-sidebar-wrapper">
+		<!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+		<!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+		<div class="page-sidebar navbar-collapse collapse">
+			<!-- BEGIN SIDEBAR MENU -->
+			<ul class="page-sidebar-menu" data-auto-scroll="false" data-auto-speed="200" id="sidebar-container">
+				<!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
+				<li class="sidebar-toggler-wrapper" style="margin-bottom:12px;">
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+					<div class="sidebar-toggler">
+					</div>
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+				</li>
+			</ul>
+			<!-- END SIDEBAR MENU -->
+		</div>
+	</div>
+	<!-- END SIDEBAR -->
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<div class="page-content" id="content">
+			<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+
+			<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+			<!-- BEGIN STYLE CUSTOMIZER -->
+
+			<!-- BEGIN PAGE CONTENT-->
+			<h3 class="page-title">
+			新建模拟用户
+			</h3>
+			<hr>
+						<div class="portlet-body form">
+							<!-- BEGIN FORM-->
+							<form action="/robot/addrobot" class="activity-basic-form form-horizontal" name ="myform" id = "myform" method="post" enctype="multipart/form-data" onSubmit="return checkForm();">
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">手机号<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<input type="text" name = 'telphone' class="form-control" placeholder="" value = "<?php echo $this->telphone?>" readonly="true">
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">密码<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<input type="text" name = 'password' class="form-control" placeholder="" value = "123456"readonly="true">
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">用户名<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<input type="text" id = 'userName' name = 'userName' class="form-control" placeholder="" value = "" >
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">省份<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<select class="form-control" name = "city1" id = "city1" onChange="changeCity()">
+											</select>
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">城市<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<select class="form-control" name = "city2" id = "city2" >
+												<option>上海</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">用户类型<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<select class="form-control" id = 'userType' name = "userType" id = "userType" onchange="checkUserType(this.value)">
+												<option>个人</option>
+												<option>企业</option>
+											</select>
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body" id = 'company'>
+									<div class="form-group">
+										<label class="col-md-3 control-label">公司名<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<input type="text" id = 'companyName' name = 'companyName' class="form-control" placeholder="" value = "" >
+										</div>
+									</div>
+								</div>
+								
+								<div class="form-body">
+									<div class="form-group">
+										<label class="col-md-3 control-label">性别<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-6 input-area">
+											<select class="form-control" name = "gender" id = "gender" >
+												<option>男</option>
+												<option>女</option>
+											</select>
+										</div>
+									</div>
+								</div>
+																
+								<div class="form-group">
+										<label class="col-md-3 control-label">生日<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-2 input-area">
+											<div class="input-group input-medium date date-picker" data-date-format="yyyy年mm月dd日">
+												<span class="input-group-btn">
+													<button class="btn default" type="button"><i class="fa fa-calendar"></i></button>
+												</span>
+												<input type="text" class="form-control" name="fakeDate" id="fakeDate" onchange="changeDate()" value = "1980年01月01日">
+											</div>
+										</div>
+								</div>
+								
+								<div class="form-group last">
+										<label class="col-md-3 control-label">头像<span class="required" aria-required="true"> * </span></label>
+										<div class="col-md-4">
+											<div class="fileinput fileinput-new input-area" data-provides="fileinput">
+												<div class="fileinput-new thumbnail" style="width: 200px; height: 150px;">
+													<img src="http://www.placehold.it/200x150/EFEFEF/AAAAAA&amp;text=no+image" alt=""/>
+												</div>
+												<div class="fileinput-preview fileinput-exists thumbnail" style="max-width: 200px; max-height: 150px;">
+												</div>
+												<div>
+													<span class="btn default btn-file">
+													<span class="fileinput-new">
+													选择上传 </span>
+													<span class="fileinput-exists">
+													更换头像 </span>
+													<input type="file" name="image">
+													</span>
+												</div>
+											</div>
+											<div class="clearfix margin-top-10">
+												<span class="label label-warning">
+												提示 </span>
+												支持jpg或png格式的图片，大小请控制在5M以下
+											</div>
+										</div>
+								</div>
+								
+									<input type="hidden" name="beginTime" id="f_beginTime">
+									<input type="hidden" name="endTime" id="f_endTime">
+									<input type="hidden" name="fakeBeginTime" id="fakeBeginTime" value = "0:00">
+									<input type="hidden" name="fakeEndTime" id="fakeEndTime" value = "0:00">
+									<input type="hidden" name="deviceToken" id="deviceToken" value = "">
+									<input type="hidden" name="device" id="device" value = "Iphone">
+								<div class="form-actions fluid nobg">
+									<div class="col-md-offset-3 col-md-9">
+										<button type="submit" class="btn blue"><i class="fa fa-check"></i> 新建 </button>
+										<button type="button" class="btn default" style="margin-left:12px;" onclick = "javascript:history.go(-1)"> 取消 </button>
+									</div>
+								</div>
+							</form>
+							<!-- END FORM-->
+						</div>
+			<!-- END PAGE CONTENT-->
+		</div>
+	</div>
+	<!-- END CONTENT -->
+</div>
+<!-- END CONTAINER -->
+<!-- BEGIN FOOTER -->
+<div class="page-footer">
+	<div class="page-footer-inner">
+		 2014 &copy; rxt_project.
+	</div>
+	<div class="page-footer-tools">
+		<span class="go-top">
+		<i class="fa fa-angle-up"></i>
+		</span>
+	</div>
+</div>
+<!-- END FOOTER -->
+<!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+<!-- BEGIN CORE PLUGINS -->
+<!--[if lt IE 9]>
+   <script src="/assets/global/plugins/respond.min.js"></script>
+   <script src="/assets/global/plugins/excanvas.min.js"></script> 
+   <![endif]-->
+<script src="/assets/global/plugins/jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+<!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+<script src="/assets/global/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<!-- END CORE PLUGINS -->
+<!-- BEGIN PAGE LEVEL PLUGINS -->
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-select/bootstrap-select.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/select2/select2.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/jquery-multi-select/js/jquery.multi-select.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/jquery-validation/js/jquery.validate.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-fileinput/bootstrap-fileinput.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-datepicker/js/bootstrap-datepicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-timepicker/js/bootstrap-timepicker.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/clockface/js/clockface.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-daterangepicker/moment.min.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-colorpicker/js/bootstrap-colorpicker.js"></script>
+<script type="text/javascript" src="/assets/global/plugins/bootstrap-datetimepicker/js/bootstrap-datetimepicker.min.js"></script>
+<!-- END PAGE LEVEL PLUGINS -->
+<!-- BEGIN PAGE LEVEL SCRIPTS -->
+<script src="/assets/global/scripts/metronic.js" type="text/javascript"></script>
+<script src="/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
+<script src="/assets/admin/pages/scripts/components-pickers.js"></script>
+<script src="/assets/admin/pages/scripts/activity.js" type="text/javascript"></script>
+<script src="/assets/admin/pages/scripts/sidebarGeneration.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL SCRIPTS -->
+<script>
+jQuery(document).ready(function() {    
+	Metronic.init();
+ 	document.getElementById("content").style.minHeight = window.screen.availHeight-46 + "px";
+ 	Layout.init();
+ 	ComponentsPickers.init();
+ 	ActivityUpdate.init();
+ 	resetTime();
+ 	//resetGrabTicketTime();
+ 	//resetVoteTime();
+   // sidebar init 
+   setHome(0,0);
+
+	<?php 
+			$currentAdminInfo = AuthenticationMgr::getAuthInfo();
+				if($currentAdminInfo->role == 1){
+			    echo 'setAudit(0,0);setSyetemConfig(0,0);setReportFeedback(0,0);setRobot(1,0);setTotal(0,0);';
+			} ?>
+
+			<?php if($currentAdminInfo->role == 2){
+			    echo 'setAudit(0,0);setSyetemConfig1(0,0);setReportFeedback1(0,0);setRobot1(1,0);setTotal1(0,0);';
+			} ?>
+
+			<?php 
+				echo 'setSuperDropmenu();';    
+			?>
+
+});
+
+//省份和城市
+var cityList = new Array( ); //定义城市数组
+
+cityList['上海'] = ['上海'];
+cityList['北京'] = ['北京'];
+cityList['天津'] = ['天津'];
+cityList['重庆'] = ['重庆'];
+
+cityList['河北'] = ['石家庄','唐山','秦皇岛','邯郸','邢台','保定','张家口','承德','沧州','廊坊','衡水'];
+cityList['山西'] = ['太原','大同','阳泉','长治','晋城','朔州','晋中','运城','忻州','临汾','吕梁'];
+cityList['内蒙古'] = ['呼和浩特','包头','乌海','赤峰','通辽','鄂尔多斯','呼伦贝尔','巴彦淖尔','乌兰察布','兴安','锡林郭勒','阿拉善'];
+
+
+cityList['辽宁'] = ['沈阳','大连','鞍山','抚顺','本溪','丹东','锦州','营口','阜新','辽阳','盘锦','铁岭','朝阳','葫芦岛'];
+cityList['吉林'] = ['长春','吉林','四平','辽源','通化','白山','松原','白城','延边'];
+cityList['黑龙江'] = ['哈尔滨','齐齐哈尔','鸡西','鹤岗','双鸭山','大庆','伊春','佳木斯','七台河','牡丹江','黑河','绥化','大兴安岭'];
+
+
+cityList['江苏'] = ['南京','无锡','徐州','常州','苏州','南通','连云港','淮安','盐城','扬州','镇江','泰州','宿迁'];
+cityList['浙江'] = ['杭州','宁波','温州','嘉兴','湖州','绍兴','金华','衢州','舟山','台州','丽水'];
+cityList['安徽'] = ['合肥','芜湖','蚌埠','淮南','马鞍山','淮北','铜陵','安庆','黄山','滁州','阜阳','宿州','巢湖','六安','亳州','池州','宣城'];
+cityList['福建'] = ['福州','厦门','莆田','三明','泉州','漳州','南平','龙岩','宁德'];
+cityList['江西'] = ['南昌','景德镇','萍乡','九江','新余','鹰潭','赣州','吉安','宜春','抚州','上饶'];
+cityList['山东'] = ['济南','青岛','淄博','枣庄','东营','烟台','潍坊','威海','济宁','泰安','日照','莱芜','临沂','德州','聊城','滨州','菏泽'];
+cityList['河南'] = ['郑州','开封','洛阳','平顶山','焦作','鹤壁','新乡','安阳','濮阳','许昌','漯河','三门峡','南阳','商丘','信阳','周口','驻马店'];
+cityList['湖北'] = ['武汉','黄石','襄樊','十堰','荆州','宜昌','荆门','鄂州','孝感','黄冈','咸宁','随州','恩施'];
+cityList['湖南'] = ['长沙','株洲','湘潭','衡阳','邵阳','岳阳','常德','张家界','益阳','郴州','永州','怀化','娄底','湘西'];
+cityList['广东'] = ['广州','深圳','珠海','汕头','韶关','佛山','江门','湛江','茂名','肇庆','惠州','梅州','汕尾','河源','阳江','清远','东莞','中山','潮州','揭阳','云浮'];
+cityList['广西'] = ['南宁','柳州','桂林','梧州','北海','防城港','钦州','贵港','玉林','百色','贺州','河池','来宾','崇左'];
+cityList['海南'] = ['海口','三亚'];
+
+
+cityList['四川'] = ['成都','自贡','攀枝花泸州','德阳','绵阳','广元','遂宁','内江','乐山','南充','宜宾','广安','达州','眉山','雅安','巴中','资阳','阿坝','甘孜','凉山'];
+cityList['贵州'] = ['贵阳','六盘水','遵义','安顺','铜仁','毕节','黔西南','黔东南','黔南'];
+cityList['云南'] = ['昆明','曲靖','玉溪','保山','昭通','丽江','普洱','临沧','文山','红河','西双版纳','楚雄','大理','德宏','怒江','迪庆'];
+cityList['西藏'] = ['拉萨','昌都','山南','日喀则','那曲','阿里','林芝'];
+
+
+cityList['陕西'] = ['西安','铜川','宝鸡','咸阳','渭南','延安','汉中','榆林','安康','商洛'];
+cityList['甘肃'] = ['兰州','嘉峪关','金昌','白银','天水','武威','张掖','平凉','酒泉','庆阳','定西','陇南','临夏','甘南'];
+cityList['青海'] = ['西宁','海东','海北','黄南','海南','果洛','玉树','海西'];
+cityList['宁夏'] = ['银川','石嘴山','吴忠','固原','中卫'];
+cityList['新疆'] = ['乌鲁木齐','克拉玛依','吐鲁番','哈密','和田','阿克苏','喀什','克孜勒苏柯尔克孜','巴音郭楞蒙古','昌吉','博尔塔拉蒙古','伊犁哈萨克','塔城','阿勒泰'];
+cityList['香港'] = ['香港'];
+cityList['澳门'] = ['澳门'];
+cityList['台湾'] = ['台北','高雄','基隆','台中','台南','新竹','嘉义'];
+
+function changeCity( ){
+	var city1 = document.myform.city1.value; 
+	document.myform.city2.options.length=0;
+	for (var i in cityList) {
+		if (i == city1){
+			for (var j in cityList[i]) //根把对应城市动态创建区域option
+				{
+					document.myform.city2.options.add(new Option(cityList[i][j], cityList[i][j]));
+				}
+		}
+	}
+	document.myform.city2.options.selctIndex=0;
+}
+
+//初始化省份
+for (var i in cityList) { 
+	document.myform.city1.options.add(new Option(i, i)); 
+}
+document.myform.city1.selectedIndex = 0; 
+
+function checkForm()
+{
+	if($("#userName").val() == "")
+	{
+		alert("请输入用户名");
+		$("#userName").focus();
+		return false;
+	}
+
+	if ($("#userType").val() == '企业'){
+		if($("#companyName").val() == "")
+		{
+			alert("请输入企业名");
+			$("#companyName").focus();
+			return false;
+		}
+	}
+
+}
+
+function checkUserType( value){
+	if (value == '个人'){
+		$("#company").hide();
+	}else{
+		$("#company").show();
+	}
+	
+}
+
+$("#company").hide();
+</script>
+<!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

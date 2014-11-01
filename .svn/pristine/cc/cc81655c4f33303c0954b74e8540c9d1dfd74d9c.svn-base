@@ -1,0 +1,302 @@
+<!-- <!DOCTYPE html> -->
+<html lang="zh-CN">
+  <head>
+    <!-- meta data setting -->
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>24 Hours</title>
+
+     <!-- shortcut icon -->
+    <link rel="shortcut icon" href="/img/favicon.ico" >
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet" type="text/css">
+
+    <!-- Custom styles for this template -->
+    <link href="/css/index.css" rel="stylesheet" type="text/css" >
+
+    <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
+    <!--[if lt IE 9]>
+      <script src="../js/html5shiv.js"></script>
+      <script src="../js/respond.min.js"></script>
+    <![endif]-->
+  </head>
+  
+  <body>
+    <!-- first screen -->
+    <section class="scr bg-pic">
+        <!-- 页面修饰元素 -->
+        <div class="cover purple">
+           <div class="container">
+              <div class="row" id="first-screen">
+                <!-- logo-block -->
+                <div class="col-xs-12 logo-block">
+                  <img class="logo"  src="/img/logo.png" />
+                  <h1 class="app-name">24Hours</h1>
+                  <h1 class="app-adwords"></h1>
+                  <h2 class="join-words">24小时内惊喜不断，快来加入吧！</h2>
+                  <h3 class="focus-wechat col-xs-12 hidden-xs hidden-sm">关注微信</h3>
+                  <div class="under-line hidden"></div>
+                  <div class="right-arrow hidden hidden-xs hidden-sm"></div>
+                </div>
+                <!-- qrcode-block -->
+                <div class="col-xs-12 qrcode-block">
+                  <img class="wechat_qrcode" src="/img/qrcode.png">
+                </div>
+                <div class="col-xs-12 download-btn hidden">
+                  <img src="/img/iphone_icon_dark.png" />
+                  iPhone版下载
+                </div>
+              </div>
+           </div>
+        </div>
+        <div class="purple-after"></div>
+    </section>
+
+    <!-- second screen -->
+    <section class="scr">
+        <!-- 页面修饰元素 -->
+        <div class="cover green">
+          <div class="container">
+              <div class="row">
+                <!-- conutdown-block -->
+                <div class="col-xs-12 col-md-6 col-md-push-6 conutdown-block">
+                    <h1 class="time-words">24小时内能发生很多事情</h1>
+                    <h2 class="meet-words">距离下个邂逅还有，</h2>
+                    <div class="count-down">
+                      <div class="block hour"></div>
+                      <div class="split hour-minute">:</div>
+                      <div class="block minute"></div>
+                      <div class="split minute-second">:</div>
+                      <div class="block second"></div>
+                    </div>
+                </div>
+                <!-- phone-block -->
+                <div class="col-xs-12 col-md-6 col-md-pull-6 phone-block">
+                    <div class="cellphone">
+                      <div class="phone-basic"></div>
+                      <div class="on-and-off"></div>
+                      <div class="front-camera"></div>
+                      <div class="cellphone-receiver"></div>
+                      <!-- screen-area -->
+                      <div class="screen-slice">
+                        <div class="screen-area">
+                          <!-- slice-one -->
+                          <div class="photo"></div>
+                          <h4 class="screen-words">
+                            喵星人1<br/>调戏了8个学弟，<br/>在24小时内
+                          </h4>
+                        </div>
+                        <div class="screen-area">
+                          <!-- slice-two -->
+                          <div class="photo "></div>
+                          <h4 class="screen-words ">
+                            小知男1<br/>勾搭了4个学姐，<br/>在24小时内
+                          </h4>
+                        </div>
+                        <div class="screen-area">
+                          <!-- slice-three -->
+                          <div class="photo "></div>
+                          <h4 class="screen-words ">
+                            喵星人2<br/>调戏了8个学弟，<br/>在24小时内
+                          </h4>
+                        </div>
+                        <div class="screen-area">
+                          <!-- slice-four -->
+                          <div class="photo "></div>
+                          <h4 class="screen-words ">
+                            喵星人3<br/>调戏了8个学弟，<br/>在24小时内
+                          </h4>
+                        </div>
+                        <div class="screen-area">
+                           <!-- slice-five -->
+                          <div class="photo "></div>
+                          <h4 class="screen-words ">
+                            小知男4<br/>勾搭了4个学姐，<br/>在24小时内
+                          </h4>
+                        </div>
+                        <div class="screen-area">
+                          <!-- slice-six -->
+                          <div class="photo "></div>
+                          <h4 class="screen-words ">
+                            喵星人5<br/>调戏了8个学弟，<br/>在24小时内
+                          </h4>
+                        </div>
+                      </div>                   
+                      <div class="home-btn">
+                        <div class="home-btn-rect"></div>
+                      </div>
+                    </div>
+                </div>
+                
+              </div>
+          </div>
+        </div>
+        <div class="green-after"></div>
+    </section>
+
+    <!-- third screen -->
+    <section class="scr">
+        <!-- 页面修饰元素 -->
+        <div class="cover lightgray">
+          <div class="container">
+              <div class="row">
+                <h1 class="meet-where">我们会在某个地方相遇</h1>
+                <h3 class="meet-where-words">在图书馆？在教室？或者在除了校园以外的地方...</h3>
+                <!-- meet-site-block -->
+                <div class="meet-site-block">
+                  <div class="col-md-3 col-xs-6 pR7">
+                     <div class="meet-card pink-card">
+                        <div class="card-basic">
+                          <img class="site-img" src="/img/library.png" />
+                          <div class="card-bottom hidden-xs"></div>
+                          <div class="left-trangle hidden-xs"></div>
+                          <div class="center-rect hidden-xs">
+                          </div>
+                          <div class="center-left-trangle hidden-xs"></div>
+                          <div class="center-right-trangle hidden-xs"></div>
+                        </div>
+                        <h3 class="site-words hidden-xs hidden-sm">图书馆</h3>
+                        <div class="img-cover">
+                          <h3 class="site-words hidden">图书馆</h3>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3 col-xs-6 pL7">
+                     <div class="meet-card green-card">
+                        <div class="card-basic">
+                          <img class="site-img" src="/img/classroom.png" />
+                          <div class="card-bottom hidden-xs"></div>
+                          <div class="left-trangle hidden-xs"></div>
+                          <div class="center-rect hidden-xs">
+                          </div>
+                          <div class="center-left-trangle hidden-xs"></div>
+                          <div class="center-right-trangle hidden-xs"></div>
+                        </div>
+                        <h3 class="site-words hidden-xs hidden-sm">教室</h3>
+                        <div class="img-cover">
+                          <h3 class="site-words hidden">教室</h3>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3 col-xs-6 pR7">
+                     <div class="meet-card yellow-card">
+                        <div class="card-basic">
+                          <img class="site-img" src="/img/campus.png" />
+                          <div class="card-bottom hidden-xs"></div>
+                          <div class="left-trangle hidden-xs"></div>
+                          <div class="center-rect hidden-xs">
+                          </div>
+                          <div class="center-left-trangle hidden-xs"></div>
+                          <div class="center-right-trangle hidden-xs"></div>
+                        </div>
+                        <h3 class="site-words hidden-xs hidden-sm">校园</h3>
+                        <div class="img-cover">
+                          <h3 class="site-words hidden">校园</h3>
+                        </div>
+                     </div>
+                  </div>
+                  <div class="col-md-3 col-xs-6 pL7">
+                     <div class="meet-card red-card">
+                        <div class="card-basic">
+                          <img class="site-img" src="/img/dining-room.png" />
+                          <div class="card-bottom hidden-xs"></div>
+                          <div class="left-trangle hidden-xs"></div>
+                          <div class="center-rect hidden-xs">
+                          </div>
+                          <div class="center-left-trangle hidden-xs"></div>
+                          <div class="center-right-trangle hidden-xs"></div>
+                        </div>
+                        <h3 class="site-words hidden-xs hidden-sm">餐厅</h3>
+                        <div class="img-cover">
+                          <h3 class="site-words hidden">餐厅</h3>
+                        </div>
+                     </div>
+                  </div>
+                </div>
+                
+              </div>
+          </div>
+          
+        </div>
+        <div class="lightgray-after"></div>
+    </section>
+
+    <!-- fourth screen -->
+    <section class="scr">
+        <!-- 页面修饰元素 -->
+        <div class="cover white">
+          <div class="container">
+            <div class="row">
+              <!-- download-block -->
+              <h1 class="download-header col-md-12 hidden-xs hidden-sm">下载客户端</h1>
+              <div class="col-md-4 col-xs-12 hidden-xs hidden-sm">                
+                <div class="android dl-btn">
+                  <img src="/img/Android_green.png" />
+                  Android版
+                </div>
+              </div>
+              <div class="col-md-4 col-xs-12 hidden-xs hidden-sm">               
+                <div class="iphone dl-btn">
+                  <img src="/img/iPhone_dark.png" />
+                  iPhone版
+                </div>
+              </div>
+              <div class="col-md-4 col-xs-12 hidden-xs hidden-sm">                
+                <div class="qrcode dl-btn">
+                  <img src="/img/qrcode.png" />
+                </div>
+              </div>
+              <!-- footer-navigator -->
+              <nav class="footer-navigator hidden">
+                <a href="#">用户协议</a>
+                <a href="#">联系我们</a>
+                <a class="footer-icon weibo" href="#"></a>
+                <a class="footer-icon renren" href="#"></a>
+              </nav>
+              <ul class="contact-list hidden">
+                <a href="#" target="_blank">
+                  <li class="col-xs-12 col-sm-12">
+                    <img src="/img/user_icon.png" />
+                    用户协议
+                  </li>
+                </a>
+                <a href="#" target="_blank">
+                  <li class="col-xs-12 col-sm-12">
+                    <img src="/img/contact_icon.png" />
+                    联系我们
+                  </li>
+                </a>
+                <a href="#" target="_blank">
+                  <li class="col-xs-12 col-sm-12">
+                    <img src="/img/sina_icon.png" />
+                    关注微博
+                  </li>
+                </a>
+                <a href="#" target="_blank">
+                  <li class="col-xs-12 col-sm-12">
+                    <img src="/img/renren_icon.png" />
+                    关注人人
+                  </li>
+                </a>
+              </ul>
+              <!-- copyright-block -->
+              <h4 class="copyright">www.24hours.im 2014 &copy; All Rights Reserved. 京ICP备11036675号-2 </h4>
+            </div>
+          </div>
+        </div>
+        <!-- <div class="white-after"></div> -->
+    </section>
+
+    <!-- Bootstrap core JavaScript
+    ================================================== -->
+    <!-- Placed at the end of the document so the pages load faster -->
+    <script src="/js/jquery.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+    <script type="text/javascript" src="/js/index.js"></script>
+  </body>
+</html>

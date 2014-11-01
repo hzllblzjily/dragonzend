@@ -1,0 +1,694 @@
+<?php
+
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/Constant.php';
+
+//service model
+abstract class We_Base_ServiceModel {
+
+	//property对应的属性类别，是COLUMN还是AGGREGATION等
+	protected $propertyTypes = array();
+	
+	//inNode对应的property的CLASS
+	protected $inNodePropertyTypes = array();
+	
+	//subNode对应的property的CLASS
+	protected $subNodePropertyTypes = array();
+	
+	//merge之前取出字段KEY VALUE PAIR
+	protected $snapshotColumnPropertyValues = array(); 
+	
+	protected  $columnProperty = "column";                     //又暴露给UI又能对应数据库的双向类别
+
+	protected  $transientProperty = "transient";               //与数据库无关的普通PROPERTY
+	
+	protected  $aggregationProperty = "aggregation";           //不属于该model对应的数据库字段，但返回UI前可以将其填值
+	
+	
+	protected  $inNodeProperty = "inNode";                      //一对一的内嵌节点
+	
+	protected  $subNodeProperty = "subNode";                   //一对多得子节点
+	
+	protected  $tableProperty = "table";                       //仅对应数据库的ENTITY
+	
+	protected  $singleSideProperty = "singleSide";              //只进不出的节点类型
+	
+	protected  $readOnlyProperty = "readOnly";                  //只能被读取不能被update得节点
+	
+	protected $tableModelName;                     //table model类名
+	
+	public $tableModel;                         //table model实例
+	
+	public $fromType;                              //setOtherPropertyForResponse时候查看MODEL请求来自何方，决定要aggregation哪些字段，防止数据操作过载
+	
+	protected $logger = null;
+	
+	protected $tableServiceNameMapping = array();      //column readyonly字段要在此处注册并对应，若不注册，默认返回自身名字 key为service property name, value为table column name必须注册 INNODE SUBNODE暂未支持
+	
+	
+	public $createdAt;
+	public $updatedAt;
+	
+	public function __construct()
+	{
+		//构造TABLE MODEL
+		$className = get_class($this);
+		$nameLength = strlen($className);
+		$this->tableModelName = substr($className, 0, $nameLength- 1);
+		require_once APPLICATION_PATH.'/models/tablemodel/'.$this->tableModelName.'.php';
+		$this->tableModel = new $this->tableModelName();
+		
+		$this->logger = Zend_Registry::get('log');
+		$this->logger->setEventItem('servicemodel', $className);
+		
+		$this->propertyTypes["fromType"] = $this->transientProperty;
+		$this->propertyTypes["tableModel"] = $this->transientProperty;
+		
+		$this->propertyTypes["createdAt"] = $this->tableProperty;
+		$this->propertyTypes["updatedAt"] = $this->tableProperty;
+	}
+	
+    public function setPropertyTypeByKey($key,$value){
+        $this->propertyTypes[$key] = $value;
+    }
+	
+	public function getSelectedArrayByAlias($alias){
+	    $arr = array();
+	    $index = 0;
+	    foreach($this->propertyTypes as $key=>$value)
+	    {
+	    	if($value==$this->columnProperty ||$value==$this->readOnlyProperty || $value==$this->singleSideProperty || $value == $this->tableProperty)
+	    	{
+	    	    $tableKey = $this->getTableColumnNameByServiceName($key);
+	    	    $arr[$index] = $alias.".".$tableKey;
+	            ++$index;
+	    
+	    	}
+	    }
+	    return $arr;
+	}
+	
+	public function getTableColumnNameByServiceName($key)
+	{
+	    $isExist = array_key_exists($key,$this->tableServiceNameMapping);
+	    if($isExist)
+	    {
+	        return $this->tableServiceNameMapping[$key];
+	    }
+	    else 
+	    {
+	        return $key;
+	    }
+
+	}
+	
+	public function getServicePropertyNameByColumnName($tableKey)
+	{
+	    $serviceKey = null;
+	    foreach ($this->tableServiceNameMapping as $key=>$value)
+	    {
+	        if($tableKey == $value)
+	        {
+	            $serviceKey = $key;
+	            break;
+	        }
+	    }
+	    if($serviceKey === null)
+	    {
+	        return $tableKey;
+	    }
+        else 
+        {
+            return $serviceKey;
+        }
+	}
+	
+	public function getTableModel()
+	{
+		return $this->tableModel;
+	}
+	
+	public function beforeSetOtherOperationForResponse($oldObject){
+	    
+	}
+	
+	public function create()
+	{
+		$dbAdapter = $this->tableModel->getAdapter();
+		//对MODEL的字段验证均由子类去实现
+		$this->onCreate();
+
+		//将OBJECT转成数组并且对应的KEY是数据库内的字段名
+		$serviceModelArray = $this->columnPropertyToArray($this);
+
+		//UNSET掉自增ID
+		unset($serviceModelArray['id']);
+		//过滤掉NULL字段，防止被误操作删除
+		$serviceModelArray = array_filter($serviceModelArray,"CommonHelper::filterArrayNull");
+
+		//调用TABLE MODEL插入
+		$lastInsertId = $this->tableModel->insert($serviceModelArray);
+		$this->logger->log('last insert id = '.$lastInsertId, Zend_Log::DEBUG);
+		
+		$serviceModelArray['id'] = $lastInsertId;
+		$id = 'id';
+		$this->$id = $lastInsertId;
+			
+		//innode和SUBNODE需要的CREATE操作
+		$this->operationOfOtherProperty('create');
+				
+		$returnValueArray = $this->tableModel->findById($lastInsertId)->toArray();
+		
+		$returnValueArray = $returnValueArray[0];
+
+		//将数据库里的内容数组转回成SERVICE MODEL
+		$className = get_class($this);
+		$returnServiceModel = new $className();
+		//设置FROM TYPE
+		if (isset($this->fromType)) {
+			$returnServiceModel->fromType = $this->fromType;
+		}else{
+			$returnServiceModel->fromType = '';
+		}
+		
+		//���璧�column property
+		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($returnValueArray);
+		$returnServiceModel->beforeSetOtherOperationForResponse($this);
+		//其余字段，比如AGGREGATION
+		$returnServiceModel = $returnServiceModel->setOtherPropertyForResponse('create');
+
+		return $returnServiceModel;
+	}
+	
+	public function update($lock = false)
+	{
+		
+		$dbAdapter = $this->tableModel->getAdapter();
+
+		$id = $this->id;
+			
+		if(is_null($id))
+		{
+			$this->logger->log("id should not be null when update ".get_class($this), Zend_Log::ERR);
+			$ex = new WeException(20102);
+			throw $ex;
+		}
+		
+		//是否是select for update
+		if ($lock == false) {
+			$valueArrayInDB = $this->tableModel->findById($id)->toArray();
+		}else{
+			$valueArrayInDB = $this->tableModel->findForUpdate($id);
+		}
+		
+		if(count($valueArrayInDB) <= 0)
+		{
+			$this->logger->log("id = ".$id." is not existed when update ".get_class($this), Zend_Log::ERR);
+			$ex = new WeException(20103);
+			throw $ex;
+		}
+		$valueArrayInDB = $valueArrayInDB[0];
+		$this->takeSnapShot($valueArrayInDB);
+		
+		//merge 前unset掉readonly得字段
+		$this->unsetReadOnly();
+		$this->merge($valueArrayInDB);
+			
+		//调用UPDATE MODEL验证
+		$this->onUpdate();
+		$serviceModelArray = $this->columnPropertyToArray($this);
+		$serviceModelArray = array_filter($serviceModelArray,"CommonHelper::filterArrayNull");
+
+		//降低数据库的UPDATE负载，仅UPDATE改变的
+		foreach ($serviceModelArray as $tableKey => $value) {
+		    $key = $this->getServicePropertyNameByColumnName($tableKey);
+			if ($value == $this->snapshotColumnPropertyValues[$key]) {
+				unset($serviceModelArray[$tableKey]);
+			}
+		}
+
+		if (count($serviceModelArray) != 0) {
+			$this->tableModel->update($serviceModelArray, $id);
+		}		
+			
+		$this->operationOfOtherProperty('update');
+			
+		$returnValueArray = $this->tableModel->findById($id)->toArray();
+		$returnValueArray = $returnValueArray[0];
+
+		$className = get_class($this);
+		$returnServiceModel = new $className();
+		//设置FROM TYPE
+		if (isset($this->fromType)) {
+			$returnServiceModel->fromType = $this->fromType;
+		}else{
+			$returnServiceModel->fromType = '';
+		}
+
+		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($returnValueArray);
+		$returnServiceModel->beforeSetOtherOperationForResponse($this);
+		$returnServiceModel = $returnServiceModel->setOtherPropertyForResponse('update');
+		return $returnServiceModel;
+	}
+	
+	public function delete()
+	{	
+		$dbAdapter = $this->tableModel->getAdapter();
+
+		//先转
+		$serviceModelArray = $this->columnPropertyToArray($this);
+		//主键删除
+		$id = $serviceModelArray['id'];
+		if(is_null($id))
+		{
+			$this->logger->log("id should not be null when delete ".get_class($this), Zend_Log::ERR);
+			$ex = new WeException(20102);
+			throw $ex;
+		}
+				
+		//先查找是否真得存在
+		$returnValueArray = $this->tableModel->findById($id)->toArray();
+		if(count($returnValueArray) <= 0)
+		{
+			$this->logger->log("id = ".$id." is not existed when delete ".get_class($this), Zend_Log::ERR);
+			$ex = new WeException(20103);
+			throw $ex;
+		}
+		$returnValueArray = $returnValueArray[0];
+
+		foreach($serviceModelArray as $tableKey=>$value)
+		{
+		    $key = $this->getServicePropertyNameByColumnName($tableKey);
+			if($key == 'id')
+			{
+				continue;
+			}
+			unset($key);
+		}
+
+		$this->merge($returnValueArray);
+
+		$this->onDelete();
+	
+		$this->tableModel->delete($id);
+
+		$this->operationOfOtherProperty('delete');
+		$this->setOtherPropertyForResponse('delete');
+	}
+	
+	
+	
+	public function get($lock = false)
+	{
+		$dbAdapter = $this->tableModel->getAdapter();
+		$serviceModelArray = $this->columnPropertyToArray($this);
+		$id = $serviceModelArray['id'];
+		
+		if(is_null($id))
+		{
+		    $this->logger->log("id should not be null when get ".get_class($this), Zend_Log::ERR);
+		    return null;
+ 			
+// 			$ex = new WeException(20102);
+// 			throw $ex;
+		}
+		
+		//get查询，若不存在直接返回FALSE，不抛异常
+		if (!$this->isExisted()) {
+			return false;
+		}
+
+		$this->onGet();
+        //是否select for update
+		if ($lock == false) {
+			$returnValueArray = $this->tableModel->findById($id)->toArray();
+		}else{
+			$returnValueArray = $this->tableModel->findForUpdate($id);
+		}		
+		
+		if(count($returnValueArray) <= 0)
+		{
+			$this->logger->log("id = ".$id." is not existed when get ".get_class($this), Zend_Log::ERR);
+			$ex = new WeException(20103);
+			throw $ex;
+		}
+		$returnValueArray = $returnValueArray[0];
+
+	
+		$className = get_class($this);
+		$returnServiceModel = new $className();
+		
+		//设置FROM TYPE
+		if (isset($this->fromType)) {
+			$returnServiceModel->fromType = $this->fromType;
+		}else{
+			$returnServiceModel->fromType = '';
+		}
+		
+
+		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($returnValueArray);
+		$returnServiceModel = $returnServiceModel->afterGet();
+		if($returnServiceModel == null){
+		    return null;
+		}
+		$returnServiceModel->beforeSetOtherOperationForResponse($this);
+
+		$returnServiceModel = $returnServiceModel->setOtherPropertyForResponse('get');
+
+		return $returnServiceModel;
+
+	}
+	
+	public function onGet()
+	{
+		$this->hasAuthorized(false);
+	}
+
+	public function afterGet()
+	{
+		//$this->hasAuthorized(false);
+		return $this;
+	}
+	
+	public function onCreate()
+	{
+		$this->createdAt = time();
+		$this->updatedAt = time();
+		
+	}
+	
+	public function onUpdate()
+	{
+		$this->hasAuthorized(true);
+		
+		$this->updatedAt = time();
+	}
+	
+	public function onDelete()
+	{
+		$this->hasAuthorized(true);
+		
+	}
+	
+	//是否有权限，FALSE为读权限，WRITE为写权限
+	public function hasAuthorized($bWrite){
+		
+	}
+	
+
+ 	public function getPropertyType($propertyName)
+ 	{
+ 		return $this->propertyTypes[$propertyName];
+ 	}
+	
+
+	public function getSnapshotColumnPropertyValues()
+	{
+		return $this->snapshotColumnPropertyValues;
+	}
+	
+	
+	
+	//将JSON STRING转成对应的SERVICE MODEL实例，内部会去判断什么类型的该转，什么类型的不该转，还可以递归调用SUB和INNODE
+	public function getNodeFromJson($jsonStr)
+	{
+		$jsonObject = json_decode($jsonStr);
+
+
+		foreach($this->propertyTypes as $key=>$value)
+		{
+			if($value==$this->columnProperty ||$value==$this->readOnlyProperty || $value==$this->inNodeProperty || $value==$this->subNodeProperty || $value==$this->singleSideProperty)
+			{
+				if(isset($jsonObject->$key))
+				{
+					$this->$key = $jsonObject->$key; 
+					if($value == $this->inNodeProperty)
+					{
+						//INNODE递归调用
+						$inNodeClass = $this->inNodePropertyTypes[$key];
+						$inNode = new $inNodeClass();
+						$str = json_encode($this->$key, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+						$this->$key = $inNode->getNodeFromJson($str);
+					}
+					else if($value == $this->subNodeProperty)
+					{
+						$subNodeClass = $this->subNodePropertyTypes[$key];
+						$subNodes = array();
+						$i = 0;
+						foreach($this->$key as $arrKey => $arrValue)
+						{
+							$subNode = new $subNodeClass();
+							$str = json_encode($arrValue, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+							$subNodes[$i]= $subNode->getNodeFromJson($str);
+							$i++;
+						}
+						$this->$key = $subNodes;
+
+					}
+				}
+
+			}
+		}
+	
+
+		return $this;
+		
+	}
+	
+
+	public function setColumnNodeFromTableArray($tableArray)
+	{
+
+		foreach($this->propertyTypes as $key=>$value)
+		{
+
+			if($value==$this->columnProperty || $value == $this->tableProperty || $value == $this->singleSideProperty || $value == $this->readOnlyProperty )
+			{
+			    $tableKey = $this->getTableColumnNameByServiceName($key);
+				if(isset($tableArray[$tableKey]))
+				{
+	
+					if(!is_null($tableArray[$tableKey]))
+					{
+						$this->$key = $tableArray[$tableKey];
+					}
+				}
+
+
+			}
+		}
+		return $this;
+	}
+	
+	
+
+	public function setOtherPropertyForResponse($operation)
+	{
+		if($operation == 'create')
+		{
+				
+		}
+		else if($operation == 'update')
+		{
+				
+		}
+		else if($operation == 'delete')
+		{
+				
+		}
+		else if($operation == 'get')
+		{
+				
+		}
+		else if($operation == 'list')
+		{
+				
+		}
+		
+		return $this;
+	}
+
+	public function operationOfOtherProperty($operation)
+	{
+		if($operation == 'create')
+		{
+
+		}
+		else if($operation == 'update')
+		{
+			
+		}
+		else if($operation == 'delete')
+		{
+			
+		}
+
+	}
+	
+	
+
+	protected function unsetReadOnly(){
+	    foreach($this->propertyTypes as $key=>$value)
+	    {
+	    	if($value == $this->readOnlyProperty)
+	    	{
+	    	    $this->$key = null;
+	    	}
+	    }
+	}
+	
+
+	protected function merge($tableArray)
+	{
+		foreach($this->propertyTypes as $key=>$value)
+		{
+			if($value==$this->columnProperty || $value==$this->singleSideProperty || $value==$this->tableProperty || $value == $this->readOnlyProperty)
+			{
+				if(is_null($this->$key))
+				{
+				    $tableKey = $this->getTableColumnNameByServiceName($key);
+					$this->$key = $tableArray[$tableKey];
+				}
+			}
+		}
+		
+	}
+	
+	protected function takeSnapShot($tableArray)
+	{
+		foreach($this->propertyTypes as $key=>$value)
+		{
+			if($value==$this->columnProperty || $value==$this->singleSideProperty || $value == $this->tableProperty || $value == $this->readOnlyProperty)
+			{
+			    $tableKey = $this->getTableColumnNameByServiceName($key);
+				$this->snapshotColumnPropertyValues[$key] = $tableArray[$tableKey]; 
+			}
+		}
+	}
+	
+
+	protected function columnPropertyToArray($object)
+	{
+		$result = array();
+		$object = is_object($object) ? get_object_vars($object) : $object;
+		foreach ($object as $key => $val) 
+		{
+			if(isset($this->propertyTypes[$key]))
+			{
+				if($this->propertyTypes[$key] == $this->columnProperty || $this->propertyTypes[$key] == $this->tableProperty || $this->propertyTypes[$key] == $this->singleSideProperty || $this->propertyTypes[$key] == $this->readOnlyProperty)
+				{
+					//$val = (is_object($val) || is_array($val)) ? self::objectToArray($val) : $val;
+					$tableKey = $this->getTableColumnNameByServiceName($key);
+					$result[$tableKey] = $val;
+				}
+			}
+
+
+		}
+		return $result;
+	}
+	
+	//column,readyonly, aggregation Property，其余都UNSET掉，INNODE SUBNODE递归调用
+	public function unsetNotExposeProperty()
+	{
+		foreach($this->propertyTypes as $key=>$value)
+		{
+			if($value==$this->columnProperty)
+			{
+				if($this->$key === null)
+				{
+					unset($this->$key);
+				}
+			}
+			else if($value == $this->inNodeProperty)
+			{
+				if($this->$key === null)
+				{
+					unset($this->$key);
+				}
+				else
+				{
+					$this->$key->unsetNotExposeProperty();
+				}
+
+			}
+			else if($value == $this->subNodeProperty)
+			{
+				if($this->$key === null)
+				{
+					unset($this->$key);
+				}
+				else
+				{
+					foreach($this->$key as $subNodeKey => $subNodeValue )
+					{
+						if($subNodeValue === null)
+						{
+							unset($this->$key);
+						}
+						else
+						{
+							$subNodeValue->unsetNotExposeProperty();
+						}
+
+					}
+				}
+
+			}else if($value===$this->readOnlyProperty)
+			{
+				if($this->$key === null)
+				{
+					unset($this->$key);
+				}
+			}else if($value==$this->aggregationProperty)
+			{
+				if($this->$key === null)
+				{
+					unset($this->$key);
+				}
+			}
+			else
+			{
+				unset($this->$key);
+			}
+		}
+	}
+
+	//返回给UI之前最后一步要调用一下此处的JSONENCODE，内部会屏蔽掉不该返回UI的字段
+	public function jsonEncode()
+    {
+ 		$this->unsetNotExposeProperty();
+    	$stringValue = json_encode($this, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+    	return $stringValue;
+    }
+    
+    //返回对象对应的PROPERTY数组
+    public function getPropertyArray(){
+    	$stringValue = array();
+    	foreach ($this->propertyTypes as $key => $value) {
+    		if(isset($this->$key)){
+    			if ($value == $this->inNodeProperty) {
+    				$stringValue[$key] = $this->$key->getPropertyArray();
+    			}else{
+    				$stringValue[$key] = $this->$key;
+    			}
+     		}
+    	}
+    	return $stringValue;
+    }
+    
+    //直接查询是否存在
+    public function isExisted(){
+    	$row = $this->tableModel->findById($this->id)->toArray();
+    	if (count($row) == 0) {
+    		return false;
+    	}else{
+    		return true;
+    	}
+    }
+    
+}
+
+?>

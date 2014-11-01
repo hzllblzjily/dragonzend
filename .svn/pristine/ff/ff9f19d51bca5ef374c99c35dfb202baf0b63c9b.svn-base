@@ -1,0 +1,143 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerRegs.php';
+
+class AuditController extends We_Base_Backend_Action_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+	public function enterauditlawyerAction () {
+		try {
+			$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam('page');
+			if($page == null){
+				$page = 1;
+			}
+			$top = 10;
+			$skip = ($page-1)*10;
+				
+			$layer = new Lawyer();
+			$rows = $layer->fetchList(null, null, null, 'isApproved = ?', array(0), null, $top, $skip);
+				
+			$returnResultSet = array();
+			$i = 0;
+			
+			foreach($rows as $key=>$value)
+			{
+				//返回查找到的数据
+				$returnServiceModel = new Lawyers();
+				$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+				$returnServiceModel->setOtherPropertyForResponse('list');
+					
+				$returnResultSet[$i] = $returnServiceModel;
+				$i++;
+			}
+			
+			$totalCount = $layer->count(null, null, 'isApproved = ?', array(0));
+
+// 			var_dump($returnResultSet);
+// 			var_dump($totalCount);
+// 			exit();
+			
+			$this->view->lawyers = $returnResultSet;
+			$this->view->totalCount = $totalCount;
+			$this->view->page = $page;
+			$this->dbAdapter->commit();
+			$this->renderScript('audit/list_lawyer.phtml');
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} 
+
+		
+		
+	}
+	
+	public function auditlawyerokAction (){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$id = $this->getRequest()->getParam('id');
+			$telPhone = $this->getRequest()->getParam('telPhone');
+			$lawyer = new Lawyer();
+			$lawyer->update(array('isApproved'=>1 , 'approvedAt'=>time()), $id);
+			
+			ShortMessageHelper::PostShortMessage_v1($telPhone, null, 1);
+			$this->dbAdapter->commit();
+			$this->redirect('audit/enterauditlawyer?page=1');
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	
+	public function auditlawyerngreasonAction (){
+		try {
+			$id = $this->getRequest()->getParam('id');
+			$telPhone = $this->getRequest()->getParam('telPhone');
+			$this->view->id = $id;
+			$this->view->telPhone = $telPhone;
+
+			$this->renderScript('audit/reject_reason.phtml');
+		}catch (WeException $e) {
+// 			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+// 			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function auditlawyerngAction (){
+		try {
+			$this->dbAdapter->beginTransaction();
+			
+			$id = $this->getRequest()->getParam('id');
+			$telPhone = $this->getRequest()->getParam('telPhone');
+			$reason = $this->getRequest()->getParam('reason');
+			
+			$lawyer = new Lawyer();
+			$lawyer->delete($id);
+			
+			$lawyerReg = new LawyerReg();
+			$rows = $lawyerReg->fetchList(null, null, null, 'telphone = ?', array($telPhone), null, null, null);
+			$id_reg = $rows[0]['id'];
+			$lawyerReg->delete($id_reg);
+			
+			ShortMessageHelper::PostShortMessage_v1($telPhone, $reason, 2);
+			$this->dbAdapter->commit();
+			$this->redirect('audit/enterauditlawyer?page=1');
+			
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+}
+	
+?>

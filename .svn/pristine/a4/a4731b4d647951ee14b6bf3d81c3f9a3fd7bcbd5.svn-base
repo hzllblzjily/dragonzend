@@ -1,0 +1,13 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/tablemodel/We_Base_Table.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+class User extends We_Base_Table {
+	/**
+	 * The default table name
+	 */
+	public $_name = 'user';
+	public $_primary = 'id';           
+
+}
+?>

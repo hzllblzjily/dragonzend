@@ -1,0 +1,441 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerFeedbacks.php';
+require_once APPLICATION_PATH.'/models/servicemodel/LawyerReports.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserReports.php';
+require_once APPLICATION_PATH.'/models/servicemodel/UserFeedbacks.php';
+
+class ReportfeedbackController extends We_Base_Backend_Action_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+	/////////////////////////////////////////////////////
+	public function listuserreportAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam('page');
+			if($page == null){
+				$page = 1;
+			}
+			$top = 10;
+			$skip = ($page-1)*10;
+			
+			$serviceModel = new UserReports();
+			$selectArr = $serviceModel->getSelectedArrayByAlias("t");
+			array_push($selectArr, 'u.userName as u_name','u.telPhone as u_telPhone','l.userName as l_name','l.telPhone as l_telPhone');
+			$rows = $serviceModel->tableModel->fetchList($selectArr,"t","inner join user u on t.user_id = u.id inner join lawyer l on t.lawyer_id = l.id",
+					"t.finished <> 1",null, null, $top, $skip);
+
+			$totalCount = $serviceModel->tableModel->count(null, null, 'finished <> 1', null);
+			
+// 			var_dump($rows);
+// 			var_dump($totalCount);
+// 			exit();
+				
+			$this->view->content = $rows;
+			$this->view->totalCount = $totalCount;
+			$this->view->page = $page;
+				
+			$this->renderScript('reportfeedback/userreport_list.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function listlawyerreportAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam('page');
+			if($page == null){ 
+				$page = 1;
+			}
+			$top = 10;
+			$skip = ($page-1)*10;
+
+			$serviceModel = new LawyerReports();
+			$selectArr = $serviceModel->getSelectedArrayByAlias("t");
+			array_push($selectArr, 'u.userName as u_name','u.telPhone as u_telPhone','l.userName as l_name','l.telPhone as l_telPhone' ,'l.officeName','l.special1','l.special2');
+			$rows = $serviceModel->tableModel->fetchList($selectArr,"t","inner join user u on t.user_id = u.id inner join lawyer l on t.lawyer_id = l.id",
+					"t.finished <> 1",null, null, $top, $skip);
+			
+			$totalCount = $serviceModel->tableModel->count(null, null, 'finished <> 1', null);
+				
+// 						var_dump($rows);
+// 						var_dump($totalCount);
+// 						exit();
+			
+			$this->view->content = $rows;
+			$this->view->totalCount = $totalCount;
+			$this->view->page = $page;
+			
+			$this->renderScript('reportfeedback/lawyerreport_list.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function listuserfeedbackAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam('page');
+			if($page == null){
+				$page = 1;
+			}
+			$top = 10;
+			$skip = ($page-1)*10;
+			
+			$serviceModel = new UserFeedbacks();
+			$selectArr = $serviceModel->getSelectedArrayByAlias("t");
+			array_push($selectArr, 'u.userName as u_name','u.telPhone as u_telPhone');
+			$rows = $serviceModel->tableModel->fetchList($selectArr,"t","inner join user u on t.user_id = u.id",
+					"t.finished <> 1",null, null, $top, $skip);
+
+			$totalCount = $serviceModel->tableModel->count(null, null, 'finished <> 1', null);
+			
+// 			var_dump($rows);
+// 			var_dump($totalCount);
+// 			exit();
+				
+			$this->view->content = $rows;
+			$this->view->totalCount = $totalCount;
+			$this->view->page = $page;
+				
+			$this->renderScript('reportfeedback/userfeedback_list.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function listlawyerfeedbackAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$page = $this->getRequest()->getParam('page');
+			if($page == null){ 
+				$page = 1;
+			}
+			$top = 10;
+			$skip = ($page-1)*10;
+
+			$serviceModel = new LawyerFeedbacks();
+			$selectArr = $serviceModel->getSelectedArrayByAlias("t");
+			array_push($selectArr, 'l.userName as l_name','l.telPhone as l_telPhone' ,'l.officeName','l.special1','l.special2');
+			$rows = $serviceModel->tableModel->fetchList($selectArr,"t"," inner join lawyer l on t.lawyer_id = l.id",
+					"t.finished <> 1",null, null, $top, $skip);
+			
+			$totalCount = $serviceModel->tableModel->count(null, null, 'finished <> 1', null);
+				
+// 						var_dump($rows);
+// 						var_dump($totalCount);
+// 						exit();
+			
+			$this->view->content = $rows;
+			$this->view->totalCount = $totalCount;
+			$this->view->page = $page;
+			
+			$this->renderScript('reportfeedback/lawyerfeedback_list.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+
+	/////////////////////////////////////////////////////
+	public function userreportignoreAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$id = $this->getRequest()->getParam('id');
+			
+			$serviceModel = new UserReports();
+			$serviceModel->id = $id;
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listuserreport?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function userreportenterreasonAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$this->view->id = $this->getRequest()->getParam('id');
+			$this->view->telPhone = $this->getRequest()->getParam('telPhone');
+			$this->view->user_id = $this->getRequest()->getParam('user_id');
+			
+			$this->renderScript('reportfeedback/userreport_reason.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function userreportdoneAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+	
+			$tablemodle = new user();
+			$tablemodle->update(array('disabled_flag'=>'1'), $this->getRequest()->getParam('user_id'));
+			
+			$serviceModel = new UserReports();
+			$serviceModel->id = $this->getRequest()->getParam('id');
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			ShortMessageHelper::PostShortMessage_v1($this->getRequest()->getParam('telPhone'), $this->getRequest()->getParam('reason'), 4);
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listuserreport?page=1");
+			
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	/////////////////////////////////////////////////////
+	public function lawyerreportignoreAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$id = $this->getRequest()->getParam('id');
+			
+			$serviceModel = new LawyerReports();
+			$serviceModel->id = $id;
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listlawyerreport?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function lawyerreportenterreasonAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$this->view->id = $this->getRequest()->getParam('id');
+			$this->view->telPhone = $this->getRequest()->getParam('telPhone');
+			$this->view->lawyer_id = $this->getRequest()->getParam('lawyer_id');
+			
+			$this->renderScript('reportfeedback/lawyerreport_reason.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function lawyerreportdoneAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+	
+			$tablemodle = new Lawyer();
+			$tablemodle->update(array('disabled_flag'=>'1'), $this->getRequest()->getParam('lawyer_id'));
+			
+			$serviceModel = new LawyerReports();
+			$serviceModel->id = $this->getRequest()->getParam('id');
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			ShortMessageHelper::PostShortMessage_v1($this->getRequest()->getParam('telPhone'), $this->getRequest()->getParam('reason'), 4);
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listlawyerreport?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	/////////////////////////////////////////////////////
+	public function userfeedbackignoreAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$id = $this->getRequest()->getParam('id');
+			
+			$serviceModel = new UserFeedbacks();
+			$serviceModel->id = $id;
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listuserfeedback?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function userfeedbackenterreasonAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$this->view->id = $this->getRequest()->getParam('id');
+			$this->view->telPhone = $this->getRequest()->getParam('telPhone');
+			$this->view->user_id = $this->getRequest()->getParam('user_id');
+			
+			$this->renderScript('reportfeedback/userfeedback_reason.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function userfeedbackdoneAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			
+			$serviceModel = new UserFeedbacks();
+			$serviceModel->id = $this->getRequest()->getParam('id');
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			ShortMessageHelper::PostShortMessage_v1($this->getRequest()->getParam('telPhone'), $this->getRequest()->getParam('reason'), 3);
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listuserfeedback?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	/////////////////////////////////////////////////////
+	public function lawyerfeedbackignoreAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$id = $this->getRequest()->getParam('id');
+			
+			$serviceModel = new LawyerFeedbacks();
+			$serviceModel->id = $id;
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listlawyerfeedback?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function lawyerfeedbackenterreasonAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			$this->view->id = $this->getRequest()->getParam('id');
+			$this->view->telPhone = $this->getRequest()->getParam('telPhone');
+			$this->view->lawyer_id = $this->getRequest()->getParam('lawyer_id');
+			
+			$this->renderScript('reportfeedback/lawyerfeedback_reason.phtml');
+			$this->dbAdapter->commit();
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+	
+	public function lawyerfeedbackdoneAction(){
+		try {
+			$this->dbAdapter->beginTransaction();
+			
+			$serviceModel = new LawyerFeedbacks();
+			$serviceModel->id = $this->getRequest()->getParam('id');
+			$serviceModel->finished = 1;
+			$serviceModel->update();
+			
+			ShortMessageHelper::PostShortMessage_v1($this->getRequest()->getParam('telPhone'), $this->getRequest()->getParam('reason'), 3);
+			
+			$this->dbAdapter->commit();
+			$this->redirect("reportfeedback/listlawyerfeedback?page=1");
+		}catch (WeException $e) {
+			$this->dbAdapter->rollback();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		} catch (Exception $e) {
+			$this->dbAdapter->rollback();
+			$e = new WeException();
+			$this->forward('exception','global', '',array('exception'=>$e));
+		}
+	}
+}
+	
+?>

@@ -1,0 +1,120 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Api_Rest_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Notifications.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+
+class V1_NotificationsController extends We_Base_Api_Rest_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	public function countunreadAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+            $type = $this->getRequest()->getParam("type");//用户或律师
+            if($type == "用户"){
+                $user_id = $this->validLogin();
+            }else{
+                $user_id = $this->validLayerLogin();
+            }
+
+	    	 
+	    	$notifications = new Notifications();
+	    	$count = $notifications->tableModel->count(null,null,"msgTo = ? and msgTo_type = ?",array($user_id,$type));
+	    	$returnArr = array("count"=>$count);
+	    
+	    	 
+	    	$stringValue = json_encode($returnArr, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+	    	echo $stringValue;
+	    	exit();
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	public function readackAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$ids = $this->getRequest()->getParam("ids");
+            $ids = explode(",", $ids);
+	        foreach($ids as $key=>$value){
+	            $notifications = new Notifications();
+	            $notifications->id = $value;
+	            $notifications->delete();
+	        }
+	        $this->dbAdapter->commit();
+	    	echo "{}";
+	    	exit();
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	public function indexAction(){
+	    try
+	    {
+	    	//$this->dbAdapter->beginTransaction();
+	    	$type = $this->getRequest()->getParam("type");//用户或律师
+
+	    	if($type == "用户"){
+	    		$user_id = $this->validLogin();
+	    	}else{
+	    		$user_id = $this->validLayerLogin();
+	    	}
+
+	    	 
+	    	$notifications = new Notifications();
+	    	$rows = $notifications->tableModel->fetchList(null,null,null,"msgTo = ? and msgTo_type = ?",array($user_id,$type),"id DESC",null,null);
+	    	$returnResultSet = array();
+	    	$i = 0;
+	    	foreach($rows as $key=>$value)
+	    	{
+	    		$returnServiceModel = new Notifications();
+	    		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+	    		$returnServiceModel->setOtherPropertyForResponse('list');
+	    		$returnServiceModel->unsetNotExposeProperty();
+	    		$returnResultSet[$i] = $returnServiceModel;
+	    		$i++;
+	    	}
+	    	 
+	    	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+	    	echo $stringValue;
+	    	exit();
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	//$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	//$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+
+}
+	
+?>

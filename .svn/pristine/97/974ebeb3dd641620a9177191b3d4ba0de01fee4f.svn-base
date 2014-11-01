@@ -1,0 +1,13 @@
+eclipse.preferences.version=1
+encoding//application/Bootstrap.php=UTF-8
+encoding//application/controllers/We_Base_Rest_Controller.php=UTF-8
+encoding//application/helpers/CommonHelper.php=UTF-8
+encoding//application/helpers/Constant.php=UTF-8
+encoding//application/helpers/HttpHelper.php=UTF-8
+encoding//application/helpers/QueryCondition.php=UTF-8
+encoding//application/helpers/WeException.php=UTF-8
+encoding//application/models/servicemodel/Attachments.php=UTF-8
+encoding//application/models/servicemodel/Users.php=UTF-8
+encoding//application/models/servicemodel/We_Base_ServiceModel.php=UTF-8
+encoding//application/models/tablemodel/User.php=UTF-8
+encoding//application/models/tablemodel/We_Base_Table.php=UTF-8

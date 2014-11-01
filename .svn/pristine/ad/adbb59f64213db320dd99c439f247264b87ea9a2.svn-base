@@ -1,0 +1,89 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class UserFeedbacks extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $user_id;
+	public $feedback_content;
+	public $finished;
+	
+    //table
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    	$this->propertyTypes["user_id"] = $this->columnProperty;
+    	$this->propertyTypes["feedback_content"] = $this->columnProperty;
+    	$this->propertyTypes["finished"] = $this->columnProperty;
+
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+    	$users = new Users();
+    	$users->id = $this->user_id;
+    	
+    	$users = $users->get();
+    	if($users == null){
+    	    $this->logger->log("user id is not exist = ".$this->user_id,Zend_Log::ERR);
+    	    throw new WeException(20247);
+    	}
+    	
+    	if ($this->feedback_content == '') {
+    		$this->logger->log("content can not be empty ",Zend_Log::ERR);
+    		throw new WeException(20260);
+    	}
+    	 
+    	$this->finished = 0;
+
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

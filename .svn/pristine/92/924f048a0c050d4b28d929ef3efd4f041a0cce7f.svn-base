@@ -1,0 +1,153 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Attachments.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Trades extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $title;
+	public $totalPrice;
+	public $invoiceNumber;
+	public $invoiceImage;
+	public $creator;
+	public $user_id;
+	public $creationTime;
+	public $status;   //委托状态，1为刚创建时待用户确认，－1为用户拒绝，2为用户确认待审批，3为审批通过待用户评价，4为已评价
+	
+    //table
+    
+	//aggregation
+    public $invoiceOriginUrl;
+    public $invoiceMediumUrl;
+    public $invoiceThumbUrl;
+    
+    //innode
+    public $creatorLawyer;
+    public $toUser;
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    	$this->propertyTypes["title"] = $this->columnProperty;
+    	$this->propertyTypes["totalPrice"] = $this->columnProperty;
+    	$this->propertyTypes["invoiceNumber"] = $this->columnProperty;
+    	$this->propertyTypes["invoiceImage"] = $this->columnProperty;
+    	$this->propertyTypes["creator"] = $this->columnProperty;
+    	$this->propertyTypes["user_id"] = $this->columnProperty;
+    	$this->propertyTypes["creationTime"] = $this->columnProperty;
+    	$this->propertyTypes["status"] = $this->columnProperty;
+    	
+    	$this->propertyTypes["invoiceOriginUrl"] = $this->aggregationProperty;
+    	$this->propertyTypes["invoiceMediumUrl"] = $this->aggregationProperty;
+    	$this->propertyTypes["invoiceThumbUrl"] = $this->aggregationProperty;
+    	
+    	$this->propertyTypes["creatorLawyer"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creatorLawyer"] = "Lawyers";
+    	$this->propertyTypes["toUser"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["toUser"] = "Users";
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+    	    if($this->invoiceImage != null){
+    	    	$this->invoiceOriginUrl = Attachments::getAttachmentUrl($this->invoiceImage, 1);
+    	    	$this->invoiceMediumUrl = Attachments::getAttachmentUrl($this->invoiceImage, 2);
+    	    	$this->invoiceThumbUrl = Attachments::getAttachmentUrl($this->invoiceImage, 3);
+    	    }
+    	    $this->creatorLawyer = new Lawyers();
+    	    $this->creatorLawyer->id = $this->creator;
+    	    $this->creatorLawyer = $this->creatorLawyer->get();
+    	    
+    	    $this->toUser = new Users();
+    	    $this->toUser->id = $this->user_id;
+    	    $this->toUser = $this->toUser->get();
+    	    
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+    	$users = new Users();
+    	$users->id = $this->user_id;
+    	
+    	$users = $users->get();
+    	if($users == null){
+    	    $this->logger->log("user id is not exist = ".$this->user_id,Zend_Log::ERR);
+    	    throw new WeException(20247);
+    	}
+    	
+    	$lawyers = new Lawyers();
+    	$lawyers->id = $this->creator;
+    	 
+    	if($this->totalPrice == 0){
+    	    $this->logger->log("total price should not be zero",Zend_Log::ERR);
+    	    throw new WeException(20276);
+    	}
+    	
+    	$lawyers = $lawyers->get();
+    	if($lawyers == null){
+    		$this->logger->log("lawyer id is not exist = ".$this->creator,Zend_Log::ERR);
+    		throw new WeException(20248);
+    	}
+    	 
+    	if($this->title == null){
+    	    $this->logger->log("title can not be empty ",Zend_Log::ERR);
+    	    throw new WeException(20272);
+    	}
+
+    	$this->creationTime = time();
+    	if($this->invoiceNumber == null){
+    	    throw new WeException(20274);
+    	}
+        //$invoiceNumber全局唯一
+        $rows = $this->tableModel->fetchList(null,null,null,"invoiceNumber = ?",array($this->invoiceNumber),null,null,null,true);
+        if(count($rows) > 0){
+            $this->logger->log("invoice number already exist = ".$this->invoiceNumber,Zend_Log::ERR);
+            throw new WeException(20273);
+        }
+        
+        $this->status = 1;
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+}

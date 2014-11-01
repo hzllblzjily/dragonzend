@@ -1,0 +1,51 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/tablemodel/We_Base_Table.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+
+class User extends We_Base_Table {
+	/**
+	 * The default table name
+	 */
+	public $_name = 'user';
+	public $_primary = 'id';           
+
+	public function fetchList($selects,$tableAlias,$join,$where,$params, $order, $top, $skip,$isForUpdate=false){
+		if(AuthenticationMgr::$isActAsRoot || AuthenticationMgr::isBackendModule()){
+			return parent::fetchList($selects, $tableAlias, $join, $where, $params, $order, $top, $skip,$isForUpdate);
+		}
+		if($tableAlias == null){
+			$whereAdd = 'disabled_flag = 0';
+		}else{
+			$whereAdd = $tableAlias.'.disabled_flag = 0';
+		}
+		if($where != null){
+			$where = $where.' and '.$whereAdd;
+		}else{
+			$where = $whereAdd;
+		}
+	
+		return parent::fetchList($selects, $tableAlias, $join, $where, $params, $order, $top, $skip,$isForUpdate);
+	}
+	
+	public function count($tableAlias, $join, $where, $params){
+		if(AuthenticationMgr::$isActAsRoot || AuthenticationMgr::isBackendModule()){
+			return parent::count($tableAlias, $join, $where, $params);
+		}
+		if($tableAlias == null){
+			$whereAdd = 'disabled_flag = 0';
+		}else{
+			$whereAdd = $tableAlias.'.disabled_flag = 0';
+		}
+		if($where != null){
+			$where = $where.' and '.$whereAdd;
+		}else{
+			$where = $whereAdd;
+		}
+	
+	}
+	
+}
+?>

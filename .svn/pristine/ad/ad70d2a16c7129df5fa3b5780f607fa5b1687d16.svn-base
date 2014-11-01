@@ -1,0 +1,85 @@
+<?php
+
+require_once APPLICATION_PATH.'/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH.'/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH.'/helpers/HttpHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/QueryCondition.php';
+require_once APPLICATION_PATH.'/helpers/WeException.php';
+require_once APPLICATION_PATH.'/models/servicemodel/AdminUsers.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+
+class AdminController extends We_Base_Backend_Action_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+	
+	public function getidentityAction(){
+		
+		$currentAdminInfo = AuthenticationMgr::getAuthInfo();
+
+		$random = rand(10000, 99999);
+		// 		$random = 111111;
+			
+		$adminUser = new AdminUser();
+		$adminUser->update(array('identity'=>$random), $currentAdminInfo->id);
+
+		//发送给用户短信
+		ShortMessageHelper::PostShortMessage($currentAdminInfo->userName, $random);
+		
+		$this->view->flag = 1;
+		$this->renderScript("/admin/reset_password.phtml");
+		
+	}
+	
+	public function resetpasswordAction(){
+		$password = md5($this->getParam('password'));
+		$identity = $this->getParam('identity');
+		$currentAdminInfo = AuthenticationMgr::getAuthInfo();
+		
+		$adminUser = new AdminUser();
+		$rows = $adminUser->fetchList(null,null,null,'id = ? and identity = ?'
+				,array($currentAdminInfo->id,$identity),null,null,null);
+		if(count($rows) > 0){
+			//验证成功
+		}else{
+			$this->logger->log('indentity is not correct',Zend_Log::ERR);
+			throw new WeException(30192);
+		}
+		
+		$adminUser = new AdminUser();
+		$adminUser->update(array('password'=>$password), $currentAdminInfo->id);
+		
+		$this->renderScript("/console/OK.phtml");
+	}
+	
+	public function resetpasswordrenderAction(){
+		$this->view->flag = 0;
+		$this->renderScript("/admin/reset_password.phtml");
+		
+	}
+	
+	public function enteraddadminAction() {
+		$this->renderScript("/admin/add_admin.phtml");
+		
+	}
+	
+	public function addadminAction() {
+		$password = md5($this->getParam('password'));
+		$username = $this->getParam('telphone');
+		
+		$adminUsers = new AdminUsers();
+		$adminUsers->userName = $username;
+		$adminUsers->password = $password;
+		
+		$adminUsers->create();
+		
+		$this->renderScript("/console/OK.phtml");
+	
+	}
+}
+	
+?>

@@ -1,0 +1,70 @@
+<?php
+
+class Verification {
+	
+	//验证手机合法性
+	static public function varifyTelPhone($telPhone){
+		if(preg_match("/^13[0-9]{1}[0-9]{8}$|15[0-9]{1}[0-9]{8}$|18[0-9]{1}[0-9]{8}$/",$telPhone)){
+		//if(preg_match("^((13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$",$telPhone)){
+			return true;			 
+		}else{
+			return false;		    
+		}		
+	}
+	
+	//验证密码合法性
+	static public function varifyPassword($passwd){
+		if(preg_match("/^[a-zA-Z0-9]{6,20}$/",$passwd)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	//验证商品图片名字合法性
+	static public function varifyImageName($image){
+		if(preg_match("/^[a-zA-Z0-9]{1,5}$/",$image)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	//验证邮箱合法性
+	static public function varifyEmail($email) {
+		if(preg_match('/^[^0-9][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[@][a-zA-Z0-9_]+([.][a-zA-Z0-9_]+)*[.][a-zA-Z]{2,4}$/',$email)){
+			return true;			 
+		}else{
+			return false;		    
+		}	
+	}
+	
+	//验证生日合法性
+	static public function varifyBirthday($birthday) {
+		if(preg_match('/^([0-9]{4})-([0-9]{1,2})-([0-9]{1,2})$/',$birthday)){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	//验证城市
+	static public function varifyCity($city) {
+		if( $city == '北京' || $city == '天津' || $city == '河北' || $city == '山西' || $city == '内蒙古' ||
+			$city == '辽宁' || $city == '吉林' || $city == '黑龙江' || $city == '上海' || $city == '江苏' || 
+			$city == '浙江' || $city == '安徽' || $city == '福建' || $city == '江西' || $city == '山东' ||
+			$city == '河南' || $city == '湖北' || $city == '湖南' || $city == '广东' || $city == '广西' ||
+			$city == '海南' || $city == '重庆' || $city == '四川' || $city == '贵州' || $city == '云南' ||
+			$city == '西藏' || $city == '陕西' || $city == '甘肃' || $city == '青海' || $city == '宁夏' ||
+			$city == '新疆' || $city == '台湾' || $city == '香港' || $city == '澳门' || $city == '其他' ||
+			$city == '海外' 
+		  ){
+			return true;
+		}else{
+			return false;
+		}
+	}
+	
+	
+	
+}

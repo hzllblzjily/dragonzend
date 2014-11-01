@@ -1,0 +1,12 @@
+<?php
+require_once APPLICATION_PATH.'/models/tablemodel/We_Base_Table.php';
+
+class Remark extends We_Base_Table {
+	/**
+	 * The default table name
+	 */
+	public $_name = 'remark';
+	public $_primary = 'id';
+
+	
+}

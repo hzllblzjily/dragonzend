@@ -1,0 +1,267 @@
+<?php
+
+
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Users.php';
+require_once APPLICATION_PATH.'/models/servicemodel/Attachments.php';
+require_once APPLICATION_PATH.'/helpers/Verification.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/Social/WeiboHelper.php';
+require_once APPLICATION_PATH.'/helpers/Constant.php';
+
+
+class Problems extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $content;
+    public $creator;
+    public $creationTime;
+    public $special;
+    public $city1;
+    public $city2;
+    
+
+    public $answer1_lawyer_id;
+    public $answer1_time;
+    public $answer2_lawyer_id;
+    public $answer2_time;
+    public $answer3_lawyer_id;
+    public $answer3_time;
+    
+    public $seat1_lawyer_id;
+    public $seat1_time;
+    public $seat2_lawyer_id;
+    public $seat2_time;
+    public $seat3_lawyer_id;
+    public $seat3_time;
+    
+    public $answer1_last_time;
+    public $answer2_last_time;
+    public $answer3_last_time;
+    //table
+    
+    //subnode
+    public $images;
+    
+    //aggregation
+    public $status;     //1为对你open并且你还没有进入抢答，2为对你open并且你进入了抢答，3为你完成了抢答，4为对你不open
+    public $answerLifeTime;   //还剩多少时间给你抢答，仅在status为2时有效
+    public $answerSeatNumber;  //抢答位编号，仅当status ＝ 1时候有效
+    
+    //innode
+    public $creationUser;
+    
+    public function __construct()
+    {
+    	parent::__construct();
+    	 
+    	$this->propertyTypes["id"] = $this->columnProperty;
+    	$this->propertyTypes["content"] = $this->columnProperty;
+    	$this->propertyTypes["creator"] = $this->columnProperty;
+    	$this->propertyTypes["creationTime"] = $this->columnProperty;
+    	$this->propertyTypes["special"] = $this->columnProperty;
+    	$this->propertyTypes["city1"] = $this->columnProperty;
+    	$this->propertyTypes["city2"] = $this->columnProperty;
+    	
+    	$this->propertyTypes["answer1_lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["answer1_time"] = $this->columnProperty;
+    	$this->propertyTypes["answer2_lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["answer2_time"] = $this->columnProperty;
+    	$this->propertyTypes["answer3_lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["answer3_time"] = $this->columnProperty;
+    	
+    	$this->propertyTypes["seat1_lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["seat1_time"] = $this->columnProperty;
+    	$this->propertyTypes["seat2_lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["seat2_time"] = $this->columnProperty;
+    	$this->propertyTypes["seat3_lawyer_id"] = $this->columnProperty;
+    	$this->propertyTypes["seat3_time"] = $this->columnProperty;
+    	 
+    	$this->propertyTypes["answer1_last_time"] = $this->columnProperty;
+    	$this->propertyTypes["answer2_last_time"] = $this->columnProperty;
+    	$this->propertyTypes["answer3_last_time"] = $this->columnProperty;
+    	
+    	$this->propertyTypes["images"] = $this->subNodeProperty;
+    	$this->subNodePropertyTypes["images"] = "Attachments";
+    	
+    	$this->propertyTypes["creationUser"] = $this->inNodeProperty;
+    	$this->inNodePropertyTypes["creationUser"] = "Users";
+    	
+    	
+    	$this->propertyTypes["status"] = $this->aggregationProperty;
+    	$this->propertyTypes["answerLifeTime"] = $this->aggregationProperty;
+    	$this->propertyTypes["answerSeatNumber"] = $this->aggregationProperty;
+
+    
+    }
+    
+    public function setOtherPropertyForResponse($operation){
+    	parent::setOtherPropertyForResponse($operation);
+    	if($operation != 'delete'){
+    	    if(AuthenticationMgr::isApiModule()){
+    	        $token = AuthenticationMgr::getAuthInfo();
+    	        $lawyer_id = Lawyers::getLawyerIdByToken($token);
+    	        if($lawyer_id == 0){
+    	            $this->status = 4;
+    	            $this->answerLifeTime = 0;
+    	            $this->answerSeatNumber = 0;
+    	        }else{
+    	            
+    	            $nowTime = time();
+    	            $this->answerSeatNumber = 0;
+    	            if($this->answer1_lawyer_id == $lawyer_id 
+    	            || $this->answer2_lawyer_id == $lawyer_id 
+    	            || $this->answer3_lawyer_id == $lawyer_id){
+    	                //已被该律师抢答过了
+    	                $this->status = 3;
+    	                $this->answerLifeTime = 0;
+    	            }
+    	            else if(($this->seat1_lawyer_id == $lawyer_id && ($nowTime - $this->seat1_time) <= ANSWER_TIME)||
+                             ($this->seat2_lawyer_id == $lawyer_id && ($nowTime - $this->seat2_time) <= ANSWER_TIME)||
+                             ($this->seat3_lawyer_id == $lawyer_id && ($nowTime - $this->seat3_time) <= ANSWER_TIME)){
+    	                //该律师正在抢答（没有超时)
+    	                $this->status = 2;
+    	                if($this->seat1_lawyer_id == $lawyer_id){
+    	                    if(ANSWER_TIME - ($nowTime - $this->seat1_time) < 0){
+    	                        $this->answerLifeTime = 0;
+    	                    }else{
+    	                        $this->answerLifeTime = ANSWER_TIME - ($nowTime - $this->seat1_time);
+    	                    }
+    	
+    	                }else if($this->seat2_lawyer_id == $lawyer_id){
+    	                    if(ANSWER_TIME - ($nowTime - $this->seat2_time) < 0){
+    	                        $this->answerLifeTime = 0;
+    	                    }else{
+    	                        $this->answerLifeTime = ANSWER_TIME - ($nowTime - $this->seat2_time);
+    	                    }
+    	                }else if($this->seat3_lawyer_id == $lawyer_id){
+    	                    if(ANSWER_TIME - ($nowTime - $this->seat3_time) < 0){
+    	                    	$this->answerLifeTime = 0;
+    	                    }else{
+    	                    	$this->answerLifeTime = ANSWER_TIME - ($nowTime - $this->seat3_time);
+    	                    }
+    	                }
+    	                
+    	            }
+    	            else if($this->answer1_lawyer_id != 0 && $this->answer2_lawyer_id != 0 && $this->answer3_lawyer_id != 0){
+    	                //已经被抢答完了
+    	                $this->status = 4;
+    	                $this->answerLifeTime = 0;
+    	            }
+    	            else{
+    	                //查看是否还有抢答位
+    	                if($this->seat1_lawyer_id == 0 ||( ($this->seat1_lawyer_id != 0) && ($this->seat1_lawyer_id != -1) && ($nowTime - $this->seat1_time > ANSWER_TIME))){
+    	                    $this->status = 1;
+    	                    $this->answerLifeTime = ANSWER_TIME;
+    	                    $this->answerSeatNumber = 1;
+    	                }else if($this->seat2_lawyer_id == 0 ||( ($this->seat2_lawyer_id != 0) && ($this->seat2_lawyer_id != -1) && ($nowTime - $this->seat2_time > ANSWER_TIME))){
+    	                	$this->status = 1;
+    	                	$this->answerLifeTime = ANSWER_TIME;
+    	                	$this->answerSeatNumber = 2;
+    	                }else if($this->seat3_lawyer_id == 0 ||( ($this->seat3_lawyer_id != 0) && ($this->seat3_lawyer_id != -1) && ($nowTime - $this->seat3_time > ANSWER_TIME))){
+    	                	$this->status = 1;
+    	                	$this->answerLifeTime = ANSWER_TIME;
+    	                	$this->answerSeatNumber = 3;
+    	                }else{
+    	                    //没有抢答位了
+    	                    $this->status = 4;
+    	                    $this->answerLifeTime = 0;
+    	                }
+    	            }
+    	            
+    	        }
+    	    }else{
+    	        $this->status = 4;
+    	        $this->answerLifeTime = 0;
+    	    }
+    
+    	    
+    	    //attachment subnode;
+    	    $attachments = new Attachments();
+    	    $rows = $attachments->tableModel->fetchList(null,null,null,"modelName=? and modelId = ?",array("problems",$this->id), "id DESC", null, null);
+    	    
+    	    $returnResultSet = array();
+    	    $i = 0;
+    	    foreach($rows as $key=>$value)
+    	    {
+    	    	$returnServiceModel = new Attachments();
+    	    	$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+    	    	$returnServiceModel->setOtherPropertyForResponse('list');
+    	    	$returnServiceModel->unsetNotExposeProperty();
+    	    	$returnResultSet[$i] = $returnServiceModel;
+    	    	$i++;
+    	    }
+    	    $this->images = $returnResultSet;
+    	    
+    	    //creator
+    	    $this->creationUser = new Users();
+    	    $this->creationUser->id = $this->creator;
+    	    $this->creationUser = $this->creationUser->get();
+    	    
+    	    
+    	}
+    	return $this;
+    }
+    
+    
+    public function onGet()
+    {
+    	parent::onGet();
+    }
+    
+    public function onCreate()
+    {
+    	parent::onCreate();
+    	$users = new Users();
+    	$users->id = $this->creator;
+    	$users = $users->get();
+    	if($users == null){
+    	    $this->logger->log("creator not exist id = ".$this->creator,Zend_Log::ERR);
+    	    throw new WeException(20253);
+    	}
+
+    	$this->creationTime = time();
+
+    }
+    
+    public function operationOfOtherProperty($operation)
+    {
+    	parent::operationOfOtherProperty($operation);
+    	 
+    }
+    
+    
+    
+    public function onUpdate()
+    {
+    	parent::onUpdate();
+    
+    
+    
+    }
+    
+    public function onDelete()
+    {
+    	parent::onDelete();
+    }
+    
+    static public function getSeatProblem($isForUpdate,$lawyerId){
+        $problems = new Problems();
+        $now = time();
+        $rows = $problems->tableModel->fetchList(null,null,null,"(seat1_lawyer_id = ? and (?-seat1_time <= ".ANSWER_TIME.")) || (seat2_lawyer_id = ? and (?-seat2_time <= ".ANSWER_TIME.")) || (seat3_lawyer_id = ? and (?-seat3_time <= ".ANSWER_TIME.")) "
+                ,array($lawyerId,$now,$lawyerId,$now,$lawyerId,$now), null, null, null,$isForUpdate);
+        if(count($rows) <= 0){
+            return null;
+        }else{
+            $problems->id = $rows[0]["id"];
+            $problems = $problems->get();
+            return $problems;
+        }
+    }
+    
+}

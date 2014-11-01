@@ -1,0 +1,206 @@
+<?php
+
+
+require_once APPLICATION_PATH . '/controllers/We_Base_Backend_Action_Controller.php';
+require_once APPLICATION_PATH . '/helpers/Admin/AdminSessionContext.php';
+require_once APPLICATION_PATH . '/helpers/HttpHelper.php';
+require_once APPLICATION_PATH . '/helpers/CommonHelper.php';
+require_once APPLICATION_PATH . '/helpers/QueryCondition.php';
+require_once APPLICATION_PATH . '/helpers/WeException.php';
+require_once APPLICATION_PATH . '/helpers/ShortMessageHelper.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Users.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Trades.php';
+require_once APPLICATION_PATH . '/models/servicemodel/Lawyers.php';
+require_once APPLICATION_PATH . '/models/tablemodel/RobotCount.php';
+require_once APPLICATION_PATH . '/models/servicemodel/RobotQuestions.php';
+require_once APPLICATION_PATH . '/helpers/Constant.php';
+require_once APPLICATION_PATH . '/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/NotificationHelper.php';
+
+class TradeController extends We_Base_Backend_Action_Controller
+{
+	public function init()
+	{
+		/* Initialize action controller here */
+		parent::init();
+	}
+
+	
+	
+	public function agreeAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$trade_id = $this->getRequest()->getParam("trade_id");
+	    
+	    	$trades = new Trades();
+	    	$trades->id = $trade_id;
+	    	$trades = $trades->get(true);
+	    	if($trades == null){
+	    		throw new WeException(20103);
+	    	}
+
+	    	if($trades->status != 2){
+	    		$this->logger->log("trade status = ".$trades->status,Zend_Log::ERR);
+	    		throw new WeException(30194);
+	    	}
+	    	$trades->status = 3;
+	    
+	    	$trades = $trades->update();
+	    
+	    	$lawyers = new Lawyers();
+	    	$lawyers->id = $trades->creator;
+	    	$lawyers = $lawyers->get(true);
+	    	$lawyers->totalTradeNumber = $lawyers->totalTradeNumber + 1;
+	    	$lawyers->tradeTotalMoney = $lawyers->tradeTotalMoney + $trades->totalPrice;
+	    	$lawyers->update();
+	    	
+	    	
+	    	$notifications = new Notifications();
+	    	$notifications->msgType = 4;
+	    	$notifications->creator = -1;
+	    	$notifications->creator_type = "系统";
+	    	$notifications->msgTo = $trades->creator;
+	    	$notifications->msgTo_type = "律师";
+	    	$notifications->msgRef_id = $trades->id;
+	    	$notifications->msgOption = 1;
+	    		
+	    	NotificationHelper::pushNotification($notifications);
+	    	
+	    	
+	    	$notifications = new Notifications();
+	    	$notifications->msgType = 5;
+	    	$notifications->creator = $trades->creator;
+	    	$notifications->creator_type = "律师";
+	    	$notifications->msgTo = $trades->user_id;
+	    	$notifications->msgTo_type = "用户";
+	    	$notifications->msgRef_id = $trades->id;
+	    	$notifications->msgOption = 1;
+	    	 
+	    	NotificationHelper::pushNotification($notifications);
+	    	
+	    	
+	    	
+	    	
+	    	$this->dbAdapter->commit();
+	    	
+	    	$stringValue = $trades->jsonEncode();
+	    	echo $stringValue;
+	    	exit();
+	    
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+	
+	public function rejectAction(){
+	    try
+	    {
+	    	$this->dbAdapter->beginTransaction();
+	    	$trade_id = $this->getRequest()->getParam("trade_id");
+	    	$reason = $this->getRequest()->getParam("reason");
+	    	 
+	    	$trades = new Trades();
+	    	$trades->id = $trade_id;
+	    	$trades = $trades->get(true);
+	    	if($trades == null){
+	    		throw new WeException(20103);
+	    	}
+	    
+	    	if($trades->status != 2){
+	    		$this->logger->log("trade status = ".$trades->status,Zend_Log::ERR);
+	    		throw new WeException(30194);
+	    	}
+	    	$trades->status = -2;
+	    	$trades->rejectReason = $reason;
+	    	$trades = $trades->update();
+	    	 
+	    	
+	    	$notifications = new Notifications();
+	    	$notifications->msgType = 4;
+	    	$notifications->creator = -1;
+	    	$notifications->creator_type = "系统";
+	    	$notifications->msgTo = $trades->creator;
+	    	$notifications->msgTo_type = "律师";
+	    	$notifications->msgRef_id = $trades->id;
+	    	$notifications->msgOption = 2;
+	    	$notifications->msgOptionContent = $reason;
+	    	NotificationHelper::pushNotification($notifications);
+	    	
+	    	
+	    	$notifications = new Notifications();
+	    	$notifications->msgType = 5;
+	    	$notifications->creator = $trades->creator;
+	    	$notifications->creator_type = "律师";
+	    	$notifications->msgTo = $trades->user_id;
+	    	$notifications->msgTo_type = "用户";
+	    	$notifications->msgRef_id = $trades->id;
+	    	$notifications->msgOption = 2;
+	    	$notifications->msgOptionContent = $reason;
+	    	NotificationHelper::pushNotification($notifications);
+	    	
+	    	$this->dbAdapter->commit();
+	    
+	    	//发送通知中心，待实现
+	    	$stringValue = $trades->jsonEncode();
+	    	echo $stringValue;
+	    	exit();
+	    	 
+	    }catch (WeException $e) { //首先捕获weRxtException
+	    	$this->dbAdapter->rollback();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+	    	$this->dbAdapter->rollback();
+	    	$e = new WeException();
+	    	$this->forward('exception','global', '',array('exception'=>$e));
+	    }
+	}
+    public function listwaitreviewtradesAction(){
+        try
+        {
+        	//$this->dbAdapter->beginTransaction();
+        	$page = $this->getRequest()->getParam("page");
+        	if($page == null){
+        		$page = 1;
+        	}
+        	$top = 20;
+        	$skip = ($page - 1) * $top;
+        	 
+        	$trades = new Trades();
+        	$rows = $trades->tableModel->fetchList(null, null, null, "status = ?", array(2), "id DESC", $top, $skip);
+        	 
+        	 
+        	$returnResultSet = array();
+        	$i = 0;
+        	foreach($rows as $key=>$value)
+        	{
+        		$returnServiceModel = new Trades();
+        		$returnServiceModel = $returnServiceModel->setColumnNodeFromTableArray($value);
+        		$returnServiceModel->setOtherPropertyForResponse('list');
+        		$returnServiceModel->unsetNotExposeProperty();
+        		$returnResultSet[$i] = $returnServiceModel;
+        		$i++;
+        	}
+        	
+        	$stringValue = json_encode($returnResultSet, JSON_UNESCAPED_UNICODE|JSON_UNESCAPED_SLASHES);
+        	echo $stringValue;
+        	exit();
+        	 
+        }catch (WeException $e) { //首先捕获weRxtException
+        	//$this->dbAdapter->rollback();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        } catch (Exception $e) {    //如果捕获不到，作为weException中的默认错误$code = '0000'
+        	//$this->dbAdapter->rollback();
+        	$e = new WeException();
+        	$this->forward('exception','global', '',array('exception'=>$e));
+        }
+    }
+
+
+
+}

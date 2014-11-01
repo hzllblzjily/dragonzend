@@ -1,0 +1,12 @@
+<?php
+require_once APPLICATION_PATH.'/models/tablemodel/We_Base_Table.php';
+
+class LawyerReport extends We_Base_Table {
+	/**
+	 * The default table name
+	 */
+	public $_name = 'lawyer_report';
+	public $_primary = 'id';
+
+	
+}

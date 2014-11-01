@@ -1,0 +1,9 @@
+<?php
+
+define('MAX_BASE_TOP_NUMBER', 100);				//普通的TOP最大值
+define('MAX_FILE_UPLOAD_SIZE', 10*1024*1024);				//上传文件的最大值
+
+define('MAX_SCOPE_DISTANCE', 1000*1000*1000);     //nearby用户距离最大值
+define('NEABYTOP', 20);                 //nearby用户一页拉多少个
+define("ANSWER_TIME", 1*20)       //抢答时限
+?>

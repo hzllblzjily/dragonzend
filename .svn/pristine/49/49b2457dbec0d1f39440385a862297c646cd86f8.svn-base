@@ -1,0 +1,838 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="" lang="" class="action--site-index controller--site">
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta name="language" content="" />
+        <meta name="viewport" content="width=1280, initial-scale=0.5,user-scalable=yes,maximum-scale=0.5,minimum-scale=0.5"/>
+	<link rel="shortcut icon" href="/themes/basic/skin/images/favicon.ico" type="image/x-icon"/>	
+<!--	<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/default/default.css" />		
+	<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/global.css" />	-->
+	<!--[if lt IE 7]>
+	<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/default/ie6.css" media="screen, projection" />
+	<![endif]-->	
+	<!--[if lt IE 8]>
+	<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/default/ie.css" media="screen, projection" />
+
+	<![endif]-->
+        <!--[if lt IE 9]>
+        <meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />   
+        <![endif]-->	        
+	<meta name="keywords" content="上海seo优化|上海网站建设|上海网站制作|上海网页设计|网站建设|网站制作|网页设计|上海维弗网络科技有限公司" />
+<meta name="description" content="上海seo优化|上海网站建设|上海网站制作|上海维弗网络科技有限公司（Webfoss）是一家在海外拥有数年网页设计，网站建设制作的公司。由于中国信息技术的蓬勃发展，公司现将主要目标瞄准中国市场，全心全意致力于帮助中国的中小企业和企事业单位建立符合国际潮流的现代化网站。同时，本公司还提供网站维护，以及各种定制管理软件，提高管理 效率，提升企业形象与国际接轨." />
+<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/homepage.css" />
+<link rel="stylesheet" type="text/css" href="/themes/basic/skin/js/lib/css/prettyPhoto.css" />
+<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/global.css" />
+<link rel="stylesheet" type="text/css" href="/themes/basic/skin/css/default/default.css" />
+<script type="text/javascript" src="/assets/e97863d1/jquery.js"></script>
+<script type="text/javascript" src="/assets/e97863d1/jui/js/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/themes/basic/skin/js/lib/webfoss.fullscreenstage.js"></script>
+<script type="text/javascript" src="/themes/basic/skin/js/lib/jquery.carouFredSel.js"></script>
+<script type="text/javascript" src="/themes/basic/skin/js/lib/webfoss.preloader.js"></script>
+<script type="text/javascript" src="/themes/basic/skin/js/lib/waypoints.min.js"></script>
+<script type="text/javascript" src="/themes/basic/skin/js/lib/jquery.prettyPhoto.js"></script>
+<title>上海seo优化|上海网站建设|上海网站制作|上海网页设计|网站建设|网站制作|网页设计|上海维弗网络科技有限公司-首页</title>
+    <script type="text/javascript" src="/themes/basic/skin/js/custom.js"></script>
+</head>
+<body class="action--site-index controller--site">
+
+<div id="mainmenu">
+            <ul id='homepage-mainmenu'>
+      <li class="menu-level-2 menu-id-2">
+      <a href='#slider' title='首页' class="menu-level-2 menu-id-2">
+        <img class='button not-active' src='/themes/basic/skin/images/home-button-not-active.png' alt=''>
+        <img class='button active' src='/themes/basic/skin/images/home-button-active.png' alt=''>
+        <span>首页</span>        
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-3">
+      <a href='#about' title='' class="menu-level-2 menu-id-3">
+        <img class='button not-active' src='/themes/basic/skin/images/home-button-not-active.png' alt=''>
+        <img class='button active' src='/themes/basic/skin/images/home-button-active.png' alt=''>
+        <span>关于维弗</span>        
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-5">
+      <a href='#work' title='' class="menu-level-2 menu-id-5">
+        <img class='button not-active' src='/themes/basic/skin/images/home-button-not-active.png' alt=''>
+        <img class='button active' src='/themes/basic/skin/images/home-button-active.png' alt=''>
+        <span>案例赏析</span>        
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-4">
+      <a href='#service' title='' class="menu-level-2 menu-id-4">
+        <img class='button not-active' src='/themes/basic/skin/images/home-button-not-active.png' alt=''>
+        <img class='button active' src='/themes/basic/skin/images/home-button-active.png' alt=''>
+        <span>我们的服务</span>        
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-7">
+      <a href='#kehu' title='' class="menu-level-2 menu-id-7">
+        <img class='button not-active' src='/themes/basic/skin/images/home-button-not-active.png' alt=''>
+        <img class='button active' src='/themes/basic/skin/images/home-button-active.png' alt=''>
+        <span>我们的客户</span>        
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-6">
+      <a href='#join' title='' class="menu-level-2 menu-id-6">
+        <img class='button not-active' src='/themes/basic/skin/images/home-button-not-active.png' alt=''>
+        <img class='button active' src='/themes/basic/skin/images/home-button-active.png' alt=''>
+        <span>联系我们</span>        
+      </a>
+        
+          
+      </li>
+  </ul>
+<script>
+jQuery('ul#homepage-mainmenu li a').hover(
+function(){
+  $('img.active',this).stop().animate({top:0,left:0,width:94,height:94});
+  $('img.not-active',this).stop().animate({top:47,left:47,width:0,height:0});
+},
+function(){
+  $('img.not-active',this).stop().animate({top:0,left:0,width:94,height:94});
+  $('img.active',this).stop().animate({top:47,left:47,width:0,height:0});
+}
+);
+</script>        </div><!-- mainmenu -->
+        <a href="/" id="logo"><img alt="logo" src="/themes/basic/skin/images/logo.png"/></a>
+<div class="container" id="page">
+	
+
+<div class="fullbg">
+    <img class='fullbg-img' src='/themes/basic/skin/images/wf.jpg'  alt='background' class="full-screen-bg"/>
+</div>
+<div id='slider'class="block">
+    <ul id='home-slider'>
+  <li>
+  <div class='image-wrapper'>
+    <img src='/uploads/521b2a6e/banner1.jpg' alt=''/>
+  </div>
+  <div class="image-wrapper-small">
+      <img src='/uploads/1a.png' />
+  </div>
+  </li>
+
+  <li>
+  <div class='image-wrapper'>
+    <img src='/uploads/521b3955/281406.jpg' alt=''/>
+  </div>
+  <div class="image-wrapper-small">
+      <img src='/uploads/2a.png' />
+  </div>
+  </li>
+
+  <li>
+  <div class='image-wrapper'>
+    <img src='/uploads/521b2a60/1920-1080advancement.jpg' alt=''/>
+  </div>
+  <div class="image-wrapper-small">
+      <img src='/uploads/3a.png' />
+  </div>
+  </li>
+
+  <li>
+  <div class='image-wrapper'>
+    <img src='/uploads/02(1).jpg' alt=''/>
+  </div>
+  <div class="image-wrapper-small">
+      <img src='/uploads/4a.png' />
+  </div>
+  </li>
+
+  <li>
+  <div class='image-wrapper'>
+    <img src='/uploads/521b2a6a/1920-1080-marketing.jpg' alt='专业的上海上海网页设计公司'/>
+  </div>
+  <div class="image-wrapper-small">
+      <img src='/uploads/5a.png' />
+  </div>
+  </li>
+
+</ul>
+<!--[if lt IE 9]>
+  <script src="/themes/basic/skin/js/lib/excanvas.js"></script>
+<![endif]-->          
+
+<ul id='home-slider-pagination'>
+<a herf='#'><div class='active'><canvas width='42' height='42'></canvas><div class='top'></div></div><div class='unactive'></div></a>
+<a herf='#'><div class='active'><canvas width='42' height='42'></canvas><div class='top'></div></div><div class='unactive'></div></a>
+<a herf='#'><div class='active'><canvas width='42' height='42'></canvas><div class='top'></div></div><div class='unactive'></div></a>
+<a herf='#'><div class='active'><canvas width='42' height='42'></canvas><div class='top'></div></div><div class='unactive'></div></a>
+<a herf='#'><div class='active'><canvas width='42' height='42'></canvas><div class='top'></div></div><div class='unactive'></div></a>
+</ul>
+<script>
+var drawTimer=function(percent)
+{
+  percent=percent || 0;
+  stageC=$('#home-slider-pagination .selected canvas');
+  if (stageC.length)
+  {
+    stage=stageC[0].getContext('2d');
+    stage.save();
+    stage.clearRect(0,0,42,42);
+            if(percent)
+            {
+              stage.beginPath();
+              stage.arc(21,21,21, 1.5*Math.PI, (percent-25)/50*Math.PI, false);
+              stage.lineTo(21,21)        
+              stage.closePath();
+              stage.lineWidth = 0;
+              stage.fillStyle = "#8ED6FF";
+              stage.fill();
+            }
+    stage.restore();        
+  }
+}
+</script>
+
+<script>
+
+    (function($){$(function(){$("#home-slider").bind('preloadfinish',function(){
+        $('#home-slider img').css({'display':'block'});
+        $('.fullbg img').css({'display':'block'});
+    }).preloader({'imglist':[]});});})(jQuery);
+</script>    <div id='cover'>
+    </div>
+   <!-- <div id='news'>
+            </div>-->
+</div>
+<div id="lala">
+    <a id="white" href="http://chatserver.comm100.cn/ChatWindow.aspx?siteId=80030999&planId=2077&partnerId=-1&visitType=1&byHref=1" target="_blank">
+        <img src='/themes/basic/skin/images/tc.png'  alt='background' />
+    </a>
+</div>
+<div id="ablock">
+    <div class="submain">
+        <ul>
+      <li class="menu-level-2 menu-id-2">
+      <a href='#slider' title='首页'>
+	<span>首页</span>
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-3">
+      <a href='#about' title=''>
+	<span>关于维弗</span>
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-5">
+      <a href='#work' title=''>
+	<span>案例赏析</span>
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-4">
+      <a href='#service' title=''>
+	<span>我们的服务</span>
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-7">
+      <a href='#kehu' title=''>
+	<span>我们的客户</span>
+      </a>
+        
+          
+      </li>
+        <li class="menu-level-2 menu-id-6">
+      <a href='#join' title=''>
+	<span>联系我们</span>
+      </a>
+        
+          
+      </li>
+  </ul>        <div class="underline"></div>
+    </div><!-- mainmenu -->
+
+<div class='block' id='about'>
+    <div class="about">
+    <div class="wrapper">
+
+        <div class="top">
+            <div class="title"><img src="/themes/basic/skin/images/about.png" width="341" height="68"/></div>
+
+        </div>
+        <div class="content">
+            <div class="hello">
+
+            </div>
+            <div class="wenzi">
+                <p>上海维弗网络科技有限公司（Webfoss）是一家在海外拥有数年网站设计，网络技术开发经验的公司。由于中国信息技术的蓬勃发展，</p>
+                <p>公司现将主要目标瞄 准中国市场，立足上海网站建设行业，全心全意致力于帮助中国的中小企业和企事业单位建立符合国际潮流的现代化网站，提升企业形象与国际接轨。</p>
+                <p>&nbsp</p>
+                <p>维弗网络科技带着国外先进的技术与设计经验从多角度、多层次推出不同的网站制作方案，提供快速的网页设计解决方案，</p>
+                <p>也可以根据你的网站建设要求，定制个性的网站风格或者功能。我们是一家创新，多变，务实的企业，我们为您提供优秀的网站建设、</p>
+                <p>精美的网页制作、完善的网站开发服务。目前，我们为各行业超过200家客户提供了超过500个项目解决方案</p>
+            </div>
+            <div class="number">
+                <div class="n1">
+                    <span class="number">6</span>
+                <span class="wenzi">
+                    <p style="font-family: verdana">years of</p>
+                    <p style="font-family: verdana">oversea experience</p>
+                    <p>年海外经验</p>
+                </span>
+                </div>
+                <div class="n2">
+                    <span class="number">3</span>
+                <span class="wenzi">
+                    <p style="font-family: verdana">years of</p>
+                    <p style="font-family: verdana">local experience</p>
+                    <p>年本土经验</p>
+                </span>
+                </div>
+                <div class="n3">
+                    <span class="number">200</span><span class="plus">+</span>
+                <span class="wenzi">
+                    <p style="font-family: verdana">Clients</p>
+                    <p>客户</p>
+                </span>
+                </div>
+                <div class="n4">
+                    <span class="number">500</span><span class="plus">+</span>
+                <span class="wenzi">
+                    <p style="font-family: verdana">Projects</p>
+                    <p>项目</p>
+                </span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+</div></div>
+<div class='block' id='work'>
+    
+
+
+
+<div class="work">
+
+    <div id='' class=''>
+        <img id='full-screen-bg-img' src='/themes/basic/skin/images/workbg.jpg' alt='background' />
+    </div>
+    <div class="top">
+        <div class="title"><img src="/themes/basic/skin/images/work.png"  width="400" height="68"/></div>
+    </div>
+
+    <div class="jianjie">
+        <div class="item-list">
+        <ul id="jianjie">
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/1.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b1.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f7.png' rel="prettyPhoto" ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s7.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/8.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b8.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f8.png'  rel="prettyPhoto" ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s8.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/2.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b2.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f2.png' rel="prettyPhoto" ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/> </a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s6.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/3.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b3.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f3.png' rel="prettyPhoto" > <img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s5.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/4.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b4.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f4.png' rel="prettyPhoto" ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s4.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/5.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b5.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f5.png' rel="prettyPhoto"  ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s3.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/6.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b6.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f6.png' rel="prettyPhoto"  ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s2.jpg' alt='background'/></div>
+                </div>
+            </li>
+            <li>
+                <div class="shadowbg">
+                    <div class="main"><img id='full-screen-bg-img' src='/themes/basic/skin/images/7.png' alt='background'/></div>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/b7.png' alt='background'/></div>
+                </div>
+                <div class="back">
+                    <a class="popup" href='/themes/basic/skin/images/f1.png' rel="prettyPhoto"  ><img id='full-screen-bg-img' src='/themes/basic/skin/images/a.PNG' alt='background'/></a>
+                    <div class="bottom"><img id='full-screen-bg-img' src='/themes/basic/skin/images/s1.jpg' alt='background'/></div>
+                </div>
+            </li>
+        </ul></div>
+        <div id="wright"></div>
+        <div id="wleft"></div>
+    </div>
+</div>
+</div>
+<div class='block' id='service'>
+    
+
+
+<div class="service">
+
+
+    <div class="top">
+        <div class="title"><img src="/themes/basic/skin/images/service.png"  width="450" height="68"/></div>
+        <div class="tab">
+
+            <ul id="tab3">
+                <li>展示型网站</li>
+                <li>电子商务型</li>
+                <li>手机型网站</li>
+                <li><span style="font-family: verdana">SEO </span>&<span style="font-family: verdana"> SEM</span></li>
+                <li style="font-family: verdana">EDM</li>
+            </ul>
+        </div>
+    </div>
+    <div class="main">
+        <div class="pane">
+            <div class="service1">
+                <div class="left">
+                    <img src="/themes/basic/skin/images/zhanshi.png"  width= 550;/>
+                </div>
+                <div class="right">
+                    <div class="biaoti">
+                        <img src="/themes/basic/skin/images/zhanshib.png"/>
+                    </div>
+                    <div class="neirong">
+                       <p> 展示型网站顾名思义, 主要作用是通过网站来展示企业形象和展示公司产品，同时通过新闻报道，应用解决方案等栏目让访问者了解企业。在线展示网站利用网络的多媒体技术，数据库存储查询技术，三维展示技术，配合有效的图片和文字说明，将企业的产品(服务)充分展现给新老客户，使客户能全方位的了解公司产品。与产品印刷资料相比，网站可以营造更加直观的氛围和产品的感染力同时结合当下的营销手段，更利于传播。</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                       <p style="font-family: verdana"> Webfoss website designs are professional, attractive and unique. Our website designers understand how to create specialized website designs that will hold the attention of your visitors so they stay long enough to read the words on your page. You can customize your website to fit your business.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="service2">
+                <div class="left">
+                    <img src="/themes/basic/skin/images/dianzi.png"  width= 550;/>
+                </div>
+                <div class="right">
+                    <div class="biaoti">
+                        <img src="/themes/basic/skin/images/dianzib.png"/>
+                    </div>
+                    <div class="neirong">
+                        <p>电子商务通常是指是在全球各地广泛的商业贸易活动中，在因特网开放的网络环境下，基于浏览器/服务器应用方式，买卖双方在线进行各种商贸活动，实现消费者的网上购物、商户之间的网上交易和在线电子支付以及各种商务活动、交易活动、金融活动和相关的综合服务活动的一种新型的商业运营模式。电子商务是利用微电脑技术和网络通讯技术进行的商务活动。</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p style="font-family: verdana">Having a solid eCommerce platform is the foundation of your online business; Webfoss use the latest technology to increase your profitability. Our solutions offer the best in standard features and functionality while remaining completely customizable. Manage your products, customers and online sales all in one place.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="service3">
+                <div class="left">
+                    <img src="/themes/basic/skin/images/shouji.png"  height="350px";/>
+                </div>
+                <div class="right">
+                    <div class="biaoti">
+                        <img src="/themes/basic/skin/images/shoujib.png"/>
+                    </div>
+                    <div class="neirong">
+                        <p> 随着智能手机的普及，手机网站越来越成为国际上一个趋势。手机网站（<span style="font-family: verdana">WAP</span>）的特点是完全根据手机屏幕尺寸和功能度身定制，所以需要在兼顾美观又考虑流量限制的情况下进行设计制作。其中，用户体验也是非常重要的一个环节。同时，可以随时结合微信，微博等一些手机应用程序，包括二维码扫描等技术来进行推广营销也注定了未来与展示型网站并驾齐驱的互联网地位。</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p style="font-family: verdana"> The Internet is on the go, and your website should be, too. Gone are the days when you need multiple websites for multiple screen resolutions. Using responsive web design you can make sure that no matter what your users use to view your website, they get the best experience possible.</p>
+                    </div>
+                </div>
+            </div>
+            <div class="service4">
+                <div class="left">
+                    <img src="/themes/basic/skin/images/seo.png"  height="350px" />
+                </div>
+                <div class="right">
+                    <div class="biaoti">
+                        <img src="/themes/basic/skin/images/seob.png"/>
+                    </div>
+                    <div class="neirong">
+                        <p> <span style="font-family: verdana">SEO</span>和<span style="font-family: verdana">SEM</span>是英文<span style="font-family: verdana">Search Engine Marketing</span>和<span style="font-family: verdana">Search Engine Optimization</span>的缩写。就是根据用户使用搜索引擎的方式，利用用户检索信息的机会尽可能将营销信息传递给目标用户。简单来说，搜索引擎营销就是基于搜索引擎平台的网络营销，利用人们对搜索引擎的依赖和使用习惯，在人们检索信息的时候尽可能将营销信息传递给目标客户。</p>                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p style="font-family: verdana">SEO is a technique which helps search engines find and rank your site higher than the millions of other sites in response to a search query.  SEO thus helps you get traffic from search engines. SEM usually refers to the promotion on Google or Baidu.</p>                    </div>
+                </div>
+            </div>
+            <div class="service5">
+                <div class="left">
+                    <img src="/themes/basic/skin/images/edm.png"  height="300px";/>
+                </div>
+                <div class="right">
+                    <div class="biaoti">
+                        <img src="/themes/basic/skin/images/edmb.png"/>
+                    </div>
+                    <div class="neirong">
+                        <p>EDM/Newsletter也是目前非常主流的一种营销方式，相对传统的方式，更加便捷和经济。而优秀的EDM设计则显得尤为重要，如何让收信人百忙中的一瞥后，对产品或者活动感兴趣，是一个尤为关键的课题。</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p>&nbsp;</p>
+                        <p style="font-family: verdana"> Email marketing is one of the most powerful and low-cost marketing tools available to you today. Done right, you can use email marketing to significantly increase your repeat business, customer satisfaction and marketing potency. Zeald has an email marketing component that seamlessly integrates with your website.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+ </div></div>
+<div class='block' id='kehu'>
+    
+
+
+<div class="kehu">
+
+    <div id='full-screen-bg' class='full-screen-bg bg'>
+        <img id='full-screen-bg-img' src='/themes/basic/skin/images/kehu.jpg'  alt='background' class="full-screen-bg"/>
+    </div>
+
+    <div class="top">
+        <div class="title"><img src="/themes/basic/skin/images/kehu.png"  width="450" height="68"/></div>
+        <div class="tab"></div>
+    </div>
+    <div class="client">
+        <ul id="client">
+            <li>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c01.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c02.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c03.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c04.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c05.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c06.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c07.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c08.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c09.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c10.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c11.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c12.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c13.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c14.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c15.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c16.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c17.jpg' alt='background'/>
+                <img id='full-screen-bg-img' src='/themes/basic/skin/images/c18.jpg' alt='background'/>
+            </li>
+
+        </ul>
+
+    </div>
+    <div id="next"></div>
+    <div id="prev"></div>
+</div></div>
+<div class='block' id='join'>
+    
+
+
+<div class="join">
+    <div class="top">
+        <div class="title"><img src="/themes/basic/skin/images/contact.png"  width="450" height="68"/></div>
+        <div class="tab"></div>
+    </div>
+    <div id='full-screen-bg' class='full-screen-bg bg'>
+        <img id='full-screen-bg-img' src='/themes/basic/skin/images/joinbg.jpg' alt='background'/>
+    </div>
+    <div class="wenzi">
+        <div class="ditu">
+            <a class="map" href="/map.html?iframe=true&width=850&height=600">
+                <img class="hide" src='/themes/basic/skin/images/mapshadow.png' alt='background'/>
+                <img src='/themes/basic/skin/images/mapshadowbk.png' alt='background'/>
+            </a>
+        </div>
+        <div class="t1"><img src='/themes/basic/skin/images/join.jpg' alt='background'/></div>
+        <div class="t3">上海市虹口区武进路289号901室</div>
+        <div class="t4"><a href="mailto:info@webfoss.com">info@webfoss.com</a></div>
+        <div class="t5"><img src='/themes/basic/skin/images/er.jpg' alt='background'/></div>
+    </div>
+</div></div>
+    <ul id='client'>
+    </ul>
+
+<ul class='pagination'></ul>
+
+
+<!--work-->
+<ul id='jianjie'>
+    </ul>
+    
+<!--client-->
+    
+
+/*map*/
+        
+    </div>
+</div><!-- page -->
+<div id="footer" class="clearfix">
+    <div class='follow-us'>Follow us</div>
+<div class='follow-icons'>
+  <a href='#' class='weixin'>wx</a>
+  <a href='#' class='weibo'>wb</a>
+    <a href='#' class='kaixin'>ww</a>
+    <a href='#' class='fb'>ww</a>
+    <a href='#' class='tw'>ww</a>
+    <a href='#' class='tx'>ww</a>
+</div>
+<span class='footer-content'>Copyright&copy; 2011 - 2014 Shanghai Webfoss Network Technology Corp.Ltd 上海维弗网络科技有限公司 版权所有</span></div><!-- footer -->
+<div style='display:none'>
+<script src="http://s22.cnzz.com/z_stat.php?id=1000121585&web_id=1000121585" language="JavaScript"></script>
+</div>
+<div style='display:none'>
+<script type="text/javascript">
+var _bdhmProtocol = (("https:" == document.location.protocol) ? " https://" : " http://");
+document.write(unescape("%3Cscript src='" + _bdhmProtocol + "hm.baidu.com/h.js%3F15ba43544ad959759b7c6c78e19cdea6' type='text/javascript'%3E%3C/script%3E"));
+</script>
+</div>
+<script type="text/javascript">
+/*<![CDATA[*/
+  $(document).on('click','a.popup',function(e){
+    $.fn.prettyPhoto({'social_tools':'','autoplay':false,'default_width':'70%','default_height':'70%','allow_resize':true});
+    e.preventDefault();  
+    $.prettyPhoto.open($(this).attr('href'),$(this).attr('title'));
+  });
+  $(document).on('click','a.map',function(e){
+    $.fn.prettyPhoto({'social_tools':'','autoplay':false,'allow_resize':false});
+    e.preventDefault();
+    $.prettyPhoto.open($(this).attr('href'),$(this).attr('title'));
+  });
+jQuery(function($) {
+    $(window).resize(function(){
+        $('.fullbg').height($(window).height());
+        $('.fullbg').width($(window).width());
+    }).resize();
+    $('.fullbg-img').width($(window).width()/2);
+    imgwidth = $('.fullbg-img').width();
+    $('.fullbg-img').css({"margin-left":"-"+imgwidth/2+"px"});
+
+$(window).resize(function(){
+  $('#home-slider').height($(window).height());
+  $('#home-slider').parent().height($(window).height());
+}).resize();
+$('.image-wrapper','#home-slider').fullscreenstage({'width':640,'height':400});
+$(window).bind('load',function(){
+  $('#home-slider').carouFredSel({'responsive':true,'width':'100%','pagination':{'container':'#home-slider-pagination','anchorBuilder':false},'scroll':{'duration':1000,'fx':'cover','onBefore':function(data){drawTimer;
+    $('#home-slider').delay(1000);
+     $('.image-wrapper-small').animate({left:'-1500px'},1000)},'onAfter':function(data){
+     $('.image-wrapper-small',data.items.visible)
+        .animate({left:0})
+}
+},'auto':{'timeoutDuration':5000,'progress':{'bar':'#home-slider-pagination','updater':drawTimer}}});
+  $(window).resize();
+  $('.image-wrapper-small').animate({left:0});
+});
+$(window).resize(function(){
+  $('#full-screen-bg').height($(window).height());
+  $('#full-screen-bg').width($(window).width());
+}).resize();
+$('#full-screen-bg-img').fullscreenstage({'width':1440,'height':900});
+$('#client').carouFredSel({'width':'100%','pagination':'#client .pagination','scroll':{'duration':1000,'fx':'crossfade'},'auto':{'timeoutDuration':5000},'next':'#next','prev':'#prev'});
+$('#jianjie').carouFredSel({'width':'100%','pagination':'#jianjie .pagination','scroll':{'duration':1000,'fx':'slide'},'auto':false,'next':'#wright','prev':'#wleft'});
+$('#mainmenu li a').click(function(e){
+  e.preventDefault();
+  $('html,body').animate({'scrollTop':$($(this).attr('href')).offset().top},1000);
+});
+$('.block').waypoint(function(dir){
+  var target='#'+$(this).attr('id');
+  var menuItem=$('#mainmenu li').has('a[href='+target+']');
+  if (dir==='down')
+  {
+    menuItem.addClass('active').prev().removeClass('active');
+  }else{
+    menuItem.prev().addClass('active');
+    menuItem.removeClass('active')
+  }
+},{'offset':80});
+$('.submain li a').click(function(e){
+  e.preventDefault();
+  $('html,body').animate({'scrollTop':$($(this).attr('href')).offset().top},1000);
+});
+
+
+
+
+$('.block').waypoint(function(dir){
+  var target='#'+$(this).attr('id');
+  var menuItem=$('.submain li').has('a[href='+target+']');
+  if (dir==='down')
+  {
+    menuItem.addClass('active').prev().removeClass('active');
+  }else{
+    menuItem.prev().addClass('active');
+    menuItem.removeClass('active')
+  }
+},{'offset':80});
+
+
+$('#ablock').waypoint(function(dir){
+        if (dir==='down')
+        {
+            $('#ablock .submain').css("position","fixed");
+            $("#news").animate({"opacity":0});
+        }else{
+            $('#ablock .submain').css("position","absolute");
+            $("#news").animate({"opacity":1});
+        }
+    },{'offset':80});
+
+
+$('#about').waypoint(function(dir){
+    if (dir==='down')
+    {
+        var counter = 0,
+            interval = 1200,
+            speed = parseInt(interval/6);
+        setInterval(function(){
+            if(counter <=6){
+                /*
+                 if(num == 2){ // special statement for redbull wave
+                 wave.css( 'bottom',counter*0.48 );
+                 $('#awards .mask-wave .number').text('300');
+                 } else {
+                 element.find('.number').text(counter);
+                 }*/
+                $(".n1").find('span.number').text(counter);
+                counter++;
+            }
+        }, speed);
+
+
+        var counter1 = 0,
+            speed1 = parseInt(interval/3);
+        setInterval(function(){
+            if(counter1<= 3){
+                /*
+                 if(num == 2){ // special statement for redbull wave
+                 wave.css( 'bottom',counter*0.48 );
+                 $('#awards .mask-wave .number').text('300');
+                 } else {
+                 element.find('.number').text(counter);
+                 }*/
+                $(".n2").find('span.number').text(counter1);
+                counter1++;
+            }
+        }, speed1);
+        var counter2 = 0,
+            speed2 = parseInt(interval/200);
+        setInterval(function(){
+            if(counter2<= 200){
+                /*
+                 if(num == 2){ // special statement for redbull wave
+                 wave.css( 'bottom',counter*0.48 );
+                 $('#awards .mask-wave .number').text('300');
+                 } else {
+                 element.find('.number').text(counter);
+                 }*/
+                $(".n3").find('span.number').text(counter2);
+                counter2++;
+            }
+        }, speed2);
+        var counter3 = 0,
+            interval = 1200,
+            speed3 = parseInt(interval/500);
+        setInterval(function(){
+            if(counter3 <= 500){
+                /*
+                 if(num == 2){ // special statement for redbull wave
+                 wave.css( 'bottom',counter*0.48 );
+                 $('#awards .mask-wave .number').text('300');
+                 } else {
+                 element.find('.number').text(counter);
+                 }*/
+                $(".n4").find('span.number').text(counter3);
+                counter3++;
+            }
+        }, speed3);
+
+    }else{
+
+
+    }
+},{'offset':80});
+
+
+
+$('.block').waypoint(function(dir){
+        if (dir==='down')
+        {
+        $(".title",$(this)).delay("500").animate({"left":"0px"});
+        }else{
+        }
+    },{'offset':80});
+
+$('#kehu').waypoint(function(dir){
+        if (dir==='down')
+        {
+      var num=$("#client li").first().find("img").length;
+      for(i=0;i<num;i++){
+          $("#client li img").eq(i).delay((i)*200).animate({'opacity':1},2500)
+      }
+        }else{
+        }
+    },{'offset':80});
+
+
+
+$('.service .pane').carouFredSel({'pagination':{'container':'#tab3','anchorBuilder':false},'scroll':{'duration':1000},'auto':false});
+(function(){
+  var callback=function(){
+    var hScrollTop=$(this).scrollTop();
+    var hHeight=$(this).height();
+    var height=$('#lala').height();
+    var offset=(hHeight-height)*90/100+0;
+    $('#lala').stop().animate({'top':hScrollTop+offset},500);
+  };
+  $(window).resize(callback);
+  $(window).scroll(callback).scroll();
+})();
+});
+/*]]>*/
+</script>
+</body>
+</html>

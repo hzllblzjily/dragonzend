@@ -1,0 +1,356 @@
+<?php
+
+require_once APPLICATION_PATH.'/models/servicemodel/We_Base_ServiceModel.php';
+require_once APPLICATION_PATH.'/models/tablemodel/Attachment.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+require_once APPLICATION_PATH.'/helpers/AuthenticationMgr.php';
+require_once APPLICATION_PATH.'/helpers/AttachmentHelper.php';
+require_once APPLICATION_PATH.'/helpers/CommonHelper.php';
+
+
+class Attachments extends We_Base_ServiceModel{
+
+    //column
+    public $id;
+    public $originFileWidth;
+    public $originFileHeight;
+    public $mediumFileWidth;
+    public $mediumFileHeight;
+    public $thumbFileWidth;
+    public $thumbFileHeight;
+    
+    
+    //table
+    public $originFileSize;
+    public $thumbFileSize;
+    public $mediumFileSize; 
+    public $fileName;
+    public $contentType;
+    public $modelId;
+    public $modelName;
+    public $originFileRoute;
+    public $thumbFileRoute;
+    public $mediumFileRoute;
+    
+
+    
+
+    //aggregation
+    
+
+    
+    
+    public $originFileUrl;
+    public $mediumFileUrl;
+    public $thumbFileUrl;
+    
+	public function __construct()
+	{
+	    parent::__construct();
+	        
+		$this->propertyTypes["id"] = $this->columnProperty;
+        
+		$this->propertyTypes["originFileSize"] = $this->tableProperty;
+		$this->propertyTypes["thumbFileSize"] = $this->tableProperty;
+		$this->propertyTypes["mediumFileSize"] = $this->tableProperty;
+		$this->propertyTypes["fileName"] = $this->tableProperty;
+		$this->propertyTypes["contentType"] = $this->tableProperty;
+		$this->propertyTypes["modelId"] = $this->tableProperty;
+		$this->propertyTypes["modelName"] = $this->tableProperty;
+		$this->propertyTypes["originFileRoute"] = $this->tableProperty;
+		$this->propertyTypes["thumbFileRoute"] = $this->tableProperty;
+		$this->propertyTypes["mediumFileRoute"] = $this->tableProperty;
+
+		$this->propertyTypes["originFileUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["mediumFileUrl"] = $this->aggregationProperty;
+		$this->propertyTypes["thumbFileUrl"] = $this->aggregationProperty;
+		
+		$this->propertyTypes["originFileWidth"] = $this->columnProperty;
+		$this->propertyTypes["originFileHeight"] = $this->columnProperty;
+		$this->propertyTypes["mediumFileWidth"] = $this->columnProperty;
+		$this->propertyTypes["mediumFileHeight"] = $this->columnProperty;
+		$this->propertyTypes["thumbFileWidth"] = $this->columnProperty;
+		$this->propertyTypes["thumbFileHeight"] = $this->columnProperty;
+		
+	}
+	
+	public function setOtherPropertyForResponse($operation){
+	    parent::setOtherPropertyForResponse($operation);
+		if($operation != 'delete'){
+            $this->generateAttachmentUrl();
+		}
+		return $this;
+	}
+	
+	
+	public function onGet()
+	{
+		parent::onGet();
+	}
+
+	public function onCreate()
+	{
+		parent::onCreate();
+
+		
+
+	}
+	
+	public function operationOfOtherProperty($operation)
+	{
+	   parent::operationOfOtherProperty($operation);
+	  
+	}
+	
+	
+	
+	public function onUpdate()
+	{
+		parent::onUpdate();
+		
+		
+		
+	}
+	
+	public function onDelete()
+	{
+		parent::onDelete();
+	}
+	
+	
+	public function uploadFile($fileDir,$fileType,$fileName,$fileSize,$model_name,$model_id){
+
+	    $baseRoute = AttachmentHelper::getFileBaseRoute();
+	
+		$arr = explode("/", $fileType);
+		$endfix =$arr[1];
+		 
+		$attachments = new Attachments();
+		$attachments->originFileSize = $fileSize;
+		$attachments->fileName = $fileName;
+		$attachments->contentType = $fileType;
+		$attachments->modelId = $model_id;
+		$attachments->modelName = $model_name;
+	
+		 
+		list($width, $height, $type, $attr) = getimagesize($fileDir);
+		 
+		//判断是否要压缩大图片
+		//生成图片路径
+		$finalBigfileRoute = AttachmentHelper::generateFileRoute(); //生成 /2014/5/12/
+		$bigFileNameUid = CommonHelper::create_uuid();  //生成guid
+		$bigFileNameUid = $bigFileNameUid.".".$endfix;   //生成guid.jpg
+		$bigFileFinalRoute = $baseRoute.$finalBigfileRoute.$bigFileNameUid;
+		//临时存放，以备压缩
+		$fileOriginalTmpDir = APPLICATION_PATH.'/../data/image/'.$bigFileNameUid;
+		copy($fileDir,$fileOriginalTmpDir);
+		 
+		//原图不压缩，直接存
+		copy($fileOriginalTmpDir,$bigFileFinalRoute);
+		$attachments->originFileRoute = $finalBigfileRoute.$bigFileNameUid;
+		 
+		$response = AttachmentHelper::uploadFileToAliOSS($fileDir, $bigFileNameUid);
+		if(!$response->isOK()){
+			$this->logger->log("Attachments->uploadFile origin response = ".$response, Zend_Log::ERR);
+			throw new WeException(20316);
+		}
+        
+		$attachments->originFileWidth = $width;
+		$attachments->originFileHeight = $height;
+		
+		if($width < $height){
+			$maxLength = $height;
+		}else{
+			$maxLength = $width;
+		}
+		if($model_name == 'chats'){
+			$mediumLimit = 360;
+			$thumnailLimit = 240;
+		}else if($model_name == 'avatars'){
+		    $mediumLimit = 360;
+		    $thumnailLimit = 240;
+		}else if($model_name == 'userpics'){
+		    $mediumLimit = 360;
+		    $thumnailLimit = 240;
+		}else if($model_name == 'lawyercertificates'){
+		    $mediumLimit = 360;
+		    $thumnailLimit = 240;
+		}else if($model_name == 'problems'){
+		    $mediumLimit = 1000;
+		    $thumnailLimit = 480;
+		}else if($model_name == 'trades'){
+		    $mediumLimit = 960;
+		    $thumnailLimit = 480;
+		}
+		 
+		 
+		 
+		//中图
+		$finalMediumfileRoute = AttachmentHelper::generateFileRoute(); //生成 /2014/5/12/
+		$mediumFileNameUid = CommonHelper::create_uuid();  //生成guid
+		$mediumFileNameUid = $mediumFileNameUid.".".$endfix;   //生成guid.jpg
+		$mediumFileFinalRoute = $baseRoute.$finalMediumfileRoute.$mediumFileNameUid;
+		//计算中图是否需要压缩
+		if($maxLength <= $mediumLimit){
+			copy($fileOriginalTmpDir, $mediumFileFinalRoute);
+			
+			$attachments->mediumFileWidth = $width;
+			$attachments->mediumFileHeight = $height;
+			
+		}else{
+			//计算中图压缩比例
+			$ratio = $mediumLimit/$maxLength;
+			$mediumWidth = floor($width * $ratio);
+			$mediumHeight = floor($height * $ratio);
+			CommonHelper::compresImage($fileOriginalTmpDir,$mediumFileFinalRoute,$fileType,$mediumWidth,$mediumHeight);
+			
+			$attachments->mediumFileWidth = $mediumWidth;
+			$attachments->mediumFileHeight = $mediumHeight;
+			 
+		}
+		$attachments->mediumFileRoute = $finalMediumfileRoute.$mediumFileNameUid;
+		$attachments->mediumFileSize = filesize($mediumFileFinalRoute);
+		 
+		$response = AttachmentHelper::uploadFileToAliOSS($mediumFileFinalRoute, $mediumFileNameUid);
+		if(!$response->isOK()){
+			$this->logger->log("Attachments->uploadFile medium response = ".$response, Zend_Log::ERR);
+			throw new WeException(20316);
+		}
+
+		 
+		//小图
+		$finalSmallfileRoute = AttachmentHelper::generateFileRoute();
+		$smallFileNameUid = CommonHelper::create_uuid();
+		$smallFileNameUid = $smallFileNameUid.".".$endfix;
+		$smallFileFinalRoute = $baseRoute.$finalSmallfileRoute.$smallFileNameUid;
+		//计算小图是否需要压缩
+		if($maxLength <= $thumnailLimit){
+			copy($fileOriginalTmpDir, $smallFileFinalRoute);
+			$attachments->thumbFileWidth = $width;
+			$attachments->thumbFileHeight = $height;
+		}else{
+			//计算中图压缩比例
+			$ratio = $thumnailLimit/$maxLength;
+			$smallWidth = floor($width * $ratio);
+			$smallHeight = floor($height * $ratio);
+			CommonHelper::compresImage($fileOriginalTmpDir,$smallFileFinalRoute,$fileType,$smallWidth,$smallHeight);
+			$attachments->thumbFileWidth = $smallWidth;
+			$attachments->thumbFileHeight = $smallHeight;
+			 
+		}
+		$attachments->thumbFileRoute = $finalSmallfileRoute.$smallFileNameUid;
+		$attachments->thumbFileSize = filesize($smallFileFinalRoute);
+
+		$response = AttachmentHelper::uploadFileToAliOSS($smallFileFinalRoute, $smallFileNameUid);
+		if(!$response->isOK()){
+			$this->logger->log("Attachments->uploadFile thumbnail response = ".$response, Zend_Log::ERR);
+			throw new WeException(20316);
+		}
+		 
+	
+		//删除临时文件
+		unlink($fileOriginalTmpDir);
+	
+		 
+		//插入attach表
+	
+		$attachments = $attachments->create();
+		return $attachments;
+	}
+	
+	
+	
+	public function generateAttachmentUrl(){
+	    $url = constant ( "APPLICATION_PATH" ) . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'application.ini';
+	    $serverconfig = new Zend_Config_Ini ( $url, "server" );
+	    $serverconfig = $serverconfig->toArray ();
+	    if(AuthenticationMgr::isApiModule()){
+	        $domainName = $serverconfig['apidomainName'];
+	    }else{
+	        $domainName = $serverconfig['bkdomainName'];
+	    }
+
+	    if($this->id == null){
+            $this->originFileUrl = "";
+            $this->mediumFileUrl = "";
+            $this->thumbFileUrl = "";
+	    }
+	    if($this->originFileRoute == null){
+	        $this->originFileUrl = "";
+	    }else{
+	        $this->originFileUrl = $domainName."file/download?id=".$this->id."&type=origin";
+	    }
+	    
+	    if($this->mediumFileRoute == null){
+	    	$this->mediumFileUrl = "";
+	    }else{
+	    	$this->mediumFileUrl = $domainName."file/download?id=".$this->id."&type=medium";
+	    }
+	    
+	    if($this->thumbFileRoute == null){
+	    	$this->thumbFileUrl = "";
+	    }else{
+	    	$this->thumbFileUrl = $domainName."file/download?id=".$this->id."&type=thumb";
+	    }
+	    
+	}
+	//1:origin,2:medium,3:thumb
+	static public function  getAttachmentUrl($attachmentId,$size){
+		$url = constant ( "APPLICATION_PATH" ) . DIRECTORY_SEPARATOR . 'configs' . DIRECTORY_SEPARATOR . 'application.ini';
+		$serverconfig = new Zend_Config_Ini ( $url, "server" );
+		$serverconfig = $serverconfig->toArray ();
+		if(AuthenticationMgr::isApiModule()){
+			$domainName = $serverconfig['apidomainName'];
+		}else{
+			$domainName = $serverconfig['bkdomainName'];
+		}
+		if($attachmentId == null){
+			$str = "";
+			return $str;
+		}
+		 
+		$attachments = new Attachments();
+		$attachments->id = $attachmentId;
+		$attachments = $attachments->get();
+		if($attachments != null){
+			 
+			if($size == 1){
+				//$route = $attachments->image_file_name;
+				if($attachments->originFileRoute == null){
+					return "";
+				}
+				$route = 'origin';
+			}else if($size == 2){
+				//$route = $attachments->medium_file_name;
+				if($attachments->mediumFileRoute == null){
+					return "";
+				}
+				$route = 'medium';
+			}else if($size == 3){
+				//$route = $attachments->thumbnail_file_name;
+				if($attachments->thumbFileRoute == null){
+					return "";
+				}
+				$route = 'thumb';
+			}
+			 
+			if($route == null || $route == ''){
+				//$str = $domainName."img/image_not_found.png";
+				$str = "";
+			}else{
+				$str = $domainName."file/download?id=".$attachmentId."&type=".$route;
+			}
+			 
+			return $str;
+		}else{
+			//$str = $domainName."img/image_not_found.png";
+			$str = "";
+			return $str;
+		}
+	
+	}
+	
+}
+
+
+?>

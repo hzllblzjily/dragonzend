@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<!-- 
+Template Name: Metronic - Responsive Admin Dashboard Template build with Twitter Bootstrap 3.1.1
+Version: 2.0.2
+Author: KeenThemes
+Website: http://www.keenthemes.com/
+Contact: support@keenthemes.com
+Purchase: http://themeforest.net/item/metronic-responsive-admin-dashboard-template/4021469?ref=keenthemes
+License: You must have a valid license purchased only from themeforest(the above link) in order to legally use the theme for your project.
+-->
+<!--[if IE 8]> <html lang="en" class="ie8 no-js"> <![endif]-->
+<!--[if IE 9]> <html lang="en" class="ie9 no-js"> <![endif]-->
+<!--[if !IE]><!-->
+<html lang="en" class="no-js">
+<!--<![endif]-->
+<!-- BEGIN HEAD -->
+<head>
+<meta charset="utf-8"/>
+<title>法律问问管理平台</title>
+<meta http-equiv="X-UA-Compatible" content="IE=edge">
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<meta content="" name="description"/>
+<meta content="" name="author"/>
+<!-- BEGIN GLOBAL MANDATORY STYLES -->
+<link href="/assets/global/plugins/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/uniform/css/uniform.default.css" rel="stylesheet" type="text/css"/>
+<!-- END GLOBAL MANDATORY STYLES -->
+<!-- BEGIN PAGE LEVEL PLUGIN STYLES -->
+<link href="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker-bs3.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/fullcalendar/fullcalendar/fullcalendar.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/plugins/jqvmap/jqvmap/jqvmap.css" rel="stylesheet" type="text/css"/>
+<!-- END PAGE LEVEL PLUGIN STYLES -->
+<!-- BEGIN PAGE STYLES -->
+<link href="/assets/admin/pages/css/tasks.css" rel="stylesheet" type="text/css"/>
+<!-- END PAGE STYLES -->
+<!-- BEGIN THEME STYLES -->
+<link href="/assets/global/css/components.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/global/css/plugins.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/layout/css/layout.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/layout/css/themes/default.css" rel="stylesheet" type="text/css" id="style_color"/>
+<link href="/assets/admin/layout/css/custom.css" rel="stylesheet" type="text/css"/>
+<link href="/assets/admin/pages/css/search.css" rel="stylesheet" type="text/css"/>
+<!-- END THEME STYLES -->
+<link rel="shortcut icon" href="favicon.ico"/>
+</head>
+<!-- END HEAD -->
+<!-- BEGIN BODY -->
+<!-- DOC: Apply "page-header-fixed-mobile" and "page-footer-fixed-mobile" class to body element to force fixed header or footer in mobile devices -->
+<!-- DOC: Apply "page-sidebar-closed" class to the body and "page-sidebar-menu-closed" class to the sidebar menu element to hide the sidebar by default -->
+<!-- DOC: Apply "page-sidebar-hide" class to the body to make the sidebar completely hidden on toggle -->
+<!-- DOC: Apply "page-sidebar-closed-hide-logo" class to the body element to make the logo hidden on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-hide" class to body element to completely hide the sidebar on sidebar toggle -->
+<!-- DOC: Apply "page-sidebar-fixed" class to have fixed sidebar -->
+<!-- DOC: Apply "page-footer-fixed" class to the body element to have fixed footer -->
+<!-- DOC: Apply "page-sidebar-reversed" class to put the sidebar on the right side -->
+<!-- DOC: Apply "page-full-width" class to the body element to have full width page without the sidebar menu -->
+<body class="page-header-fixed ">
+<!-- BEGIN HEADER -->
+<div class="page-header navbar navbar-fixed-top">
+	<!-- BEGIN HEADER INNER -->
+	<div class="page-header-inner">
+		<!-- BEGIN LOGO -->
+		<div class="page-logo">
+			<a href="/console/index">
+			<img src="/assets/admin/layout/img/logo.png" alt="logo" class="logo-default"/>
+			</a>
+			<div class="menu-toggler sidebar-toggler hide">
+				<!-- DOC: Remove the above "hide" to enable the sidebar toggler button on header -->
+			</div>
+		</div>
+		<!-- END LOGO -->
+		<!-- BEGIN RESPONSIVE MENU TOGGLER -->
+		<div class="menu-toggler responsive-toggler" data-toggle="collapse" data-target=".navbar-collapse">
+		</div>
+		<!-- END RESPONSIVE MENU TOGGLER -->
+		<!-- BEGIN TOP NAVIGATION MENU -->
+		<div class="top-menu">
+			<ul class="nav navbar-nav pull-right">
+				<!-- END TODO DROPDOWN -->
+				<!-- BEGIN USER LOGIN DROPDOWN -->
+				<li class="dropdown dropdown-user">
+					<a href="#" class="dropdown-toggle" data-toggle="dropdown" data-hover="dropdown" data-close-others="true">
+					<?php if($this->logo != null){
+					   echo'<img alt="" style="width:28px;height:28px;" class="img-circle" src="'.$this->logo.'"/>';
+					}?>
+
+					<span class="username">
+					<?php echo $this->currentAdmin->userName?> </span>
+					<i class="fa fa-angle-down"></i>
+					</a>
+					<ul class="dropdown-menu" id="dropdown-container">
+					</ul>
+				</li>
+				<!-- END USER LOGIN DROPDOWN -->
+			</ul>
+		</div>
+		<!-- END TOP NAVIGATION MENU -->
+	</div>
+	<!-- END HEADER INNER -->
+</div>
+<!-- END HEADER -->
+<div class="clearfix">
+</div>
+<!-- BEGIN CONTAINER -->
+<div class="page-container">
+	<!-- BEGIN SIDEBAR -->
+	<div class="page-sidebar-wrapper">
+		<!-- DOC: Set data-auto-scroll="false" to disable the sidebar from auto scrolling/focusing -->
+		<!-- DOC: Change data-auto-speed="200" to adjust the sub menu slide up/down speed -->
+		<div class="page-sidebar navbar-collapse collapse">
+			<!-- BEGIN SIDEBAR MENU -->
+			<ul class="page-sidebar-menu" data-auto-scroll="false" data-auto-speed="200" id="sidebar-container">
+				<!-- DOC: To remove the sidebar toggler from the sidebar you just need to completely remove the below "sidebar-toggler-wrapper" LI element -->
+				<li class="sidebar-toggler-wrapper" style="margin-bottom:12px;">
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+					<div class="sidebar-toggler">
+					</div>
+					<!-- BEGIN SIDEBAR TOGGLER BUTTON -->
+				</li>
+			</ul>
+			<!-- END SIDEBAR MENU -->
+		</div>
+	</div>
+	<!-- END SIDEBAR -->
+	<!-- BEGIN CONTENT -->
+	<div class="page-content-wrapper">
+		<div class="page-content">
+			<!-- BEGIN SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+
+			<!-- END SAMPLE PORTLET CONFIGURATION MODAL FORM-->
+			<!-- BEGIN STYLE CUSTOMIZER -->
+
+			<!-- BEGIN PAGE CONTENT-->
+						<h3 class="page-title">
+			 处理用户反馈
+			</h3>
+			<!-- END PAGE TITLE & BREADCRUMB-->
+			<div class="row">
+				<div class="col-md-12">
+					<div class="portlet box blue">
+					    <div class="portlet-title">
+							<div class="caption">
+								<i class="fa fa-cogs"></i>未处理列表
+							</div>
+
+						</div>
+						<div class="portlet-body">
+							<div class="table-responsive">
+								<table class="table table-striped table-hover">
+								<thead>
+								<tr>
+									<th>
+										用户id
+									</th>
+									<th>
+										用户名字
+									</th>
+									<th>
+										用户联系电话
+									</th>
+									<th>
+										用户反馈内容
+									</th>
+									<th>
+										操作	
+									</th>
+								</tr>
+								</thead>
+								<tbody>
+								<?php 
+								foreach ($this->content as $key=>$value){
+	 
+	                                echo '
+	                                <tr>
+										<td>
+										    '.'u'.$value['user_id'].' 
+									    </td>
+									    <td>
+										    '.$value['u_name'].'
+									    </td>
+									    <td>
+										    '.$value['u_telPhone'].'
+									    </td>
+									    <td>
+										    '.$value['feedback_content'].'
+									    </td>
+									    <td>
+										   <a href="/reportfeedback/userfeedbackignore?id='.$value['id'].'" class="btn default btn-xs blue">
+											  <i class="fa fa-file-o"></i> 忽略该反馈
+										   </a>
+										   <a href="/reportfeedback/userfeedbackenterreason?id='.$value['id'].'&user_id='.$value['user_id'].'&telPhone='.$value['u_telPhone'].'" class="btn default btn-xs blue">
+											  <i class="fa fa-file-o"></i> 回复用户
+										   </a>
+									    </td>
+								     </tr>';
+
+	                            }
+								?>
+
+								</tbody>
+								</table>
+							</div>
+						</div>
+					</div>
+					<div <?php $allPage = ceil($this->totalCount/10); if($allPage <= 1){echo 'hidden';}?>>
+	                    <ul id="page-container" class="pagination"></ul>
+					</div>
+				</div>
+			</div>
+			<!-- END PAGE CONTENT-->
+		</div>
+	</div>
+	<!-- END CONTENT -->
+</div>
+<!-- END CONTAINER -->
+<!-- BEGIN FOOTER -->
+<div class="page-footer">
+	<div class="page-footer-inner">
+		 2014 &copy; rxt_project.
+	</div>
+	<div class="page-footer-tools">
+		<span class="go-top">
+		<i class="fa fa-angle-up"></i>
+		</span>
+	</div>
+</div>
+<!-- END FOOTER -->
+<!-- BEGIN JAVASCRIPTS(Load javascripts at bottom, this will reduce page load time) -->
+<!-- BEGIN CORE PLUGINS -->
+<!--[if lt IE 9]>
+   <script src="/assets/global/plugins/respond.min.js"></script>
+   <script src="/assets/global/plugins/excanvas.min.js"></script> 
+   <![endif]-->
+<script src="/assets/global/plugins/jquery-1.11.0.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-migrate-1.2.1.min.js" type="text/javascript"></script>
+<!-- IMPORTANT! Load jquery-ui-1.10.3.custom.min.js before bootstrap.min.js to fix bootstrap tooltip conflict with jquery ui tooltip -->
+<script src="/assets/global/plugins/jquery-ui/jquery-ui-1.10.3.custom.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap/js/bootstrap.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap-hover-dropdown/bootstrap-hover-dropdown.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-slimscroll/jquery.slimscroll.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.blockui.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.cokie.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/uniform/jquery.uniform.min.js" type="text/javascript"></script>
+<!-- END CORE PLUGINS -->
+<!-- BEGIN PAGE LEVEL PLUGINS -->
+<script src="/assets/global/plugins/jqvmap/jqvmap/jquery.vmap.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.russia.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.world.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.europe.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.germany.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jqvmap/jqvmap/maps/jquery.vmap.usa.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jqvmap/jqvmap/data/jquery.vmap.sampledata.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/flot/jquery.flot.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/flot/jquery.flot.resize.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/flot/jquery.flot.categories.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.pulsate.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap-daterangepicker/moment.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/bootstrap-daterangepicker/daterangepicker.js" type="text/javascript"></script>
+<!-- IMPORTANT! fullcalendar depends on jquery-ui-1.10.3.custom.min.js for drag & drop support -->
+<script src="/assets/global/plugins/fullcalendar/fullcalendar/fullcalendar.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery-easypiechart/jquery.easypiechart.min.js" type="text/javascript"></script>
+<script src="/assets/global/plugins/jquery.sparkline.min.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL PLUGINS -->
+<!-- BEGIN PAGE LEVEL SCRIPTS -->
+<script src="/assets/admin/pages/scripts/sidebarGeneration.js" type="text/javascript"></script>
+<script src="/assets/global/scripts/metronic.js" type="text/javascript"></script>
+<script src="/assets/global/scripts/pagination.js" type="text/javascript"></script>
+<script src="/assets/admin/layout/scripts/layout.js" type="text/javascript"></script>
+<script src="/assets/admin/pages/scripts/index.js" type="text/javascript"></script>
+<script src="/assets/admin/pages/scripts/tasks.js" type="text/javascript"></script>
+<!-- END PAGE LEVEL SCRIPTS -->
+<script>
+jQuery(document).ready(function() {    
+   Metronic.init(); // init metronic core componets
+   Layout.init(); // init layout
+   Index.init();   
+   Index.initDashboardDaterange();
+   Index.initJQVMAP(); // init index page's custom scripts
+   Index.initCalendar(); // init index page's custom scripts
+   Index.initCharts(); // init index page's custom scripts
+   Index.initChat();
+   Index.initMiniCharts();
+   Index.initIntro();
+   Tasks.initDashboardWidget();
+   
+	<?php $baseurl = "/reportfeedback/listuserfeedback?&page=";?>
+	<?php echo 'setUrl("'.$baseurl.'")';?>;
+   setPage(document.getElementById("page-container"),<?php echo $allPage;?>,<?php echo $this->page; ?>);
+   
+   // sidebar init 
+   setHome(0,0);
+
+	<?php 
+			$currentAdminInfo = AuthenticationMgr::getAuthInfo();
+				if($currentAdminInfo->role == 1){
+			    echo 'setAudit(0,0);setSyetemConfig(0,0);setReportFeedback(1,0);setRobot(0,0);setTotal(0,0);';
+			} ?>
+
+			<?php if($currentAdminInfo->role == 2){
+			    echo 'setAudit(0,0);setSyetemConfig1(0,0);setReportFeedback1(1,0);setRobot1(0,0);setTotal1(0,0);';
+			} ?>
+
+			<?php 
+				echo 'setSuperDropmenu();';    
+			?>
+	
+});
+</script>
+<!-- END JAVASCRIPTS -->
+</body>
+<!-- END BODY -->
+</html>

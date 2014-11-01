@@ -1,0 +1,590 @@
+<?php
+class WeException extends Exception {
+	public $errCode; 
+	public $errMessage; 
+	            
+	public function __construct($code = 00000) {
+		$this->errCode = $code;
+		$this->errMessage = $this->getErrorMessage();
+		parent::__construct ();
+	}
+	public function getErrorMessage() {
+		
+        //20开头的为api错误
+	    // 01=>framework error
+	    // 02=>user
+
+		switch ($this->errCode) {
+		    
+			// 201XX:framework error
+			case 20101 :
+				$this->errMessage = '查询条件不正确';
+				break;
+			case 20102 :
+				$this->errMessage = '主键不能为空';
+				break;
+			case 20103 :
+				$this->errMessage = '主键对应的消息不存在';
+				break;
+			case 20104 :
+				$this->errMessage = '该接口入口不存在';
+				break;
+			case 20105 :
+				$this->errMessage = '还未登录或登录已过期，请先登录';
+				break;
+			case 20106 :
+				$this->errMessage = '无权限访问该资源';
+				break;
+			case 20107 :
+				$this->errMessage = '该账户已被锁定';
+				break;
+			case 20108 :
+				$this->errMessage = '该账户还未审核通过，请耐心等待';
+				break;
+				
+			// 202XX:用户相关
+			case 20201 :
+				$this->errMessage = '经纬度输入参数不存在';
+				break;
+			case 20202 :
+				$this->errMessage = '注册时发生意外错误';
+				break;
+			case 20203 :
+				$this->errMessage = '系统发生意外错误';
+				break;
+			case 20204 :
+				$this->errMessage = '登录信息不正确';
+				break;
+			case 20205 :
+				$this->errMessage = '登录方式不正确';
+				break;
+			case 20206 :
+				$this->errMessage = '注册方式不正确';
+				break;						
+			case 20207 :
+				$this->errMessage = '手机号格式不正确';
+				break;
+			case 20208 :
+				$this->errMessage = '密码不能为空';
+				break;
+			case 20209 :
+				$this->errMessage = '该昵称不能为空';
+				break;
+			case 20210 :
+				$this->errMessage = '手机号已存在';
+				break;
+			case 20211 :
+				$this->errMessage = '手机号注册用户不能修改登录手机号';
+				break;
+			case 20212 :
+				$this->errMessage = '注册手机号不能为空';
+				break;
+			case 20213 :
+				$this->errMessage = '验证码不能为空';
+				break;
+			case 20214 :
+				$this->errMessage = '密码不能为空';
+				break;
+			case 20215 :
+				$this->errMessage = '验证码错误';
+				break;
+			case 20216 :
+				$this->errMessage = '验证码已过期';
+				break;
+			case 20217 :
+				$this->errMessage = '性别不能为空';
+				break;
+			case 20218 :
+				$this->errMessage = '主题色不能为空';
+				break;	
+			case 20219 :
+				$this->errMessage = '注册信息不完整';
+				break;
+			case 20220 :
+				$this->errMessage = '注册信息错误';
+				break;
+			case 20221 :
+				$this->errMessage = '设备不合法';
+				break;
+			case 20222 :
+				$this->errMessage = '忘记密码手机号不存在';
+				break;
+			case 20223 :
+				$this->errMessage = '重置密码参数不正确';
+				break;
+			case 20224 :
+				$this->errMessage = '密码重置验证码已过期';
+				break;
+			case 20225 :
+				$this->errMessage = '修改密码参数错误';
+				break;
+			case 20226 :
+				$this->errMessage = '学校不能为空';
+				break;
+			case 20227 :
+				$this->errMessage = '学科不能为空';
+				break;
+			case 20228 :
+				$this->errMessage = '偏好星座不能为空';
+				break;
+			case 20229 :
+				$this->errMessage = '微博信息不合法';
+				break;
+			case 20230 :
+				$this->errMessage = '该微博已被绑定';
+				break;
+			case 20231 :
+				$this->errMessage = '绑定微博信息不完整';
+				break;
+			case 20232 :
+				$this->errMessage = '该账号已绑定过微博';
+				break;
+			case 20233 :
+				$this->errMessage = '该微博已被注册';
+				break;
+			case 20234 :
+				$this->errMessage = '该账户已绑定过手机了';
+				break;
+			case 20235 :
+				$this->errMessage = '设置用户信息不完整';
+				break;
+			case 20236 :
+				$this->errMessage = '已经关注过该用户了';
+				break;
+			case 20237 :
+				$this->errMessage = '还未关注该用户';
+				break;
+			case 20238 :
+				$this->errMessage = '律师执业照不能是非数字类型';
+				break;
+			case 20239 :
+				$this->errMessage = '从业未超过两年，不能注册';
+				break;
+			case 20240 :
+				$this->errMessage = "注册用户类型不合法";
+				break;
+			case 20241 :
+				$this->errMessage = "企业用户必须填写企业名称";
+				break;
+			case 20242 :
+				$this->errMessage = "该执业号已被注册";
+				break;		
+			case 20243 :
+				$this->errMessage = "专业标签已被修改过一次，无法再次修改";
+				break;
+			case 20244 :
+				$this->errMessage = "专业标签不合法";
+				break;
+			case 20245 :
+				$this->errMessage = "律师执业证必须是17位数字";
+				break;
+			case 20246 :
+				$this->errMessage = "电话咨询信息记录不完整";
+				break;
+			case 20247 :
+				$this->errMessage = "该用户不存在";
+				break;
+			case 20248 :
+				$this->errMessage = "该律师不存在";
+				break;
+			case 20249 :
+				$this->errMessage = "收藏信息不完整";
+				break;
+			case 20250 :
+				$this->errMessage = "还未收藏过该律师";
+				break;				
+			case 20251 :
+				$this->errMessage = "已经收藏过该律师了";
+				break;
+			case 20252 :
+				$this->errMessage = "寻找律师参数不完整";
+				break;	
+			case 20253 :
+				$this->errMessage = "提问用户不存在";
+				break;
+			case 20254 :
+				$this->errMessage = "发送问题信息不完整";
+				break;
+			case 20255 :
+				$this->errMessage = "上传问题图片失败";
+				break;
+			case 20256 :
+				$this->errMessage = "进入抢答失败，原因为您已经在抢答过程中了";
+				break;
+			case 20257 :
+				$this->errMessage = "进入抢答失败，原因为您已经抢答过该问题了";
+				break;
+			case 20258 :
+				$this->errMessage = "进入抢答失败，原因为该问题抢答已被关闭";
+				break;
+			case 20259 :
+				$this->errMessage = "进入抢答失败，原因未知";
+				break;
+			case 20260 :
+				$this->errMessage = "内容不能为空";
+				break;
+			case 20261 :
+				$this->errMessage = "抢答失败，原因是您已经完成了对该问题的抢答";
+				break;
+			case 20262 :
+				$this->errMessage = "该问题已关闭，不能抢答";
+				break;
+			case 20263 :
+				$this->errMessage = "抢答失败，原因未知";
+				break;
+			case 20264 :
+				$this->errMessage = "您正在抢答另一个问题，不能同时抢答两个问题哦";
+				break;
+			case 20265 :
+				$this->errMessage = "还未进入抢答，不能提交抢答内容";
+				break;
+		    //203XX:chat
+
+			    
+			//204XX:event
+
+			    
+			// 205XX:Attachment
+			case 20501 :
+				$this->errMessage = '文件传输失败';
+				break;
+			case 20502 :
+				$this->errMessage = '文件传输过程中发生错误';
+				break;
+			case 20503 :
+				$this->errMessage = '上传文件大小不能超过10M';
+				break;
+			case 20504 :
+				$this->errMessage = '不能上传空文件';
+				break;
+			case 20505 :
+				$this->errMessage = '只能上传jpeg/jpg/png格式的图片';
+				break;
+			case 20506 :
+				$this->errMessage = '附件云服务发生异常';
+				break;
+			case 20507 :
+				$this->errMessage = '附件云服务返回结果不正确';
+				break;
+			case 20508 :
+				$this->errMessage = '不能识别的文件图片大小类型';
+				break;
+				
+				
+			// 206XX:appversion
+			case 20601 :
+				$this->errMessage = '此版本不支持，请下载最新版本';
+				break;
+
+				
+		  
+		    //301XX: admin相关
+			case 30101:
+		        $this->errMessage = '邮箱不存在';
+		        break;
+		    case 30102:
+		        $this->errMessage = '账号已被锁定，请联系管理员询问详情';
+		        break;
+		    case 30103:
+		     	$this->errMessage = '账号还在等待审批中，请耐心等待';
+		      	break;
+		    case 30104:
+		   	    $this->errMessage = '管理员注册邮箱或密码不合法';
+		  		break;
+		  	case 30105:
+		  		$this->errMessage = '管理员注册身份不合法';
+		  		break;
+		  	case 30106:
+		  		$this->errMessage = '组织类型不合法';
+		  		break;
+		  	case 30107:
+		  		$this->errMessage = '学校不存在';
+		  		break;
+		  	case 30108:
+		  		$this->errMessage = '您当前的身份无权访问该资源';
+		  		break;
+		  	case 30109:
+		  		$this->errMessage = 'email已被注册，请更换email';
+		  		break;		
+		  	case 30110:
+		  		$this->errMessage = '组织名称已存在，请替换';
+		  		break;
+		  	case 30111:
+		  		$this->errMessage = '组织信息输入空缺，请补全信息';
+		  		break;
+		  	case 30112:
+		  		$this->errMessage = '不能添加此类管理员';
+		  		break;
+		  	case 30113:
+		  		$this->errMessage = '学校对应的区域不存在';
+		  		break;
+		  	case 30114:
+		  		$this->errMessage = '区域管理员不存在';
+		  		break;
+		  	case 30115:
+		  		$this->errMessage = '区域名不能为空';
+		  		break;
+		  	case 30116:
+		  		$this->errMessage = '活动分类名称或背景色不能为空';
+		  		break;
+		    case 30117:
+		  		$this->errMessage = 'email已被注册';
+		  		break;
+		    case 30118:
+		  		$this->errMessage = '您当前没有管辖区域';
+		  		break;
+		  	case 30119:
+		  		$this->errMessage = '区域名不能为空';
+		  		break;
+		  	case 30120:
+		  		$this->errMessage = '学校名不能为空';
+		  		break;
+		  	case 30121:
+		  		$this->errMessage = '学校名英文名不能为空';
+		  		break;
+		  	case 30122:
+		  		$this->errMessage = '学校名背景色不能为空';
+		  		break;
+		  	case 30123:
+		  		$this->errMessage = '校训不能为空';
+		  		break;
+		  	case 30124:
+		  		$this->errMessage = '学校所选区域不存在';
+		  		break;
+		  	case 30125:
+		  		$this->errMessage = '还未上传学校icon';
+		  		break;
+		  	case 30126:
+		  		$this->errMessage = '还未上传学校背景图';
+		  		break;
+		  	case 30127:
+		  		$this->errMessage = '学校必须属于某个区域';
+		  		break;
+		  	case 30128:
+		  		$this->errMessage = '学校名不能重复';
+		  		break;
+		  	case 30129:
+		  		$this->errMessage = 'banner类型不合法';
+		  		break;
+		  	case 30130:
+		  		$this->errMessage = 'banner标题不合法';
+		  		break;
+		  	case 30131:
+		  		$this->errMessage = 'banner活动不存在';
+		  		break;
+		  	case 30132:
+		  		$this->errMessage = 'banner必须配图';
+		  		break;
+		  	case 30133:
+		  		$this->errMessage = 'banner活动类型不合法';
+		  		break;
+		  	case 30134:
+		  		$this->errMessage = '活动类型名称不合法';
+		  		break;
+		  	case 30135:
+		  		$this->errMessage = '活动类型名称已存在';
+		  		break;
+		  	case 30136:
+		  		$this->errMessage = '还未上传广告配图';
+		  		break;
+		  	case 30137:
+		  		$this->errMessage = '还未上传活动配图';
+		  		break;
+		  	case 30138:
+		  		$this->errMessage = '活动对应的发布组织不存在';
+		  		break;
+		  	case 30139:
+		  		$this->errMessage = '活动对应的发布组织管理员不存在';
+		  		break;
+		  	case 30140:
+		  		$this->errMessage = '活动标题不合法';
+		  		break;
+		  	case 30141:
+		  		$this->errMessage = '活动开始时间必须早于活动结束时间';
+		  		break;
+		  	case 30142:
+		  		$this->errMessage = '活动地点不合法';
+		  		break;
+		  	case 30143:
+		  		$this->errMessage = '活动正文不合法';
+		  		break;
+		  	case 30144:
+		  		$this->errMessage = '活动类型不存在';
+		  		break;
+		    case 30145:
+		  		$this->errMessage = '投票类型不合法';
+		  		break;
+		  	case 30146:
+		  		$this->errMessage = '票数不合法';
+		  		break;
+		  	case 30147:
+		  		$this->errMessage = '同城活动类型名称不合法';
+		  		break;
+		  	case 30148:
+		  		$this->errMessage = '该同城活动类型名称已存在';
+		  		break;
+		  	case 30149:
+		  		$this->errMessage = '同城活动标题不合法';
+		  		break;
+		  	case 30150:
+		  		$this->errMessage = '同城活动地点名称不合法';
+		  		break;
+		  	case 30151:
+		  		$this->errMessage = '同城活动地址不合法';
+		  		break;
+		  	case 30152:
+		  		$this->errMessage = '同城活动类型不合法';
+		  		break;
+		  	case 30153:
+		  		$this->errMessage = '同城活动正文不合法';
+		  		break;
+		  	case 30154:
+		  		$this->errMessage = '同城活动开始时间必须早于结束时间';
+		  		break;
+		  	case 30155:
+		  		$this->errMessage = '同城活动对应的区域不存在';
+		  		break;
+		  	case 30156:
+		  		$this->errMessage = '赞助商名称和网址不能为空';
+		  		break;
+		  	case 30157:
+		  		$this->errMessage = '抢票开始时间不能早于当前时间';
+		  		break;
+		  	case 30158:
+		  		$this->errMessage = '抢票对应的活动不存在';
+		  		break;
+		  	case 30159:
+		  		$this->errMessage = '抢票已开始，不能删除';
+		  		break;
+		  	case 30160:
+		  		$this->errMessage = '抢票已结束，不能更新抢票信息';
+		  		break;
+		  	case 30161:
+		  		$this->errMessage = '已开始抢票，不能修改抢票开始时间';
+		  		break;
+		  	case 30162:
+		  		$this->errMessage = '抢票已开始，不能减票数';
+		  		break;
+		  	case 30163:
+		  		$this->errMessage = '抢票数据不存在';
+		  		break;
+		  	case 30164:
+		  		$this->errMessage = '抢票开始时间不能为空';
+		  		break;
+		  	case 30165:
+		  		$this->errMessage = '抢票开始时间不能晚于活动开始时间';
+		  		break;
+		  	case 30166:
+		  		$this->errMessage = '投票已开始，不能更改信息';
+		  		break;
+		  	case 30167:
+		  		$this->errMessage = '图片＋文字样式，候选人图片不能为空';
+		  		break;
+		  	case 30168:
+		  		$this->errMessage = '候选人对应的投票不存在';
+		  		break;
+		  	case 30169:
+		  		$this->errMessage = '视频＋文字类型投票候选人视频url不能为空';
+		  		break;
+		  	case 30170:
+		  		$this->errMessage = '候选人名字和描述不能为空';
+		  		break;
+		  	case 30171:
+		  		$this->errMessage = '投票时间不合法';
+		  		break;
+		  	case 30172:
+		  		$this->errMessage = '要创建的候选人已存在';
+		  		break;
+		  	case 30173:
+		  		$this->errMessage = '没有候选人，不能创建投票';
+		  		break;
+		  	case 30174:
+		  		$this->errMessage = '此用户无权限投票';
+		  		break;
+		  	case 30175:
+		  		$this->errMessage = '该活动你已经投过票了';
+		  		break;
+		  	case 30176:
+		  		$this->errMessage = '投票开未开始';
+		  		break;
+		  	case 30177:
+		  		$this->errMessage = '投票已结束';
+		  		break;
+		  	case 30178:
+		  		$this->errMessage = '投票还未结束，不能抽取幸运用户';
+		  		break;
+		  	case 30179:
+		  		$this->errMessage = '投票候选人不能超过100个';
+		  		break;
+		  	case 30180:
+		  		$this->errMessage = '抢票对应的活动类型不存在';
+		  		break;
+		  	case 30181:
+		  		$this->errMessage = '微博授权参数不合法';
+		  		break;
+		  	case 30182:
+		  		$this->errMessage = '绑定微博授权错误';
+		  		break;
+		  	case 30183:
+		  		$this->errMessage = '广告对应的活动不存在';
+		  		break;
+		  	case 30184:
+		  		$this->errMessage = '专题名称或描述不能为空';
+		  		break;
+		  	case 30185:
+		  		$this->errMessage = '活动类型不合法';
+		  		break;
+		  	case 30186:
+		  		$this->errMessage = '活动不存在';
+		  		break;
+		  	case 30187:
+		  		$this->errMessage = '专题不能包含专题';
+		  		break;
+		  	case 30188:
+		  		$this->errMessage = '微博授权已过期，请重新绑定微博';
+		  		break;
+		  	case 30189:
+		  		$this->errMessage = '微博返回未知错误';
+		  		break;
+		  	case 30190:
+		  		$this->errMessage = '微博分享正文内容不能为空';
+		  		break;
+		  	case 30191:
+		  		$this->errMessage = '用户名或者密码错误';
+		  		break;
+		  	case 30192:
+		  		$this->errMessage = '验证码错误';
+		  		break;
+		  	case 30193:
+		  		$this->errMessage = '模拟用户错误';
+		  		break;
+		  		
+		  		
+		    //4开头，easemob相关
+		  	case 40100:
+		  		$this->errMessage = '您当前的身份无法访问该资源';
+		  		break;
+		  		
+		  		
+		  	//5开头，开放平台相关
+		  	case 50100:
+		  		$this->errMessage = '您当前的身份无法访问该资源';
+		  		break;
+		  	case 50101:
+		  		$this->errMessage = '活动分类不能为空';
+		  		break;
+			// default
+			case 00000 :
+				$this->errMessage = '未知错误';
+				break;
+			default :
+				$this->errMessage = '未知错误';
+				break;
+		}
+		return $this->errMessage;
+	}
+	public function getErrorCode() {
+		return $this->errCode;
+	}
+}
+?>

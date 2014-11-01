@@ -1,0 +1,223 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+		<title>test.html</title>
+
+	</head>
+	
+	<body>
+		<div>
+			<button id = "create" type="button">create</button>
+			<button id = "login" type="button">login</button>
+			<button id = "getidentifier" type="button">getidentifier</button>
+			<button id = "valididentifier" type="button">valididentifier</button>
+			
+			<button id = "forgetpasswd" type="button">forgetpasswd</button>
+			<button id = "resetpasswd" type="button">resetpasswd</button>
+			<button id = "bindweibo" type="button">bindweibo</button>
+			identifier<input id="identifier" type="text" value="123456" size="20"/><br>
+			token<input id="token" type="text" value="482f8a40b785b8fcaf4892607500c0ef" size="20"/><br>
+			
+
+			
+		</div>
+		
+<form enctype="multipart/form-data" method="POST"  action = "/v1/users/register">  
+  用户头像:  <br>
+  telPhone<input name="telPhone" id="telPhone" type="text" value="13123456789" size="20"/><br>
+  password<input name="password" id="password" type="text" value="123456" size="20"/><br>
+  userName<input name="userName" type="text" value="小明" size="20"/><br>
+  gender<input name="gender" type="text" value="男" size="20"/><br>
+  birthday<input name="birthday" type="text" value="14033736382" size="20"/><br>
+  color<input name="color" type="text" value="#f02626" size="20"/><br>
+  school_id<input name="school_id" type="text" value="1" size="20"/><br>
+  subject_id<input name="subject_id" type="text" value="1" size="20"/><br>
+  <input type="file" name="image">
+  <input type="submit" value="注册"><br>  
+</form>  
+<form enctype="multipart/form-data" method="POST"  action = "/v1/userpics/uploadpic?token=8c27dfd6109de50462f618e0b60b1688">  
+  上传聊天图片:  <br>
+  <input type="file" name="image">
+  <input type="submit" value="上传聊天图片"><br>  
+</form>  
+
+
+<form enctype="multipart/form-data" id ="fileuploadform" method="post" name="upform" action="javascript:;">  
+  上传头像图片2:  <br>
+  <input id="fileToUpload" name="image" type="file">  
+  <input type = 'text' id = 'inputfilename' name = 'inputfilename'/>
+  <input type="submit" value="上传"><br>  
+</form>  
+
+		<script src="js/jquery-1.10.2.js"></script> 
+				<script src="http://www.phpletter.com/contents/ajaxfileupload/ajaxfileupload.js" type="text/javascript" charset="utf-8"></script>
+		<script>
+
+		$(document).ready(function () {
+			
+			
+			
+			$("#bindweibo").click(function(event){
+		           var user = new Object();
+		           user.weiboUid = 5056683491;
+		           user.weiboAccessToken = "2.00J41NWF4GYmCE5f0cdcfba7y8QaSD";
+		           var jInfo = JSON.stringify(user);
+		            jQuery.ajax({
+		                type : "POST",  
+		                contentType : "application/json",  
+		                url : "v1/users/bindweibo?token=4b41e04fbc1556724fb8867d6f9a4f00",
+		                data : jInfo,
+	                 beforeSend: function(request) {
+	                     //request.setRequestHeader("Auth-Token", "42021b5b79e4883493f607dab49ba594");
+	                     //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+	                 },
+		                success : function(data){
+		                	alert("bindweibo success");
+		                },  
+		                error : function(){alert("bindweibo failed");}
+		                });
+
+		       });
+			
+			$("#forgetpasswd").click(function(event){
+		           var user = new Object();
+		           user.telPhone = $("#telPhone").val();
+		           var jInfo = JSON.stringify(user);
+		            jQuery.ajax({
+		                type : "POST",  
+		                contentType : "application/json",  
+		                url : "v1/users/forgetpasswd",
+		                data : jInfo,
+	                 beforeSend: function(request) {
+	                     //request.setRequestHeader("Auth-Token", "42021b5b79e4883493f607dab49ba594");
+	                     //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+	                 },
+		                success : function(data){
+		                	alert("forgetpasswd success");
+		                },  
+		                error : function(){alert("forgetpasswd failed");}
+		                });
+
+		       });
+			
+			$("#resetpasswd").click(function(event){
+		           var user = new Object();
+		           user.telPhone = $("#telPhone").val();
+		           user.resetPasswd = $("#password").val();
+		           user.identifier = $("#identifier").val();
+		           var jInfo = JSON.stringify(user);
+		            jQuery.ajax({
+		                type : "POST",  
+		                contentType : "application/json",  
+		                url : "v1/users/resetpasswd",
+		                data : jInfo,
+	                 beforeSend: function(request) {
+	                     //request.setRequestHeader("Auth-Token", "42021b5b79e4883493f607dab49ba594");
+	                     //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+	                 },
+		                success : function(data){
+		                	alert("resetpasswd success");
+		                },  
+		                error : function(){alert("resetpasswd failed");}
+		                });
+
+		       });
+			
+			
+			$("#valididentifier").click(function(event){
+		           var user = new Object();
+		           user.telPhone = $("#telPhone").val();
+		           user.identifier = $("#identifier").val();
+		           user.password = $("#password").val();
+		           var jInfo = JSON.stringify(user);
+		            jQuery.ajax({
+		                type : "POST",  
+		                contentType : "application/json",  
+		                url : "v1/users/valididentifier",
+		                data : jInfo,
+	                 beforeSend: function(request) {
+	                     //request.setRequestHeader("Auth-Token", "42021b5b79e4883493f607dab49ba594");
+	                     //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+	                 },
+		                success : function(data){
+		                	alert("valididentifier success");
+		                },  
+		                error : function(){alert("valididentifier failed");}
+		                });
+
+		       });
+        
+			
+			$("#getidentifier").click(function(event){
+		           var user = new Object();
+		           user.telPhone = $("#telPhone").val();
+		           var jInfo = JSON.stringify(user);
+		            jQuery.ajax({
+		                type : "POST",  
+		                contentType : "application/json",  
+		                url : "v1/users/getidentifier",
+		                data : jInfo,
+	                 beforeSend: function(request) {
+	                     //request.setRequestHeader("Auth-Token", "42021b5b79e4883493f607dab49ba594");
+	                     //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+	                 },
+		                success : function(data){
+		                	alert("getidentifier success");
+		                },  
+		                error : function(){alert("getidentifier failed");}
+		                });
+
+		       });
+		$("#create").click(function(event){
+	           var user = new Object();
+	           user.telPhone = $("#telPhone").val();
+	           user.password = $("#password").val();
+	           user.registerFrom = "byPhone";
+	           var jInfo = JSON.stringify(user);
+	            jQuery.ajax({
+	                type : "POST",  
+	                contentType : "application/json",  
+	                url : "v1/users/create",
+	                data : jInfo,
+                 beforeSend: function(request) {
+                     //request.setRequestHeader("Auth-Token", "42021b5b79e4883493f607dab49ba594");
+                     //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+                 },
+	                success : function(data){
+	                	alert("register success");
+	                },  
+	                error : function(){alert("register failed");}
+	                });
+
+	       });
+		
+		
+		$("#login").click(function(event){
+	           var user = new Object();
+	           user.telPhone = $("#telPhone").val();
+	           user.password = $("#password").val();
+	           user.loginMode = "byPhone";
+	           var jInfo = JSON.stringify(user);
+	            jQuery.ajax({
+	                type : "POST",  
+	                contentType : "application/json",  
+	                url : "v1/users/login",
+	                data : jInfo,
+              beforeSend: function(request) {
+                  //request.setRequestHeader("Auth-Token", "9ce23f6378c7963e4bf49eadcd58bdca");
+                  //request.setRequestHeader("Auth-Token","e81870d0cbbd3d2417677fb385c375e2");
+              },
+	                success : function(data){
+	                	alert("login success");
+	                },  
+	                error : function(){alert("login failed");}
+	                });
+
+	       });
+		});
+		
+	
+		</script> 
+	</body>
+</html>
